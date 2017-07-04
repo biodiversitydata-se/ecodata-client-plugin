@@ -1,6 +1,6 @@
-class EcodataFormsPluginGrailsPlugin {
+class EcodataClientPluginGrailsPlugin {
     // the plugin version
-    def version = "0.1"
+    def version = "0.1-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.5 > *"
     // resources that are excluded from plugin packaging
@@ -9,7 +9,7 @@ class EcodataFormsPluginGrailsPlugin {
     ]
 
     // TODO Fill in these fields
-    def title = "Ecodata Forms Plugin Plugin" // Headline display name of the plugin
+    def title = "Ecodata Client Plugin" // Headline display name of the plugin
     def author = "Your name"
     def authorEmail = ""
     def description = '''\
@@ -17,7 +17,7 @@ Brief summary/description of the plugin.
 '''
 
     // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/ecodata-forms-plugin"
+    def documentation = "http://grails.org/plugin/ecodata-client-plugin"
 
     // Extra (optional) plugin metadata
 
