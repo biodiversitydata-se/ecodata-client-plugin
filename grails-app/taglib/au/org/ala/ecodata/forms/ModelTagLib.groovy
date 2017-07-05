@@ -59,7 +59,7 @@ class ModelTagLib {
                     row out, attrs, mod, ctx
                     break
                 case 'template':
-                    out << g.render(template:mod.source, plugin:'ecodata-forms-plugin')
+                    out << g.render(template:mod.source, plugin:'ecodata-client-plugin')
                     break
                 case 'repeat':
                     repeatingLayout out, attrs, mod, ctx
@@ -818,10 +818,10 @@ class ModelTagLib {
         }
         colCount = (model.columns?.size()?:0) + 1
         if (attrs.edit) {
-            out << g.render(template:"/output/editModeTableFooterActions", plugin:'ecodata-forms-plugin', model:[colCount:colCount, name:model.source, containsSpecies:containsSpecies, disableTableUpload:attrs.disableTableUpload])
+            out << g.render(template:"/output/editModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, containsSpecies:containsSpecies, disableTableUpload:attrs.disableTableUpload])
         }
         else if (!model.edit && !attrs.printable) {
-            out << g.render(template:"/output/viewModeTableFooterActions", plugin:'ecodata-forms-plugin', model:[colCount:colCount, name:model.source])
+            out << g.render(template:"/output/viewModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source])
         }
         out << INDENT*4 << "</tfoot>\n"
 
@@ -842,7 +842,7 @@ class ModelTagLib {
         // embedded inside table view/edit templates. (as happened if an image type was included in a table row).
         def templates = pageScope.getVariable(DEFERRED_TEMPLATES_KEY)
         templates?.each {
-            out << g.render(template: it, plugin:'ecodata-forms-plugin')
+            out << g.render(template: it, plugin:'ecodata-client-plugin')
         }
         pageScope.setVariable(DEFERRED_TEMPLATES_KEY, null)
     }
