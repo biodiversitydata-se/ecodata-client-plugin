@@ -3,9 +3,9 @@
     // load dynamic models - usually objects in a list
     <md:jsModelObjects model="${model}" site="${site}" speciesLists="${speciesLists}" edit="${edit}" printable="${printable?:''}"/>
 
-    window["${outputNameAsIdentifer + 'ViewModel'}"] = function (output, context, config) {
+    ecodata.forms["${outputNameAsIdentifer + 'ViewModel'}"] = function (output, context, config) {
         var self = this;
-        OutputModel.apply(self, [output, context, config]);
+        ecodata.forms.OutputModel.apply(self, [output, context, config]);
 
         // add declarations for dynamic data
         <md:jsViewModel model="${model}"  output="${outputName}"  edit="${edit}" printable="${printable?:''}"/>

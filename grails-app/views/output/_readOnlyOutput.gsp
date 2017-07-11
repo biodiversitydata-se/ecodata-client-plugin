@@ -26,8 +26,8 @@
             config.disablePrepop = true;
             config.speciesProfileUrl = fcConfig.speciesProfileUrl;
 
-            window[viewModelInstance] = new window[viewModelName](output, fcConfig.project, config);
-            window[viewModelInstance].loadData(output.data, <fc:modelAsJavascript model="${activity.documents}"/>);
+            ecodata.forms[viewModelInstance] = new ecodata.forms[viewModelName](output, fcConfig.project, config);
+            ecodata.forms[viewModelInstance].loadData(output.data, <fc:modelAsJavascript model="${activity.documents}"/>);
 
             ko.applyBindings(window[viewModelInstance], document.getElementById("ko${blockId}"));
         });
