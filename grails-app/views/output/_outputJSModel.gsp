@@ -1,4 +1,4 @@
-<r:script>
+<asset:script>
     <g:set var="outputNameAsIdentifer" value="${fc.toSingleWord([name: outputName])}"/>
     // load dynamic models - usually objects in a list
     <md:jsModelObjects model="${model}" site="${site}" speciesLists="${speciesLists}" edit="${edit}" printable="${printable?:''}"/>
@@ -26,4 +26,4 @@
             self.transients.dummy.notifySubscribers();
         };
     };
-</r:script>
+</asset:script>

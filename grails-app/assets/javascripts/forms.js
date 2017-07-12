@@ -1,10 +1,13 @@
+//= require forms-knockout-bindings.js
+//= require speciesModel.js
+
 /**
  * Support functions for the ecodata forms rendering feature.
  */
 (function() {
 
     // base namespace for the forms library
-    if (!ecodata) {
+    if (!window.ecodata) {
         ecodata = {forms:{}};
     }
 

@@ -367,7 +367,7 @@ class ModelJSTagLib {
 
         out << """
             self.data.${model.name} = ko.observableArray([]);
-            self.transients.${model.name}Support = new OutputListSupport(self, '${model.name}', ${rowModelName}, ${userAddedRows}, config);
+            self.transients.${model.name}Support = new ecodata.forms.OutputListSupport(self, '${model.name}', ${rowModelName}, ${userAddedRows}, config);
         """
 
         out << """
@@ -471,7 +471,7 @@ class ModelJSTagLib {
             else if (model.constraints.type == 'computed') {
                 out << INDENT*3 << "self.transients.${model.name}Constraints = ko.pureComputed(function() {\n"
                 model.constraints.options.each {
-                    out << INDENT*4 << "if (expressionEvaluator.evaluateBoolean('${it.expression}', self)) {\n"
+                    out << INDENT*4 << "if (ecodata.forms.expressionEvaluator.evaluateBoolean('${it.expression}', self)) {\n"
                     out << INDENT*5 << "return [${it.constraints.join(',')}];\n"
                     out << INDENT*4 << "}\n"
                 }
@@ -487,7 +487,7 @@ class ModelJSTagLib {
             model.behaviour.each { constraint ->
                 out << INDENT*3 << "self.transients.${model.name}${constraint.type}Constraint = ko.computed(function() {\n"
                 out << INDENT*4 << "var condition = '${constraint.condition}';\n";
-                out << INDENT*4 << "return expressionEvaluator.evaluateBoolean(condition, self);\n"
+                out << INDENT*4 << "return ecodata.forms.expressionEvaluator.evaluateBoolean(condition, self);\n"
                 out << INDENT*3 << "});\n"
             }
         }
