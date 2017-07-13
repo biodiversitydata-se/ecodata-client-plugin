@@ -13,7 +13,7 @@
         <!-- add the dynamic components -->
         <md:modelView model="${outputModel}" site="${site}" printable="${printable}"/>
     </g:if>
-    <r:script>
+    <asset:script>
         $(function(){
 
             var viewModelName = "${fc.toSingleWord(name:outputName)}ViewModel";
@@ -29,8 +29,8 @@
             ecodata.forms[viewModelInstance] = new ecodata.forms[viewModelName](output, fcConfig.project, config);
             ecodata.forms[viewModelInstance].loadData(output.data, <fc:modelAsJavascript model="${activity.documents}"/>);
 
-            ko.applyBindings(window[viewModelInstance], document.getElementById("ko${blockId}"));
+            ko.applyBindings(ecodata.forms[viewModelInstance], document.getElementById("ko${blockId}"));
         });
 
-    </r:script>
+    </asset:script>
 </div>
