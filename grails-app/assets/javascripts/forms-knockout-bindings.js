@@ -432,6 +432,22 @@
         return undefined;
     };
 
+    ko.bindingHandlers.conditionalValidation = {
+        init:function() {
+
+        },
+        update:function(element, valueAccessor, allBindingsAccessor, viewModel) {
+
+            var modelItem = valueAccessor();
+
+            if (modelItem && typeof modelItem.getValidationConfig == 'function') {
+                var validationConfig = modelItem.getValidationConfig(viewModel);
+                $(element).data('validation-engine', validationConfig);
+            }
+
+        }
+    };
+
 
     function applySelect2ValidationCompatibility(element) {
         var $element = $(element);
@@ -549,8 +565,10 @@
                 self.observableValues.remove(value);
             };
 
-            for (var i=0; i<params.values().length; i++) {
-                newValue(params.values()[i]);
+            if (params.values()) {
+                for (var i=0; i<params.values().length; i++) {
+                    newValue(params.values()[i]);
+                }
             }
 
             self.observableValues.subscribe(syncValues);
@@ -564,5 +582,9 @@
             <i class="fa fa-plus" data-bind="click:addValue"></i>\
             '
     });
+
+    ko.extenders.conditionalValidation = function(target, option) {
+
+    }
 
 })();

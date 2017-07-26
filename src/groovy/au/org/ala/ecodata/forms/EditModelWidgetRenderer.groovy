@@ -186,7 +186,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.writer << """    <div data-bind="editDocument:${context.source}"></div>"""
         context.writer << """</div>"""
         context.writer << """<div data-bind="ifnot:${context.source}()">"""
-        context.writer << """    <button class="btn" id="doAttach" data-bind="click:function(target) {attachDocument(${context.source})}">Attach Document</button>"""
+        context.writer << """    <button class="btn" id="doAttach" data-bind="click:function(target) {\$root.attachDocument(${context.source})}">Attach Document</button>"""
         context.writer << """</div>"""
 
 

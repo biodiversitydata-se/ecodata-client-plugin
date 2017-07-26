@@ -87,13 +87,13 @@ class ModelTagLib {
 
         out << """<div class="repeating-section" data-bind="foreach:data.${model.source}">"""
         if (model.userAddedRows) {
-            out << """<button class="btn btn-warning pull-right" data-bind="click:\$root.transients.${model.source}Support.removeRow">Remove Section</button>"""
+            out << """<button class="btn btn-warning pull-right" data-bind="click:\$root.data.${model.source}.removeRow">Remove Section</button>"""
         }
         viewModelItems(out, attrs, model.items, childContext)
 
         out << "</div>"
         if (model.userAddedRows) {
-            out << """<button type="button" class="btn btn-small" data-bind="click:transients.${model.source}Support.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>"""
+            out << """<button type="button" class="btn btn-small" data-bind="click:data.${model.source}.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>"""
         }
     }
 
@@ -176,12 +176,6 @@ class ModelTagLib {
                 break
             case 'image':
                 renderer.renderImage(renderContext)
-                break
-            case 'embeddedImage':
-                renderer.renderEmbeddedImage(renderContext)
-                break
-            case 'embeddedImages':
-                renderer.renderEmbeddedImages(renderContext)
                 break
             case 'autocomplete':
                 renderer.renderAutocomplete(renderContext)
@@ -746,11 +740,11 @@ class ModelTagLib {
         if (model.editableRows) {
                 out << INDENT*5 << "<td>\n"
                 out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:\$root.edit${model.source}Row, enable:!\$root.${model.source}Editing()' title='edit'><i class='icon-edit'></i> Edit</button>\n"
-                out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:\$root.transients.${model.source}Support.removeRow, enable:!\$root.${model.source}Editing()' title='remove'><i class='icon-trash'></i> Remove</button>\n"
+                out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:\$root.data.${model.source}.removeRow, enable:!\$root.${model.source}Editing()' title='remove'><i class='icon-trash'></i> Remove</button>\n"
                 out << INDENT*5 << "</td>\n"
         } else {
             if (edit && model.source) {
-                out << INDENT*5 << "<td><i data-bind='click:\$root.transients.${model.source}Support.removeRow' class='icon-remove'></i></td>\n"
+                out << INDENT*5 << "<td><i data-bind='click:\$root.data.${model.source}.removeRow' class='icon-remove'></i></td>\n"
             }
         }
         out << INDENT*4 << "</tr></script>\n"

@@ -16,9 +16,14 @@ class ModelJSTagLib {
     /*------------ JAVASCRIPT for dynamic content -------------*/
 
     def jsModelObjects = { attrs ->
+
+        JSModelRenderContext ctx = new JSModelRenderContext(
+                out:out, attrs:attrs, parentContext:'self.data'
+        )
         attrs.model?.dataModel?.each { model ->
+            ctx.dataModel = model
             if (model.dataType in ['list', 'photoPoints']) {
-                repeatingModel(attrs, model, out)
+                repeatingModel(ctx)
                 totalsModel attrs, model, out
             }
             else if (model.dataType == 'matrix') {
@@ -33,40 +38,94 @@ class ModelJSTagLib {
     }
 
     def jsViewModel = { attrs ->
-        attrs.model?.dataModel?.each { mod ->
-            if (mod.dataType  == 'list') {
-                listViewModel(attrs, mod, out)
-                columnTotalsModel out, attrs, mod
+        JSModelRenderContext ctx = new JSModelRenderContext(
+                out:out, attrs:attrs, parentContext:'self.data'
+        )
+        attrs.model?.dataModel?.each { modelItem ->
+
+            // Lists and matrix data types are only supported at the top level as
+            // rendering nested tables / matricies is not supported by the html rendering code.
+            if (modelItem.dataType  == 'list') {
+                listViewModel(attrs, modelItem, out)
+                columnTotalsModel out, attrs, modelItem
             }
-            else if (mod.dataType == 'matrix') {
-                matrixViewModel(attrs, mod, out)
+            else if (modelItem.dataType == 'matrix') {
+                matrixViewModel(attrs, modelItem, out)
             }
-            else if (mod.computed) {
-                computedValueRenderer.computedViewModel(out, attrs, mod, 'self.data', 'self.data')
-            }
-            else if (mod.dataType == 'text') {
-                textViewModel(mod, out)
-            }
-            else if (mod.dataType == 'number') {
-                numberViewModel(mod, out)
-            }
-            else if (mod.dataType == 'stringList') {
-                stringListModel(mod, out)
-            }
-            else if (mod.dataType == 'image') {
-                imageModel(mod, out)
-            }
-            else if (mod.dataType == 'species') {
-                speciesModel('data.', mod.name, '{}', attrs.printable, out)
-            }
-            else if (mod.dataType == 'date') {
-                dateViewModel(mod, out)
-            }
-            else if (mod.dataType == 'document') {
-                documentViewModel(mod, out)
+            else {
+                ctx.dataModel = modelItem
+                renderDataModelItem(ctx, false)
             }
         }
         out << INDENT*3 << "self.transients.site = site;"
+    }
+
+    class JSModelRenderContext {
+
+        /** Used to render the results */
+        def out
+        /**
+         * The context in which the data model item is being rendered (e.g. is it
+         * inside a list or a top level field
+         */
+        String parentContext
+        /** The current data model item being rendered */
+        Map dataModel
+        /** The view model definition that relates to the current data model item */
+        Map viewModel() {
+            findViewByName(attrs.viewModel, dataModel.name)
+        }
+        /** The attributes passed to the tag library */
+        Map attrs
+    }
+
+    /**
+     * Renders JavaScript code to define the data model item in a form.
+     *
+     * @param out the Writer to render to.
+     * @param dataModelItem the item to render.
+     * @param container the context in which the item is being rendered (i.e the path from the parent object)
+     * @param initialiser any initialisation code to be passed to the item. (for legacy reasons, items
+     * inside lists are initialised differently to top level items).
+     */
+    void renderDataModelItem(JSModelRenderContext ctx, boolean initialise) {
+        Map mod = ctx.dataModel
+        if (mod.computed) {
+            computedValueRenderer.computedViewModel(ctx.out, ctx.attrs, mod, ctx.parentContext, ctx.parentContext)
+        }
+        else if (mod.dataType == 'text') {
+            textViewModel(ctx, initialise)
+        }
+        else if (mod.dataType == 'number') {
+            numberViewModel(ctx, initialise)
+        }
+        else if (mod.dataType == 'stringList') {
+            stringListViewModel(ctx, initialise)
+        }
+        else if (mod.dataType == 'image') {
+            imageModel(ctx)
+        }
+        else if (mod.dataType == 'audio') {
+            audioModel(ctx)
+        }
+        else if (mod.dataType == 'species') {
+            speciesModel(ctx, initialise)
+        }
+        else if (mod.dataType == 'date') {
+            dateViewModel(ctx, initialise)
+        }
+        else if (mod.dataType == 'time') {
+            timeViewModel(ctx, initialise)
+        }
+        else if (mod.dataType == 'document') {
+            documentViewModel(ctx, initialise)
+        }
+        else if (mod.dataType == 'boolean') {
+            booleanViewModel(ctx, initialise)
+        }
+        else if (mod.dataType == 'set') {
+            setViewModel(ctx, initialise)
+        }
     }
 
     /**
@@ -92,7 +151,7 @@ class ModelJSTagLib {
                 // 'if (mode.constraints)' condition and return plain text to use orBlank.
             }
             else if (mod.dataType == 'number' && !mod.computed) {
-                out << INDENT*4 << "self.data['${mod.name}'](orZero(data['${mod.name}']));\n"
+                out << INDENT*4 << "self.data['${mod.name}'](data['${mod.name}']);\n"
             }
             else if (mod.dataType in ['stringList', 'image', 'photoPoints'] && !mod.computed) {
                 out << INDENT*4 << "self.load${mod.name}(data['${mod.name}']);\n"
@@ -222,7 +281,12 @@ class ModelJSTagLib {
 """
     }
 
-    def repeatingModel(attrs, model, out) {
+    def repeatingModel(JSModelRenderContext ctx) {
+        def out = ctx.out
+        Map attrs = ctx.attrs
+        Map model = ctx.dataModel
+        ctx.parentContext = 'self'
+
         def edit = attrs.edit as boolean
         def editableRows = viewModelFor(attrs, model.name)?.editableRows
         def observable = editableRows ? 'protectedObservable' : 'observable'
@@ -264,6 +328,7 @@ class ModelJSTagLib {
 """
         }
         model.columns.each { col ->
+            ctx.dataModel = col
             if (col.computed) {
                 switch (col.dataType) {
                     case 'number':
@@ -272,45 +337,7 @@ class ModelJSTagLib {
                 }
             }
             else {
-                switch (col.dataType) {
-                    case 'simpleDate':
-                    case 'date':
-                        out << INDENT*3 << "this.${col.name} = ko.${observable}(orBlank(data['${col.name}'])).extend({simpleDate: false});\n"
-                        break;
-                    case 'text':
-                        out << INDENT*3 << "this.${col.name} = ko.${observable}(orBlank(data['${col.name}']));\n"
-                        break;
-                    case 'number':
-                        out << INDENT*3 << "this.${col.name} = ko.${observable}(orZero(data['${col.name}'])).extend({numericString:2});\n"
-                        break;
-                    case 'boolean':
-                        out << INDENT*3 << "this.${col.name} = ko.${observable}(orFalse(data['${col.name}']));\n"
-                        break;
-                    case 'embeddedImage':
-                        out << INDENT*3 << "if (data['${col.name}']) {\n"
-                        out << INDENT*4 << "this.${col.name} = data['${col.name}'];\n"
-                        out << INDENT*3 << "} else {\n"
-                        out << INDENT*4 << "this.${col.name} = {};\n"
-                        out << INDENT*3 << "}\n"
-                        break;
-                    case 'embeddedImages':
-                        out << INDENT*3 << "this.${col.name} = ko.observableArray();\n"
-                        out << INDENT*3 << "if (data['${col.name}'] instanceof Array) {\n"
-                        out << INDENT*4 << "for (var i=0; i< data['${col.name}'].length; i++) {this.${col.name}.push(image(data['${col.name}'][i]))}\n"
-                        out << INDENT*3 << "} else if (data['${col.name}']) {\n"
-                        out << INDENT*4 << "this.${col.name}.push(image(data['${col.name}']));\n"
-                        out << INDENT*3 << "}\n"
-                        break;
-                    case 'species':
-                        def printable = attrs.printable ? attrs.printable : ''
-                        speciesModel('', col.name, "data['${col.name}']", printable, out)
-                        break
-                    case 'stringList':
-                        out << INDENT*3 << "this.${col.name}=ko.observableArray(orEmptyArray(data['${col.name}']));\n";
-                        break
-
-                }
-                modelConstraints(col, out)
+                renderDataModelItem(ctx, true)
             }
         }
 
@@ -331,22 +358,86 @@ class ModelJSTagLib {
 """
     }
 
-    def textViewModel(model, out) {
-        out << "\n" << INDENT*3 << "self.data.${model.name} = ko.observable();\n"
-        modelConstraints(model, out)
+    void observable(JSModelRenderContext ctx, String initParams = '', String extender = '') {
+        if (extender) {
+            extender = ".extend(${extender})"
+        }
+        ctx.out << "\n" << INDENT*3 << "${ctx.parentContext}.${ctx.dataModel.name} = ko.observable(${initParams})${extender};\n"
+        modelConstraints(ctx.dataModel, ctx.out)
     }
 
-    def numberViewModel(model, out) {
-        out << "\n" << INDENT*3 << "self.data.${model.name} = ko.observable().extend({numericString:2});\n"
-        modelConstraints(model, out)
+    void observableArray(JSModelRenderContext ctx, String initParams = '[]', String extender = '') {
+        if (extender) {
+            extender = ".extend(${extender})"
+        }
+        ctx.out << "\n" << INDENT*3 << "${ctx.parentContext}.${ctx.dataModel.name} = ko.observableArray(${initParams})${extender};\n"
+        modelConstraints(ctx.dataModel, ctx.out)
+        populateList(ctx)
     }
 
-    def dateViewModel(model, out) {
-        out << "\n" << INDENT*3 << "self.data.${model.name} = ko.observable().extend({simpleDate: false});\n"
+
+    def textViewModel(JSModelRenderContext ctx, boolean initialise) {
+        String initParams = initialise ? "orBlank(data['${ctx.dataModel.name}'])" : ''
+        observable(ctx, initParams)
     }
 
-    def documentViewModel(model, out) {
-        out << "\n" << INDENT*3 << "self.data.${model.name} = ko.observable();\n"
+    def timeViewModel(JSModelRenderContext ctx, boolean initialise) {
+        // see http://keith-wood.name/timeEntry.html for details
+
+        String spinnerLocation = "${assetPath(src: '/jquery.timeentry.package-2.0.1/spinnerOrange.png')}"
+        String spinnerBigLocation = "${assetPath(src: '/jquery.timeentry.package-2.0.1/spinnerOrangeBig.png')}"
+
+        observable(ctx, '')
+        out << "\n" << INDENT*3 << "\$('#${model.name}TimeField').timeEntry({ampmPrefix: ' ', spinnerImage: '${spinnerLocation}', spinnerBigImage: '${spinnerBigLocation}', spinnerSize: [20, 20, 8], spinnerBigSize: [40, 40, 16]});"
+    }
+
+    def numberViewModel(JSModelRenderContext ctx, boolean initialise) {
+        String initParams = initialise ? "orZero(data['${ctx.dataModel.name}'])" : ''
+        observable(ctx, initParams, "{numericString:2}")
+    }
+
+    def dateViewModel(JSModelRenderContext ctx, boolean initialise) {
+        String initParams = initialise ? "orBlank(data['${ctx.dataModel.name}'])" : ''
+        observable(ctx, initParams, "{simpleDate: false}")
+    }
+
+    def booleanViewModel(JSModelRenderContext ctx, boolean initialise) {
+        String initParams = initialise ? "orFalse(data['${ctx.dataModel.name}'])" : ''
+        observable(ctx, initParams)
+    }
+
+    def documentViewModel(JSModelRenderContext ctx, boolean initialise) {
+        String initParams = initialise ? "orBlank(data['${ctx.dataModel.name}'])" : ''
+        observable(ctx, initParams)
+    }
+
+    def audioModel(JSModelRenderContext ctx) {
+
+        out << INDENT*4 << "${ctx.parentContext}.${ctx.dataModel.name} = new AudioViewModel({downloadUrl: '${grailsApplication.config.grails.serverURL}/download/file?filename='});\n"
+        populateAudioList(ctx)
+    }
+
+    def speciesModel(JSModelRenderContext ctx, boolean initialise) {
+        String initParams = initialise ? "data['${ctx.dataModel.name}']" : "{}"
+        String configVarName = ctx.dataModel.name+"Config"
+        ctx.out << INDENT*3 << "var ${configVarName} = _.extend(config, {printable:'${ctx.attrs.printable?:''}', dataFieldName:'${ctx.dataModel.name}' });\n"
+        ctx.out << INDENT*3 << "${ctx.parentContext}.${ctx.dataModel.name} = new SpeciesViewModel(${initParams}, ${configVarName});\n"
+    }
+
+    def imageModel(JSModelRenderContext ctx) {
+        out << INDENT*4 << "${ctx.parentContext}.${ctx.dataModel.name} = ko.observableArray([]);\n"
+        populateImageList(ctx)
+    }
+
+    def stringListViewModel(JSModelRenderContext ctx, boolean initialise) {
+        observableArray(ctx)
+        if (initialise) {
+            out << INDENT*4 << "${ctx.parentContext}.load${ctx.dataModel.name}(data.${ctx.dataModel.name});\n"
+        }
+    }
+
+    def setViewModel(JSModelRenderContext ctx) {
+        observableArray(ctx, '[]', "{set: null}")
     }
 
     def listViewModel(attrs, model, out) {
@@ -362,12 +453,12 @@ class ModelJSTagLib {
 
         // If there are no default rows, insert a single blank row and make it available for editing.
         if (attrs.edit && insertDefaultModel.isEmpty()) {
-            insertDefaultModel = "self.transients.${model.name}Support.addRow(self, 0);"
+            insertDefaultModel = "self.data.${model.name}.addRow(self, 0);"
         }
 
         out << """
             self.data.${model.name} = ko.observableArray([]);
-            self.transients.${model.name}Support = new ecodata.forms.OutputListSupport(self, '${model.name}', ${rowModelName}, ${userAddedRows}, config);
+            _.extend(self.data.${model.name}, new ecodata.forms.OutputListSupport(self, '${model.name}', ${rowModelName}, ${userAddedRows}, config));
         """
 
         out << """
@@ -423,43 +514,39 @@ class ModelJSTagLib {
         }
     }
 
-    def stringListModel(model, out) {
-        out << INDENT*4 << "self.data.${model.name}=ko.observableArray([]);\n"
-        modelConstraints(model, out)
-        populateList(model, out)
-
+    def populateList(JSModelRenderContext ctx) {
+        ctx.out << INDENT*4 << """
+        self.load${ctx.dataModel.name} = function (data) {
+            if (data !== undefined) {
+                ${ctx.parentContext}.${ctx.dataModel.name}(data);
+        }};
+        """
     }
 
-    def populateList(model, out) {
-        out << INDENT*4 << """
-        self.load${model.name} = function (data) {
+    def populateImageList(JSModelRenderContext ctx) {
+        ctx.out << INDENT*4 << """
+        self.load${ctx.dataModel.name} = function (data) {
             if (data !== undefined) {
                 \$.each(data, function (i, obj) {
-                    self.data.${model.name}.push(obj);
+                    ${ctx.parentContext}.${ctx.dataModel.name}.push(image(obj));
                 });
         }};
         """
     }
 
-    def populateImageList(model, out) {
-        out << INDENT*4 << """
-        self.load${model.name} = function (data) {
+    def populateAudioList(JSModelRenderContext ctx) {
+        ctx.out << INDENT*4 << """
+        self.load${ctx.dataModel.name} = function (data) {
             if (data !== undefined) {
                 \$.each(data, function (i, obj) {
-                    self.data.${model.name}.push(image(obj));
+                    if (_.isUndefined(obj.url)) {
+                        obj.url = "${grailsApplication.config.grails.serverURL}/download/file?filename=" + obj.filename;
+                    }
+                    ${ctx.parentContext}.${ctx.dataModel.name}.files.push(new AudioItem(obj));
                 });
-        }};
+            }
+        };
         """
-    }
-
-    def imageModel(model, out) {
-        out << INDENT*4 << "self.data.${model.name}=ko.observableArray([]);\n"
-        populateImageList(model, out)
-    }
-
-    def speciesModel(String targetContext, String target, String data, printable, out) {
-        out << INDENT*3 << "var ${target}Config = _.extend(config, {printable:'${printable?:''}', dataFieldName:'${target}' });\n"
-        out << INDENT*3 << "self.${targetContext}${target} = new SpeciesViewModel(${data}, ${target}Config);\n"
     }
 
     def modelConstraints(model, out) {
