@@ -1,10 +1,12 @@
 <asset:script>
     <g:set var="outputNameAsIdentifer" value="${fc.toSingleWord([name: outputName])}"/>
-    // load dynamic models - usually objects in a list
-    <md:jsModelObjects model="${model}" site="${site}" speciesLists="${speciesLists}" edit="${edit}" printable="${printable?:''}"/>
 
     ecodata.forms["${outputNameAsIdentifer + 'ViewModel'}"] = function (output, context, config) {
+
         var self = this;
+
+        // load dynamic models - usually objects in a list
+        <md:jsModelObjects model="${model}" site="${site}" speciesLists="${speciesLists}" edit="${edit}" printable="${printable?:''}"/>
         ecodata.forms.OutputModel.apply(self, [output, context, config]);
 
         // add declarations for dynamic data

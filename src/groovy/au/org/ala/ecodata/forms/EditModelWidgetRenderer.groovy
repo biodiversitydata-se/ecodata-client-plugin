@@ -53,7 +53,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'value', context.source
         // Select one or many view types require that the data model has defined a set of valid options
         // to select from.
-        context.databindAttrs.add 'options', 'transients.' + context.model.source + 'Constraints'
+        context.databindAttrs.add 'options', context.source + '.constraints'
         context.databindAttrs.add 'optionsCaption', '"Please select"'
         context.writer <<  "<select${context.attributes.toString()} class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
     }
@@ -63,7 +63,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'value', context.source
         // Select one or many view types require that the data model has defined a set of valid options
         // to select from.
-        context.databindAttrs.add 'options', 'transients.' + context.model.source + 'Constraints'
+        context.databindAttrs.add 'options', context.source + '.constraints'
         context.databindAttrs.add 'optionsCaption', '""'
         context.databindAttrs.add 'select2', '{allowClear:true}'
         context.writer <<  "<select${context.attributes.toString()} class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
@@ -82,7 +82,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderSelect2Many(WidgetRenderContext context) {
-        context.databindAttrs.add 'options', 'transients.' + context.model.source + 'Constraints'
+        context.databindAttrs.add 'options', context.source + '.constraints'
         context.databindAttrs.add 'optionsCaption', '"Please select"'
         context.databindAttrs.add 'multiSelect2', "{value: ${context.source}, tags:true, allowClear:false}"
         context.writer <<  "<select${context.attributes.toString()} multiple=\"multiple\" class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
@@ -98,7 +98,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
 
     private void renderSelectManyAsCheckboxes(WidgetRenderContext context) {
         context.labelAttributes.addClass 'checkbox-list-label '
-        def constraints = 'transients.' + context.model.source + 'Constraints'
+        def constraints = context.source + '.constraints'
         // This complicated binding string is to ensure we have unique ids for checkboxes, even when they are nested
         // inside tables.  (The ids are necessary to allow the label to be selected to check the checkbox.  This is
         // in turn necessary to make checkboxes usabled on mobile devices).

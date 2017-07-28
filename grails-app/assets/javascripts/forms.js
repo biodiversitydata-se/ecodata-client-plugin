@@ -117,18 +117,25 @@
 
     }();
 
+    ecodata.forms.orDefault = function(value, defaultValue) {
+        return value === undefined ? defaultValue : value;
+    };
+
     ecodata.forms.OutputListSupport = function (parent, listName, ListItemType, userAddedRows, config) {
         var self = this;
+
+        var list = parent.data[listName];
+
         self.listName = listName;
         self.addRow = function () {
             var newItem = new ListItemType(undefined, parent, self.rowCount(), config);
-            parent.data[listName].push(newItem);
+            list.push(newItem);
         };
         self.removeRow = function (item) {
-            parent.data[listName].remove(item);
+            list.remove(item);
         };
         self.rowCount = function () {
-            return parent.data[listName]().length;
+            return list().length;
         };
         self.appendTableRows = ko.observable(userAddedRows);
         self.tableDataUploadVisible = ko.observable(false);
@@ -150,6 +157,23 @@
         };
         self.tableDataUploadOptions = parent.buildTableOptions(self);
         self.allowUserAddedRows = userAddedRows;
+        self.findDocumentInContext = function(documentId) {
+            return parent.findDocumentInContext(documentId);
+        };
+
+        parent['load'+listName] = function(data, append) {
+            if (!append) {
+                list([]);
+            }
+            if (data === undefined) {
+                list.loadDefaults();
+            }
+            else {
+                _.each(data, function(row, i) {
+                    list.push(new ListItemType(row, parent, i, config));
+                });
+            }
+        }
     };
 
     ecodata.forms.OutputModel = function (output, context, config) {
@@ -378,14 +402,25 @@
                 downloadTemplateId: listName + "template-download",
                 formData: {type: output.name, listName: listName}
             };
-        }
+        };
+        self.findDocumentInContext = function(documentId) {
+            return _.find(context.documents || [], function(document) {
+                return document.documentId === documentId;
+            })
+        };
     };
 
     ecodata.forms.initialiseOutputViewModel = function(outputViewModelName, elementId, activity, output, config) {
         var viewModelInstance = outputViewModelName + 'Instance';
 
-        ecodata.forms[viewModelInstance] = new ecodata.forms[outputViewModelName](output, fcConfig.project, config);
-        ecodata.forms[viewModelInstance].loadData(output.data, activity.documents);
+        var context = {
+            project:fcConfig.project,
+            activity:activity,
+            documents:activity.documents,
+            site:activity.site
+        };
+        ecodata.forms[viewModelInstance] = new ecodata.forms[outputViewModelName](output, context, config);
+        ecodata.forms[viewModelInstance].loadData(output.data);
 
         // dirtyFlag must be defined after data is loaded
         ecodata.forms[viewModelInstance].dirtyFlag = ko.simpleDirtyFlag(ecodata.forms[viewModelInstance], false);

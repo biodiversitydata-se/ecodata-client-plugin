@@ -107,7 +107,7 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
 
     private void renderCheckboxes(WidgetRenderContext context) {
         context.labelAttributes.addClass 'checkbox-list-label '
-        def constraints = 'transients.' + context.model.source + 'Constraints'
+        def constraints = context.source + '.constraints'
         context.writer << """
             <ul class="checkbox-list" data-bind="foreach: ${constraints}">
                 <li>
