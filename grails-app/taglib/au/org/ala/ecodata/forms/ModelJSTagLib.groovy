@@ -150,7 +150,7 @@ class ModelJSTagLib {
 
     String getDefaultValueAsString(JSModelRenderContext ctx) {
         Map model = ctx.dataModel
-        if (model.defaultValue) {
+        if (model.defaultValue != null) {
             return model.defaultValue;
         }
 
