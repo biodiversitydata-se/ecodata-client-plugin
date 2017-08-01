@@ -133,10 +133,14 @@ class ModelTagLib {
 
         // The data model item we are rendering the view for.
         Map source = getAttribute(attrs.model.dataModel, model.source)
+
         if (source?.behaviour) {
             source.behaviour.each { constraint ->
                 renderContext.databindAttrs.add constraint.type, "${model.source}.${constraint.type}Constraint"
             }
+        }
+        if (source?.warning) {
+            renderContext.databindAttrs.add 'warning', model.source
         }
 
         if (model.visibility) {

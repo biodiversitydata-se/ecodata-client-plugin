@@ -118,7 +118,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
 
     private void renderSelectManyAsString(WidgetRenderContext context) {
         context.attributes.addClass context.getInputWidth()
-        context.databindAttrs.add 'value', context.source+'().join(", ")'
+        context.databindAttrs.add 'value', '('+context.source+'() || []).join(", ")'
         context.writer << "<input ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}' ${context.validationAttr} type='text' class='input-small'/>"
     }
 

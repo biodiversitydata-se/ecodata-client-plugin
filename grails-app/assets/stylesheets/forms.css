@@ -1,0 +1,13 @@
+.popover.warning {
+    background-color: yellow;
+    color: black;
+}
+
+.popover.warning .arrow:after {
+    border-right-color: yellow;
+}
+
+.popover.warning.top .arrow:after {
+    border-top-color: yellow;
+    border-right-color: transparent;
+}

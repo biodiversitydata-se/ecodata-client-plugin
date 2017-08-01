@@ -535,6 +535,60 @@
         }
     };
 
+    var popoverWarningOptions = {
+        placement:'top',
+        trigger:'manual',
+        template: '<div class="popover warning"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+    };
+
+
+    /**
+     * This binding requires that the observable has used the metadata extender.  It is meant to work with the
+     * form rendering code so isn't very useful as a stand alone binding.
+     *
+     * @type {{init: ko.bindingHandlers.warning.init, update: ko.bindingHandlers.warning.update}}
+     */
+    ko.bindingHandlers.warning = {
+        init: function(element, valueAccessor) {
+            var target = valueAccessor();
+            if (typeof target.checkWarnings !== 'function') {
+                throw "This binding requires the target observable to have used the \"metadata\" extender"
+            }
+
+            ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+                if (target.popoverInitialised) {
+                    $(element).popover("destroy");
+                }
+            });
+
+            // We are implementing the validation routine by adding a subscriber to avoid triggering the validation
+            // on initialisation.
+            target.subscribe(function() {
+                var invalid = $(element).validationEngine('validate');
+
+                // Only check warnings if the validation passes to avoid showing two sets of popups.
+                if (!invalid) {
+                    var result = target.checkWarnings();
+
+                    if (result) {
+                        if (!target.popoverInitialised) {
+                            $(element).popover(_.extend({content:result.val[0]}, popoverWarningOptions));
+                            target.popoverInitialised = true;
+                        }
+                        $(element).popover('show');
+                    }
+                    else {
+                        if (target.popoverInitialised) {
+                            $(element).popover('hide');
+                        }
+                    }
+                }
+            });
+
+        },
+        update: function() {}
+    };
+
 
     ko.components.register('multi-input', {
         viewModel: function(params) {
@@ -583,8 +637,14 @@
             '
     });
 
-    ko.extenders.conditionalValidation = function(target, option) {
-
-    }
+    /**
+     * Extends the target as a ecodata.forms.DataModelItem.  This is required to support many of the
+     * dynamic behaviour features, including warnings and condititional validation rules.
+     * @param target the observable to extend.
+     * @param context the dataModel metadata as defined for the field in dataModel.json
+     */
+    ko.extenders.metadata = function(target, context) {
+        ecodata.forms.DataModelItem.apply(target, [context]);
+    };
 
 })();

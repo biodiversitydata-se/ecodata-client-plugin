@@ -1,3 +1,4 @@
+//= require validatejs/0.11.1/validate.js
 //= require forms-knockout-bindings.js
 //= require speciesModel.js
 
@@ -121,15 +122,38 @@
         return value === undefined ? defaultValue : value;
     };
 
-    ecodata.forms.OutputListSupport = function (parent, listName, ListItemType, userAddedRows, config) {
+    ecodata.forms.DataModelItem = function(metadata) {
         var self = this;
+
+
+        self.checkWarnings = function() {
+            //var rules = str.split(/\[|,|\]/);
+            var warningRule = metadata.warning;
+
+            var constraints = {
+                val: warningRule
+            };
+            return validate({val:self()}, constraints, {fullMessages:false});
+        }
+    };
+
+    ecodata.forms.OutputListSupport = function (dataModel, ListItemType, context, userAddedRows, config) {
+        var self = this;
+
+        var parent = context.parent;
+        var listName = context.listName;
 
         var list = parent.data[listName];
 
         self.listName = listName;
-        self.addRow = function () {
-            var newItem = new ListItemType(undefined, parent, self.rowCount(), config);
+        self.addRow = function (data) {
+            var newItem = self.newItem(data, self.rowCount());
             list.push(newItem);
+        };
+        self.newItem = function(data, index) {
+            var itemDataModel = _.indexBy(dataModel[listName].columns, 'name');
+            var itemContext = _.extend({}, context, {index:index});
+            return new ListItemType(data, itemDataModel, itemContext, config);
         };
         self.removeRow = function (item) {
             list.remove(item);
@@ -170,19 +194,20 @@
             }
             else {
                 _.each(data, function(row, i) {
-                    list.push(new ListItemType(row, parent, i, config));
+                    list.push(self.newItem(row, i));
                 });
             }
         }
     };
 
-    ecodata.forms.OutputModel = function (output, context, config) {
+    ecodata.forms.OutputModel = function (output, dataModel, context, config) {
 
         var self = this;
 
         if (!output) {
             output = {};
         }
+        self.dataModel = _.indexBy(dataModel, 'name');
         var activityId = output.activityId || config.activityId;
         self.name = output.name;
         self.outputId = orBlank(output.outputId);
@@ -408,9 +433,45 @@
                 return document.documentId === documentId;
             })
         };
+        self.validate = function(field) {
+            if (field) {
+                self.validateField(field);
+            }
+            else {
+                // Validate everything!
+            }
+        };
+
+
+        var conversion = function(rule) {
+            switch (rule[0]) {
+                case 'min':
+                    return {
+                        numericality: {
+                            greaterThanOrEqual: rule[1]
+                        }
+                    };
+                default:
+                    throw "Unknown validation rule: "+rule[0];
+            }
+        };
+        self.validateField = function(field) {
+
+
+            var constraints = {
+                val: {
+                    numericality: {
+                        greaterThan: 0,
+                        message: "Are you sure no plants survived"
+                    }
+
+                }
+            };
+            var result = validate({val:value}, constraints, {fullMessages:false});
+        };
     };
 
-    ecodata.forms.initialiseOutputViewModel = function(outputViewModelName, elementId, activity, output, config) {
+    ecodata.forms.initialiseOutputViewModel = function(outputViewModelName, dataModel, elementId, activity, output, config) {
         var viewModelInstance = outputViewModelName + 'Instance';
 
         var context = {
@@ -419,7 +480,7 @@
             documents:activity.documents,
             site:activity.site
         };
-        ecodata.forms[viewModelInstance] = new ecodata.forms[outputViewModelName](output, context, config);
+        ecodata.forms[viewModelInstance] = new ecodata.forms[outputViewModelName](output, dataModel, context, config);
         ecodata.forms[viewModelInstance].loadData(output.data);
 
         // dirtyFlag must be defined after data is loaded

@@ -9,7 +9,7 @@ class ModelJSTagLib {
         def out
         /**
          * The path to the field that will hold the value for the data model item
-         * relative to the view model.  E.g top level properties are
+         * relative to the current view model code being rendered.  E.g top level properties are
          * held in a data object, so the path is "self.data".  Properties
          * in an object being rendered in a list are at the top level
          * so the path is "self"
@@ -24,6 +24,10 @@ class ModelJSTagLib {
          * fields, the path is "parent"
          */
         String viewModelPath
+
+        String fieldName() {
+            return dataModel.name
+        }
 
         /** The view model definition that relates to the current data model item */
         Map viewModel() {
@@ -162,6 +166,9 @@ class ModelJSTagLib {
                 return '[]'
             case 'species':
                 return '{}'
+            case 'stringList':
+                return '[]'
+
             default:
                 return 'undefined'
         }
@@ -174,7 +181,7 @@ class ModelJSTagLib {
             return
         }
         String value = "ecodata.forms.orDefault(data['${mod.name}'], ${getDefaultValueAsString(ctx)})"
-        if (mod.dataType in ['text', 'date', 'stringList']) {
+        if (mod.dataType in ['text', 'stringList']) {
             out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'](${value});\n"
         }
         else if (mod.dataType == 'number') {
@@ -192,6 +199,13 @@ class ModelJSTagLib {
             out << INDENT*6 << "${ctx.propertyPath}['${mod.name}'](new DocumentViewModel(doc));\n"
             out << INDENT*4 << "}\n"
 
+        }
+        // The date is currently resetting to 1 Jan 1970 if any value is set after initialisation
+        // (including undefined/null/'') so this block avoids updating the model if there is no date supplied.
+        else if (mod.dataType == 'date') {
+            out << INDENT*4 << "if (data['${mod.name}']) {\n"
+            out << INDENT*5 << "${ctx.propertyPath}['${mod.name}'](${value});\n"
+            out << INDENT*4 << "}\n"
         }
     }
 
@@ -316,11 +330,11 @@ class ModelJSTagLib {
 
         def edit = attrs.edit as boolean
         def editableRows = viewModelFor(attrs, model.name)?.editableRows
-        out << INDENT*2 << "var ${makeRowModelName(attrs.model.modelName, model.name)} = function (data, parent, index, config) {\n"
+        out << INDENT*2 << "var ${makeRowModelName(attrs.model.modelName, model.name)} = function (data, dataModel, context, config) {\n"
         out << INDENT*3 << "var self = this;\n"
-        out << INDENT*3 << "self.\$parent = parent.data ? parent.data : parent;\n"
-        out << INDENT*3 << "self.\$index = index;\n"
-
+        out << INDENT*3 << "self.\$parent = context.parent.data ? context.parent.data : context.parent;\n"
+        out << INDENT*3 << "self.\$index = context.index;\n"
+        out << INDENT*3 << "self.dataModel = dataModel;\n"
         out << INDENT*3 << "if (!data) data = {};\n"
         out << INDENT*3 << "self.transients = {};\n"
 
@@ -385,11 +399,17 @@ class ModelJSTagLib {
 """
     }
 
-    void observable(JSModelRenderContext ctx, String extender = '') {
-        if (extender) {
-            extender = ".extend(${extender})"
+    void observable(JSModelRenderContext ctx, List extenders = []) {
+
+        extenders = extenders ?: []
+        if (ctx.dataModel.constraints || ctx.dataModel.warning) {
+            extenders.push("{metadata:self.dataModel['${ctx.fieldName()}']}")
         }
-        ctx.out << "\n" << INDENT*3 << "${ctx.propertyPath}.${ctx.dataModel.name} = ko.observable()${extender};\n"
+        String extenderJS = ''
+        extenders.each {
+            extenderJS += ".extend(${it})"
+        }
+        ctx.out << "\n" << INDENT*3 << "${ctx.propertyPath}.${ctx.fieldName()} = ko.observable()${extenderJS};\n"
         modelConstraints(ctx)
     }
 
@@ -397,7 +417,7 @@ class ModelJSTagLib {
         if (extender) {
             extender = ".extend(${extender})"
         }
-        ctx.out << "\n" << INDENT*3 << "${ctx.propertyPath}.${ctx.dataModel.name} = ko.observableArray()${extender};\n"
+        ctx.out << "\n" << INDENT*3 << "${ctx.propertyPath}.${ctx.fieldName()} = ko.observableArray()${extender};\n"
         modelConstraints(ctx)
         populateList(ctx)
     }
@@ -413,16 +433,16 @@ class ModelJSTagLib {
         String spinnerLocation = "${assetPath(src: '/jquery.timeentry.package-2.0.1/spinnerOrange.png')}"
         String spinnerBigLocation = "${assetPath(src: '/jquery.timeentry.package-2.0.1/spinnerOrangeBig.png')}"
 
-        observable(ctx, '')
+        observable(ctx, [])
         out << "\n" << INDENT*3 << "\$('#${model.name}TimeField').timeEntry({ampmPrefix: ' ', spinnerImage: '${spinnerLocation}', spinnerBigImage: '${spinnerBigLocation}', spinnerSize: [20, 20, 8], spinnerBigSize: [40, 40, 16]});"
     }
 
     def numberViewModel(JSModelRenderContext ctx) {
-        observable(ctx, "{numericString:2}")
+        observable(ctx, ["{numericString:2}"])
     }
 
     def dateViewModel(JSModelRenderContext ctx) {
-        observable(ctx, "{simpleDate: false}")
+        observable(ctx, ["{simpleDate: false}"])
     }
 
     def booleanViewModel(JSModelRenderContext ctx) {
@@ -455,7 +475,7 @@ class ModelJSTagLib {
     }
 
     def setViewModel(JSModelRenderContext ctx) {
-        observableArray(ctx, "{set: null}")
+        observableArray(ctx, ["{set: null}"])
     }
 
     def listViewModel(attrs, model, out) {
@@ -465,18 +485,19 @@ class ModelJSTagLib {
         boolean userAddedRows = Boolean.valueOf(viewModel?.userAddedRows)
         def defaultRows = []
         model.defaultRows?.eachWithIndex { row, i ->
-            defaultRows << INDENT*5 + "self.data.${model.name}.push(new ${rowModelName}(${row.toString()}, self, $i, config));"
+            defaultRows << INDENT*5 + "self.data.${model.name}.addRow(${row.toString()});"
         }
         def insertDefaultModel = defaultRows.join('\n')
 
         // If there are no default rows, insert a single blank row and make it available for editing.
         if (attrs.edit && insertDefaultModel.isEmpty()) {
-            insertDefaultModel = "self.data.${model.name}.addRow(self, 0);"
+            insertDefaultModel = "self.data.${model.name}.addRow();"
         }
 
         out << """
             self.data.${model.name} = ko.observableArray([]);
-            _.extend(self.data.${model.name}, new ecodata.forms.OutputListSupport(self, '${model.name}', ${rowModelName}, ${userAddedRows}, config));
+            var context = _.extend({}, context, {parent:self, listName:'${model.name}'});
+            _.extend(self.data.${model.name}, new ecodata.forms.OutputListSupport(self.dataModel, ${rowModelName}, context, ${userAddedRows}, config));
             self.data.${model.name}.loadDefaults = function() {
                 ${insertDefaultModel}
             }

@@ -1,13 +1,13 @@
 <asset:script>
     <g:set var="outputNameAsIdentifer" value="${fc.toSingleWord([name: outputName])}"/>
 
-    ecodata.forms["${outputNameAsIdentifer + 'ViewModel'}"] = function (output, context, config) {
+    ecodata.forms["${outputNameAsIdentifer + 'ViewModel'}"] = function (output, dataModel, context, config) {
 
         var self = this;
 
         // load dynamic models - usually objects in a list
         <md:jsModelObjects model="${model}" site="${site}" speciesLists="${speciesLists}" edit="${edit}" printable="${printable?:''}"/>
-        ecodata.forms.OutputModel.apply(self, [output, context, config]);
+        ecodata.forms.OutputModel.apply(self, [output, dataModel, context, config]);
 
         // add declarations for dynamic data
         <md:jsViewModel model="${model}"  output="${outputName}"  edit="${edit}" printable="${printable?:''}"/>
