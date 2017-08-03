@@ -402,7 +402,7 @@ class ModelJSTagLib {
     void observable(JSModelRenderContext ctx, List extenders = []) {
 
         extenders = extenders ?: []
-        if (ctx.dataModel.constraints || ctx.dataModel.warning) {
+        if (ctx.dataModel.behaviour || ctx.dataModel.warning) {
             extenders.push("{metadata:self.dataModel['${ctx.fieldName()}']}")
         }
         String extenderJS = ''
@@ -600,10 +600,13 @@ class ModelJSTagLib {
         }
         if (model.behaviour) {
             model.behaviour.each { constraint ->
-                out << INDENT*3 << "${ctx.propertyPath}.${model.name}.${constraint.type}Constraint = ko.computed(function() {\n"
-                out << INDENT*4 << "var condition = '${constraint.condition}';\n";
-                out << INDENT*4 << "return ecodata.forms.expressionEvaluator.evaluateBoolean(condition, ${ctx.propertyPath});\n"
-                out << INDENT*3 << "});\n"
+                ConstraintType type = ConstraintType.valueOf(constraint.type.toUpperCase())
+                if (type.isBoolean) {
+                    out << INDENT * 3 << "${ctx.propertyPath}.${model.name}.${constraint.type}Constraint = ko.computed(function() {\n"
+                    out << INDENT * 4 << "var condition = '${constraint.condition}';\n";
+                    out << INDENT * 4 << "return ecodata.forms.expressionEvaluator.evaluateBoolean(condition, ${ctx.propertyPath});\n"
+                    out << INDENT * 3 << "});\n"
+                }
             }
         }
     }

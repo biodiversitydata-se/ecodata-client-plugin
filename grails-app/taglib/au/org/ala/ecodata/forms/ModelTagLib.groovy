@@ -136,7 +136,9 @@ class ModelTagLib {
 
         if (source?.behaviour) {
             source.behaviour.each { constraint ->
-                renderContext.databindAttrs.add constraint.type, "${model.source}.${constraint.type}Constraint"
+                ConstraintType type = ConstraintType.valueOf(constraint.type.toUpperCase())
+                String bindingValue = type.isBoolean ? "${model.source}.${constraint.type}Constraint" : model.source
+                renderContext.databindAttrs.add type.binding, bindingValue
             }
         }
         if (source?.warning) {
@@ -319,17 +321,6 @@ class ModelTagLib {
     // convenience method for the above
     def dataTag(attrs, model, context, editable) {
         dataTag(attrs, model, context, editable, null, null, null)
-    }
-
-    def specialProperties(attrs, properties) {
-        return properties.collectEntries { entry ->
-            switch (entry.getValue()) {
-                case "#siteId":
-                    entry.setValue(attrs?.site?.siteId)
-                default:
-                    return entry
-            }
-        }
     }
 
     // -------- validation declarations --------------------

@@ -410,45 +410,6 @@
         }
     };
 
-
-// Dummy binding as a placeholder for the preprocessor which does all the work.
-    ko.bindingHandlers.constraint = {
-        init:function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-        },
-        update:function() {
-        }
-    };
-
-    ko.bindingHandlers.constraint.preprocess = function(value, name, addBindingCallback) {
-
-        var params = value.substring(1, value.length-1).split(':');
-
-        if (!params.length == 2) {
-            throw "The constraint binding requires a binding:expression value"
-        }
-
-        addBindingCallback(params[0], "ecodata.forms.expressionEvaluator.evaluateBoolean('"+params[1]+"', $data)");
-
-        return undefined;
-    };
-
-    ko.bindingHandlers.conditionalValidation = {
-        init:function() {
-
-        },
-        update:function(element, valueAccessor, allBindingsAccessor, viewModel) {
-
-            var modelItem = valueAccessor();
-
-            if (modelItem && typeof modelItem.getValidationConfig == 'function') {
-                var validationConfig = modelItem.getValidationConfig(viewModel);
-                $(element).data('validation-engine', validationConfig);
-            }
-
-        }
-    };
-
-
     function applySelect2ValidationCompatibility(element) {
         var $element = $(element);
         var select2 = $element.next('.select2-container');
@@ -583,10 +544,47 @@
                         }
                     }
                 }
+                else {
+                    if (target.popoverInitialised) {
+                        $(element).popover('hide');
+                    }
+                }
             });
 
         },
         update: function() {}
+    };
+
+    ko.bindingHandlers.conditionalValidation = {
+        update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var target = valueAccessor();
+            if (typeof target.evaluateBehaviour !== 'function') {
+                throw "This binding requires the target observable to have used the \"metadata\" extender"
+            }
+
+            ko.computed(function() {
+                var result = target.evaluateBehaviour("conditional_validation", viewModel, target.get('validate') || '');
+
+                var $element = $(element);
+                if (result.validate) {
+
+                    $element.attr('data-validation-engine', 'validate['+result.validate+']');
+                    if (result.message) {
+                        $element.attr('data-errormessage', result.message)
+                    }
+                }
+                else {
+                    $element.attr('data-validation-engine', 'validate['+result+']');
+                }
+
+                // Trigger the validation after the knockout processing is complete - this prevents the validation
+                // from firing before the page has been initialised on load.
+                setTimeout(function() {
+                    $(element).validationEngine('validate');
+                }, 100);
+
+            });
+        }
     };
 
 

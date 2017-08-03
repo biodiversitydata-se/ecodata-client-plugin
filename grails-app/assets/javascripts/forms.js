@@ -12,25 +12,6 @@
         ecodata = {forms:{}};
     }
 
-    ecodata.forms.DataItem = function(config) {
-        var self = this;
-        self.getValidationConfig = function(viewModel) {
-            var validations = self.getBehaviour('validate');
-            var toApply = _.find(validations, function(validation) {
-                return ecodata.forms.expressionEvaluator.evaluateBoolean(validation.condition, viewModel);
-            });
-
-            return _.isUndefined(toApply) ?config.validate || '' : toApply;
-        };
-
-        self.getBehaviour = function(type) {
-            return _.filter(config.behaviour, function(behaviour) {
-                return behaviour.type == type;
-            });
-        };
-
-    };
-
     ecodata.forms.expressionEvaluator = function () {
         function bindVariable(variable, context) {
             if (!context) {
@@ -125,6 +106,9 @@
     ecodata.forms.DataModelItem = function(metadata) {
         var self = this;
 
+        self.get = function(name) {
+            return metadata[name];
+        };
 
         self.checkWarnings = function() {
             //var rules = str.split(/\[|,|\]/);
@@ -134,7 +118,15 @@
                 val: warningRule
             };
             return validate({val:self()}, constraints, {fullMessages:false});
-        }
+        };
+
+        self.evaluateBehaviour = function(type, context, defaultValue) {
+            var rule = _.find(metadata.behaviour, function(rule) {
+                return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, context);
+            });
+
+            return rule && rule.value || defaultValue;
+        };
     };
 
     ecodata.forms.OutputListSupport = function (dataModel, ListItemType, context, userAddedRows, config) {
