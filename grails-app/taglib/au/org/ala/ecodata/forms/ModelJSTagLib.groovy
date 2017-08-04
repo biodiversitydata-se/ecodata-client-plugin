@@ -399,25 +399,33 @@ class ModelJSTagLib {
 """
     }
 
-    void observable(JSModelRenderContext ctx, List extenders = []) {
-
+    /**
+     * Builds a string to render JavaScript to add knockout extenders to an observable / observableArray
+     * @param ctx the rendering context
+     * @param extenders any extenders required by the specific type being rendered.
+     * @return String of the form .extend({name:value}).extend({name:value})...
+     */
+    String extenderJS(JSModelRenderContext ctx, List extenders = []) {
         extenders = extenders ?: []
-        if (ctx.dataModel.behaviour || ctx.dataModel.warning) {
-            extenders.push("{metadata:self.dataModel['${ctx.fieldName()}']}")
+        if (ctx.dataModel.behaviour || ctx.dataModel.warning || ctx.dataModel.constraints) {
+            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], parent:self}}")
         }
         String extenderJS = ''
         extenders.each {
             extenderJS += ".extend(${it})"
         }
+        extenderJS
+    }
+
+    void observable(JSModelRenderContext ctx, List extenders = []) {
+        String extenderJS = extenderJS(ctx, extenders)
         ctx.out << "\n" << INDENT*3 << "${ctx.propertyPath}.${ctx.fieldName()} = ko.observable()${extenderJS};\n"
         modelConstraints(ctx)
     }
 
-    void observableArray(JSModelRenderContext ctx, String extender = '') {
-        if (extender) {
-            extender = ".extend(${extender})"
-        }
-        ctx.out << "\n" << INDENT*3 << "${ctx.propertyPath}.${ctx.fieldName()} = ko.observableArray()${extender};\n"
+    void observableArray(JSModelRenderContext ctx, List extenders = []) {
+        String extenderJS = extenderJS(ctx, extenders)
+        ctx.out << "\n" << INDENT*3 << "${ctx.propertyPath}.${ctx.fieldName()} = ko.observableArray()${extenderJS};\n"
         modelConstraints(ctx)
         populateList(ctx)
     }
@@ -578,26 +586,7 @@ class ModelJSTagLib {
 
     def modelConstraints(JSModelRenderContext ctx) {
         Map model = ctx.dataModel
-        if (model.constraints) {
-            if (model.constraints instanceof List) {
-                def stringifiedOptions = "["+ model.constraints.join(",")+"]"
-                out << INDENT*3 << "${ctx.propertyPath}.${model.name}.constraints = ${stringifiedOptions};\n"
-            }
-            else if (model.constraints.type == 'computed') {
-                out << INDENT*3 << "${ctx.propertyPath}.${model.name}.constraints = ko.pureComputed(function() {\n"
-                model.constraints.options.each {
-                    out << INDENT*4 << "if (ecodata.forms.expressionEvaluator.evaluateBoolean('${it.expression}', self)) {\n"
-                    out << INDENT*5 << "return [${it.constraints.join(',')}];\n"
-                    out << INDENT*4 << "}\n"
-                }
-                if (model.constraints.defaults) {
-                    out << INDENT*4 << "return [${model.constraints.defaults(',')}];\n"
-                }
-                out << INDENT*3 << "});\n"
 
-            }
-
-        }
         if (model.behaviour) {
             model.behaviour.each { constraint ->
                 ConstraintType type = ConstraintType.valueOf(constraint.type.toUpperCase())

@@ -12,6 +12,13 @@
         ecodata = {forms:{}};
     }
 
+    /**
+     * Helper function for evaluating expressions defined in the metadata.  These may be used to compute values
+     * or make decisions on which constraints to apply to individual data model items.
+     * The expressions are parsed and evaluated using: https://github.com/silentmatt/expr-eval
+     *
+     * @type {{evaluate, evaluateBoolean, evaluateString}}
+     */
     ecodata.forms.expressionEvaluator = function () {
         function bindVariable(variable, context) {
             if (!context) {
@@ -37,6 +44,8 @@
 
         function bindVariables(variables, context) {
 
+            // TODO - use metadata to cast numerical model values to numbers to support mathematical operations.
+            // Currently any expression literals have to be strings which means numerics aren't well supported.
             var boundVariables = {};
             for (var i = 0; i < variables.length; i++) {
                 boundVariables[variables[i]] = bindVariable(variables[i], context);
@@ -103,7 +112,13 @@
         return value === undefined ? defaultValue : value;
     };
 
-    ecodata.forms.DataModelItem = function(metadata) {
+
+    /**
+     * Implements the constraints specified on a single data model item using the "constraints" attribute in the metadata.
+     * @param metadata the metadata definition for the data model item.
+     * @constructor
+     */
+    ecodata.forms.DataModelItem = function(metadata, parent) {
         var self = this;
 
         self.get = function(name) {
@@ -120,15 +135,41 @@
             return validate({val:self()}, constraints, {fullMessages:false});
         };
 
-        self.evaluateBehaviour = function(type, context, defaultValue) {
+        self.evaluateBehaviour = function(type, defaultValue) {
             var rule = _.find(metadata.behaviour, function(rule) {
-                return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, context);
+                return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, parent);
             });
 
             return rule && rule.value || defaultValue;
         };
+
+        if (metadata.constraints) {
+            self.constraints = ko.computed(function() {
+                // Support existing configuration style.
+                if (_.isArray(metadata.constraints)) {
+                    return metadata.constraints;
+                }
+
+                var rule = _.find(metadata.constraints.options, function(option) {
+                    return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, parent);
+                });
+
+                return rule ? rule.value : metadata.constraints.default;
+            });
+        }
+
     };
 
+    /**
+     * Provides helper functionality for "list" data types.
+     * @param dataModel the dataModel definition for the list from the form metadata (dataModel.json)  This is the
+     * nested dataModel items found in the columns attribute of data model items with dataType = "list"
+     * @param ListItemType the constructor function to call when creating data to store in the list.
+     * @param context the context in which the view model is being rendered.
+     * @param userAddedRows flag indicating if new values can be added to the list by the user at runtime.
+     * @param config configuration for the view model, mostly URLs.
+     * @constructor
+     */
     ecodata.forms.OutputListSupport = function (dataModel, ListItemType, context, userAddedRows, config) {
         var self = this;
 
@@ -189,9 +230,18 @@
                     list.push(self.newItem(row, i));
                 });
             }
-        }
+        };
     };
 
+    /**
+     * All view models rendered by the forms rendering subsystem will extend an instance of OutputModel.
+     *
+     * @param output the Output instance to be rendered as a form.
+     * @param dataModel the dataModel definition from the form metadata (dataModel.json)
+     * @param context any context in which this output is being rendered (project / activity / site etc).  Used for pre-population.
+     * @param config configuration for the view model, mostly URLs.
+     * @constructor
+     */
     ecodata.forms.OutputModel = function (output, dataModel, context, config) {
 
         var self = this;
@@ -425,42 +475,32 @@
                 return document.documentId === documentId;
             })
         };
-        self.validate = function(field) {
-            if (field) {
-                self.validateField(field);
-            }
-            else {
-                // Validate everything!
-            }
-        };
 
-
-        var conversion = function(rule) {
-            switch (rule[0]) {
-                case 'min':
-                    return {
-                        numericality: {
-                            greaterThanOrEqual: rule[1]
-                        }
-                    };
-                default:
-                    throw "Unknown validation rule: "+rule[0];
-            }
-        };
-        self.validateField = function(field) {
-
-
-            var constraints = {
-                val: {
-                    numericality: {
-                        greaterThan: 0,
-                        message: "Are you sure no plants survived"
-                    }
-
+        function checkWarningsInObject(items, obj) {
+            var warnings = []
+            _.each(items, function(item) {
+                var dataModelItem = obj[item.name];
+                if (item.dataType == 'list') {
+                    _.each(obj[item.name](), function(listItem) {
+                        warnings = warnings.concat(checkWarningsInObject(item.columns, listItem));
+                    });
                 }
-            };
-            var result = validate({val:value}, constraints, {fullMessages:false});
-        };
+                else if (dataModelItem && typeof dataModelItem.checkWarnings == 'function') {
+                    var warning = dataModelItem.checkWarnings();
+                    if (warning) {
+                        warnings.push(warning);
+                    }
+                }
+            });
+
+            return warnings;
+        }
+
+        self.checkWarnings = function() {
+            return checkWarningsInObject(dataModel, self.data);
+        }
+
+
     };
 
     ecodata.forms.initialiseOutputViewModel = function(outputViewModelName, dataModel, elementId, activity, output, config) {

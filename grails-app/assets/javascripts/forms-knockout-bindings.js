@@ -641,8 +641,8 @@
      * @param target the observable to extend.
      * @param context the dataModel metadata as defined for the field in dataModel.json
      */
-    ko.extenders.metadata = function(target, context) {
-        ecodata.forms.DataModelItem.apply(target, [context]);
+    ko.extenders.metadata = function(target, options) {
+        ecodata.forms.DataModelItem.apply(target, [options.metadata, options.parent]);
     };
 
 })();
