@@ -51,6 +51,7 @@
             $(element).fileupload({
                 url:config.url,
                 autoUpload:true,
+                dataType:'json',
                 forceIframeTransport: true
             }).on('fileuploadadd', function(e, data) {
                 complete(false);
