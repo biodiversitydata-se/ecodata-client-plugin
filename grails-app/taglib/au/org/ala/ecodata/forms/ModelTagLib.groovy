@@ -137,7 +137,7 @@ class ModelTagLib {
         if (source?.behaviour) {
             source.behaviour.each { constraint ->
                 ConstraintType type = ConstraintType.valueOf(constraint.type.toUpperCase())
-                String bindingValue = type.isBoolean ? "${model.source}.${constraint.type}Constraint" : model.source
+                String bindingValue = type.isBoolean ? "${renderContext.source}.${constraint.type}Constraint" : renderContext.source
                 renderContext.databindAttrs.add type.binding, bindingValue
             }
         }

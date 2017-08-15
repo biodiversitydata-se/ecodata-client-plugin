@@ -1,6 +1,8 @@
 //= require validatejs/0.11.1/validate.js
 //= require forms-knockout-bindings.js
 //= require speciesModel.js
+//= require images.js
+//= require image-gallery.js
 
 /**
  * Support functions for the ecodata forms rendering feature.
@@ -250,6 +252,7 @@
             output = {};
         }
         self.dataModel = _.indexBy(dataModel, 'name');
+        self.$context = context;
         var activityId = output.activityId || config.activityId;
         self.name = output.name;
         self.outputId = orBlank(output.outputId);
@@ -262,7 +265,7 @@
             notCompleted = config.collapsedByDefault;
         }
 
-        var toIgnore = {ignore: ['transients', '$parent', '$index']};
+        var toIgnore = {ignore: ['transients', '$parent', '$index', '$context', 'dataModel']};
         self.outputNotCompleted = ko.observable(notCompleted);
         self.transients.optional = config.optional || false;
         self.transients.questionText = config.optionalQuestionText || 'Not applicable';

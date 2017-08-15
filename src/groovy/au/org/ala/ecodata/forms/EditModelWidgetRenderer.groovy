@@ -91,26 +91,25 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderMultiInput(WidgetRenderContext context) {
 
-        context.writer << "<multi-input params=\"values: ${context.model.source}, template:'${context.model.source}InputTemplate'\">\
-                              <input type=\"text\" ${context.attributes.toString()} ${context.validationAttr} data-bind=\"value:val\" class=\"input-small\">\
-                           </multi-input>"
+        context.writer << """<multi-input params="values: ${context.model.source}, template:'${context.model.source}InputTemplate'">
+                              <input type="text" ${context.attributes.toString()} ${context.validationAttr} data-bind="value:val" class="input-small">
+                           </multi-input>"""
     }
 
     private void renderSelectManyAsCheckboxes(WidgetRenderContext context) {
         context.labelAttributes.addClass 'checkbox-list-label '
         def constraints = context.source + '.constraints'
-        // This complicated binding string is to ensure we have unique ids for checkboxes, even when they are nested
-        // inside tables.  (The ids are necessary to allow the label to be selected to check the checkbox.  This is
-        // in turn necessary to make checkboxes usabled on mobile devices).
-        def idBinding = "'${context.model.source}'+\$index()+'-'+(\$parentContext.\$index?\$parentContext.\$index():'')"
-        def nameBinding = "'${context.model.source}'+'-'+(\$parentContext.\$index?\$parentContext.\$index():'')"
+
         context.databindAttrs.add 'value', '\$data'
-        context.databindAttrs.add 'checked', "\$parent.${context.source}"
-        context.databindAttrs.add 'attr', "{'id': ${idBinding}, 'name': ${nameBinding}}"
+        context.databindAttrs.add 'checked', "${context.source}"
         context.writer << """
                 <ul class="checkbox-list" data-bind="foreach: ${constraints}">
                     <li>
-                        <label data-bind="attr:{'for': ${idBinding}}"><input type="checkbox" name="${context.source}" data-bind="${context.databindAttrs.toString()}" ${context.validationAttr}/><span data-bind="text:\$data"/></label></span>
+                        <label>
+                            <!-- ko with:_.extend({}, \$parent, {\$data:\$data}) -->
+                            <input type="checkbox" name="${context.source}" data-bind="${context.databindAttrs.toString()}" ${context.validationAttr}/><span data-bind="text:\$data"/></span>
+                            <!-- /ko -->
+                        </label>
                     </li>
                 </ul>
             """
@@ -125,9 +124,9 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderImage(WidgetRenderContext context) {
         context.addDeferredTemplate('/output/fileUploadTemplate')
-        context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
+        context.databindAttrs.add 'imageUpload', "{target:${context.source}, context:\$context}"
 
-        context.writer << context.g.render(template: '/output/imageDataTypeTemplate', plugin:'ecodata-client-plugin', model: [databindAttrs:context.databindAttrs.toString(), source: context.source])
+        context.writer << context.g.render(template: '/output/imageDataTypeEditModelTemplate', plugin:'ecodata-client-plugin', model: [databindAttrs:context.databindAttrs.toString(), source: context.source])
     }
 
     @Override

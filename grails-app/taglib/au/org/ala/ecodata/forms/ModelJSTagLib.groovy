@@ -194,7 +194,7 @@ class ModelJSTagLib {
             out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'].loadData(${value});\n"
         }
         else if (mod.dataType == 'document') {
-            out << INDENT*4 << "var doc = ${ctx.viewModelPath}.findDocumentInContext(data['${mod.name}']);\n"
+            out << INDENT*4 << "var doc = _.find(context.documents || [], function(document) { return document.documentId == data['${mod.name}']} );\n"
             out << INDENT*5 << "if (doc) {\n"
             out << INDENT*6 << "${ctx.propertyPath}['${mod.name}'](new DocumentViewModel(doc));\n"
             out << INDENT*4 << "}\n"
@@ -326,7 +326,7 @@ class ModelJSTagLib {
         Map attrs = ctx.attrs
         Map model = ctx.dataModel
         ctx.propertyPath = 'self'
-        ctx.viewModelPath = 'parent'
+        ctx.viewModelPath = 'self.$parent'
 
         def edit = attrs.edit as boolean
         def editableRows = viewModelFor(attrs, model.name)?.editableRows
@@ -334,6 +334,7 @@ class ModelJSTagLib {
         out << INDENT*3 << "var self = this;\n"
         out << INDENT*3 << "self.\$parent = context.parent.data ? context.parent.data : context.parent;\n"
         out << INDENT*3 << "self.\$index = context.index;\n"
+        out << INDENT*3 << "self.\$context = context;\n"
         out << INDENT*3 << "self.dataModel = dataModel;\n"
         out << INDENT*3 << "if (!data) data = {};\n"
         out << INDENT*3 << "self.transients = {};\n"
