@@ -155,7 +155,8 @@ class ModelJSTagLib {
     String getDefaultValueAsString(JSModelRenderContext ctx) {
         Map model = ctx.dataModel
         if (model.defaultValue != null) {
-            return model.defaultValue;
+            // An empty string will be rendered as nothing in JS which will cause script errors.
+            return model.defaultValue  == "" ? 'undefined' : model.defaultValue
         }
 
         switch (model.dataType) {
@@ -564,7 +565,7 @@ class ModelJSTagLib {
         self.load${ctx.dataModel.name} = function (data) {
             if (data !== undefined) {
                 \$.each(data, function (i, obj) {
-                    ${ctx.propertyPath}.${ctx.dataModel.name}.push(image(obj));
+                    ${ctx.propertyPath}.${ctx.dataModel.name}.push(new ImageViewModel(obj));
                 });
         }};
         """

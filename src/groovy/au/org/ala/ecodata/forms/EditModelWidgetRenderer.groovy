@@ -123,10 +123,8 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderImage(WidgetRenderContext context) {
-        context.addDeferredTemplate('/output/fileUploadTemplate')
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, context:\$context}"
-
-        context.writer << context.g.render(template: '/output/imageDataTypeEditModelTemplate', plugin:'ecodata-client-plugin', model: [databindAttrs:context.databindAttrs.toString(), source: context.source])
+        context.writer << context.g.render(template: '/output/imageDataTypeEditModelTemplate', model: [databindAttrs:context.databindAttrs.toString(), name: context.source, validationAttrs:context.validationAttr ], plugin:'ecodata-client-plugin')
     }
 
     @Override

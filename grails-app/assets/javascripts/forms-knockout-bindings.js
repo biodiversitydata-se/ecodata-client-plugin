@@ -173,7 +173,7 @@
                             licence: f.licence
                         };
 
-                        target.push(new ImageViewModel(data, false, context));
+                        target.push(new ImageViewModel(data, true, context));
 
                         if(f.decimalLongitude && f.decimalLatitude){
                             $doc.trigger('imagelocation', {
@@ -534,16 +534,17 @@
                 throw "This binding requires the target observable to have used the \"metadata\" extender"
             }
 
+            var $element = $(element);
             ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
                 if (target.popoverInitialised) {
-                    $(element).popover("destroy");
+                    $element.popover("destroy");
                 }
             });
 
             // We are implementing the validation routine by adding a subscriber to avoid triggering the validation
             // on initialisation.
             target.subscribe(function() {
-                var invalid = $(element).validationEngine('validate');
+                var invalid = $element.validationEngine('validate');
 
                 // Only check warnings if the validation passes to avoid showing two sets of popups.
                 if (!invalid) {
@@ -551,20 +552,23 @@
 
                     if (result) {
                         if (!target.popoverInitialised) {
-                            $(element).popover(_.extend({content:result.val[0]}, popoverWarningOptions));
+                            $element.popover(_.extend({content:result.val[0]}, popoverWarningOptions));
+                            $element.data('popover').tip().click(function() {
+                                $element.popover('hide');
+                            });
                             target.popoverInitialised = true;
                         }
-                        $(element).popover('show');
+                        $element.popover('show');
                     }
                     else {
                         if (target.popoverInitialised) {
-                            $(element).popover('hide');
+                            $element.popover('hide');
                         }
                     }
                 }
                 else {
                     if (target.popoverInitialised) {
-                        $(element).popover('hide');
+                        $element.popover('hide');
                     }
                 }
             });

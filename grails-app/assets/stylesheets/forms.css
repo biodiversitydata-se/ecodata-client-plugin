@@ -1,6 +1,11 @@
 .popover.warning {
     background-color: yellow;
     color: black;
+    cursor: pointer;
+}
+.popover.warning .popover-content {
+    padding: 4px 10px 4px 10px;
+    font-size: 12px;
 }
 
 .popover.warning .arrow:after {
