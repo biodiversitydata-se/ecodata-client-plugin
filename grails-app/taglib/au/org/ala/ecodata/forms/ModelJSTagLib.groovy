@@ -565,7 +565,7 @@ class ModelJSTagLib {
         self.load${ctx.dataModel.name} = function (data) {
             if (data !== undefined) {
                 \$.each(data, function (i, obj) {
-                    ${ctx.propertyPath}.${ctx.dataModel.name}.push(new ImageViewModel(obj));
+                    ${ctx.propertyPath}.${ctx.dataModel.name}.push(new ImageViewModel(obj, false, context));
                 });
         }};
         """

@@ -16,3 +16,7 @@
     border-top-color: yellow;
     border-right-color: transparent;
 }
+
+.fileupload-buttonbar {
+    overflow-x: scroll;
+}
