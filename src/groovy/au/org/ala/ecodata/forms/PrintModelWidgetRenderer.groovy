@@ -53,6 +53,11 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
     }
 
     @Override
+    void renderImageDialog(WidgetRenderContext context) {
+        defaultRender(context)
+    }
+
+    @Override
     void renderEmbeddedImage(WidgetRenderContext context) {
         defaultRender(context)
     }
