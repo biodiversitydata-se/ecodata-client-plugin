@@ -103,8 +103,10 @@ class ComputedValueRenderer {
             out << INDENT*4 << "for(var i = 0; i < ${dependantContext}.${model.computed.dependents.fromList}().length; i++) {\n"
             out << INDENT*5 << "var value = ${dependantContext}.${model.computed.dependents.fromList}()[i].${model.computed.dependents.source}();\n"
             if (model.computed.operation != 'average') {
-                out << INDENT*6 << "total = total ${operators[model.computed.operation]} Number(value); \n"
-                out << INDENT*4 << "}\n"
+                out << INDENT*6 << "if (!isNaN(parseFloat(value))) {\n"
+                out << INDENT*8 << "total = total ${operators[model.computed.operation]} Number(value); \n"
+                out << INDENT*6<< "}\n"
+                out << INDENT*4<< "}\n"
                 out << INDENT*4 << "return total;\n"
             }
             else {
