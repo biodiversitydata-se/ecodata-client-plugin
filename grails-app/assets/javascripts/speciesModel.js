@@ -96,13 +96,17 @@ var speciesSearchEngines = function() {
     };
 
     var select2AlaTransformer = function(alaResults) {
-        var speciesArray = alaResults.autoCompleteList;
+        // We are handling results from either the autocomplete or regular json search here.
+        var speciesArray = alaResults.autoCompleteList || alaResults.searchSearchResults && ala.searchResults.results;
         if (!speciesArray) {
             return [];
         }
         for (var i in speciesArray) {
             speciesArray[i].id = speciesArray[i].guid;
-            speciesArray[i].scientificName = speciesArray[i].name;
+            if (!speciesArray[i].scientificName) {
+                speciesArray[i].scientificName = speciesArray[i].name;
+            }
+
         }
         return speciesArray;
 
@@ -137,8 +141,12 @@ var speciesSearchEngines = function() {
             };
         }
         if (config.useAla) {
+            var params = '?type=search&q=%';
+            if (config.alaFq) {
+                params+='&fq='+encodeURIComponent(config.alaFq);
+            }
             options.remote = {
-                url: config.searchBieUrl + '?q=%',
+                url: config.searchBieUrl + params,
                 wildcard: '%',
                 transform: select2AlaTransformer
             };
@@ -325,7 +333,7 @@ var SpeciesViewModel = function(data, options) {
     }
 
 
-    self.search = function(params, callback) {
+    self.search = function(params, callback, noResultsCallback) {
         var term = params.term;
         self.transients.currentSearchTerm = term;
         var suppliedResults = false;
@@ -358,10 +366,7 @@ var SpeciesViewModel = function(data, options) {
                     if (!speciesConfig.useAla && speciesConfig.allowUnmatched && term.length >= speciesConfig.unmatchedTermlength) {
                         results.push({text: "Missing or unidentified species", children: [{id:name, name: _.escape(term), listId:"unmatched"}]});
                     }
-                    if (results.length > 0) {
-                        callback({results: results}, false);
-                    }
-
+                    callback({results: results}, false);
                 },
                 function (resultArr) {
                     var results = [];
@@ -383,8 +388,9 @@ var SpeciesViewModel = function(data, options) {
                 var page = list.slice(offset, end);
                 var results = offset > 0 ? page : [{text: "Species List", children: page}];
 
-                callback({results: results, pagination: {more: end < list.length }});
+
             }
+            callback({results: results, pagination: {more: end < list.length }});
         }
     }
 };
@@ -395,8 +401,8 @@ $.fn.select2.amd.define('select2/species', [
 ], function (AjaxAdapter, Utils) {
     function SpeciesAdapter($element, options) {
         this.model = options.get("model");
+        this.minimumInputLength = options.get("minimumInputLength") || 3;
         this.$element = $element;
-
         SpeciesAdapter.__super__.constructor.call(this, $element, options);
 
         var id = this.model.id();
@@ -417,12 +423,30 @@ $.fn.select2.amd.define('select2/species', [
 
         self.model.search(
             params, function (results, append) {
-                if (!append) {
-                    callback(results);
+
+                if (results.results && results.results.length > 0) {
+                    if (!append) {
+                        callback(results);
+                    }
+                    else {
+                        self.trigger("results:append", {data: results, query: params});
+                    }
                 }
                 else {
-                    self.trigger("results:append", {data: results, query: params});
+
+                    params.term = params.term || '';
+                    if (params.term.length < self.minimumInputLength) {
+                        self.trigger('results:message', {
+                            message: 'inputTooShort',
+                            args: {
+                                minimum: self.minimumInputLength,
+                                input: params.term,
+                                params: params
+                            }
+                        });
+                    }
                 }
+
             }
         );
 
