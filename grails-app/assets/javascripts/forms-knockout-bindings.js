@@ -129,27 +129,34 @@
             ko.utils.extend(innerContext, uploadProperties);
             var previewElem = $(element).parent().find(config.previewSelector);
 
-// Expected to be a ko.observableArray
+            // For a reason I can't determine, when forms are loaded via ajax the
+            // fileupload widget gets a blank widgetEventPrefix. (normally it would be 'fileupload').
+            // This checks for this condition and registers the correct event listeners.
+            var eventPrefix = 'fileupload';
+            if ($.blueimp && $.blueimp.fileupload) {
+                eventPrefix =  $.blueimp.fileupload.prototype.widgetEventPrefix;
+            }
+
             $(element).fileupload({
                 url:config.url,
                 autoUpload:true,
                 forceIframeTransport: false,
                 dropZone: dropZone,
                 dataType:'json'
-            }).on('fileuploadadd', function(e, data) {
+            }).on(eventPrefix+'add', function(e, data) {
                 previewElem.html('');
                 complete(false);
                 progress(1);
-            }).on('fileuploadprocessalways', function(e, data) {
+            }).on(eventPrefix+'processalways', function(e, data) {
                 if (data.files[0].preview) {
                     if (config.previewSelector !== undefined) {
                         previewElem.append(data.files[0].preview);
                     }
                 }
-            }).on('fileuploadprogressall', function(e, data) {
+            }).on(eventPrefix+'progressall', function(e, data) {
                 progress(Math.floor(data.loaded / data.total * 100));
                 size(data.total);
-            }).on('fileuploaddone', function(e, data) {
+            }).on(eventPrefix+'done', function(e, data) {
                 var result = data.result;
                 var $doc = $(document);
                 if (!result) {
@@ -196,7 +203,7 @@
                     error(result.error);
                 }
 
-            }).on('fileuploadfail', function(e, data) {
+            }).on(eventPrefix+'fail', function(e, data) {
                 error(data.errorThrown);
             });
 
