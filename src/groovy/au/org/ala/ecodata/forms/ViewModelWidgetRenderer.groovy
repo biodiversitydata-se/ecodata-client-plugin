@@ -142,13 +142,13 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderSelect2Many(WidgetRenderContext context) {
-        context.databindAttrs.add 'text', context.source+'().join(", ")'
+        context.databindAttrs.add 'text', '('+context.source+'() || []).join(", ")'
         context.writer << "<span ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>"
     }
 
     @Override
     void renderMultiInput(WidgetRenderContext context) {
-        context.databindAttrs.add 'text', context.source+'().join(", ")'
+        context.databindAttrs.add 'text', '('+context.source+'() || []).join(", ")'
         context.writer << "<span ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>"
     }
 
