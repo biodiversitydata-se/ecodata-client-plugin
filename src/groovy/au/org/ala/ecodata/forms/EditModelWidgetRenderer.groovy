@@ -200,7 +200,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.writer << """<span data-bind="with:${context.source}" class="input-append species-select2" style="width:100%; min-width: 200px;">
                                 <select data-bind="speciesSelect2:\$data" ${context.validationAttr} style="width:90%"></select>
                                 <span class="add-on">
-                                    <a data-bind="popover: {title: transients.speciesTitle, content: transients.speciesInformation}"><i class="icon-info-sign"></i></a>
+                                    <a data-bind="visible:name(), popover: {title: transients.speciesTitle, content: transients.speciesInformation}"><i class="icon-info-sign"></i></a>
                                 </span>
                              </span>"""
     }

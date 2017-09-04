@@ -382,15 +382,14 @@ var SpeciesViewModel = function(data, options) {
         else {
             var list = self.transients.engine.all();
             if (list.length > 0) {
+                var pageNum = params.page || 1;
                 var pageLength = 10;
-                var offset = (params.page || 0) * pageLength;
+                var offset = (pageNum-1) * pageLength;
                 var end = Math.min(offset+pageLength, list.length);
                 var page = list.slice(offset, end);
                 var results = offset > 0 ? page : [{text: "Species List", children: page}];
-
-
             }
-            callback({results: results, pagination: {more: end < list.length }});
+            callback({results: results, pagination: {more: end < list.length , page: params.page}});
         }
     }
 };
@@ -433,18 +432,20 @@ $.fn.select2.amd.define('select2/species', [
                     }
                 }
                 else {
-
-                    params.term = params.term || '';
-                    if (params.term.length < self.minimumInputLength) {
-                        self.trigger('results:message', {
-                            message: 'inputTooShort',
-                            args: {
-                                minimum: self.minimumInputLength,
-                                input: params.term,
-                                params: params
-                            }
-                        });
+                    if (!results.pagination || results.pagination.page == 0) {
+                        params.term = params.term || '';
+                        if (params.term.length < self.minimumInputLength) {
+                            self.trigger('results:message', {
+                                message: 'inputTooShort',
+                                args: {
+                                    minimum: self.minimumInputLength,
+                                    input: params.term,
+                                    params: params
+                                }
+                            });
+                        }
                     }
+
                 }
 
             }
