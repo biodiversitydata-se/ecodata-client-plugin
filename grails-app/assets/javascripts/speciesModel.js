@@ -3,7 +3,6 @@
 var speciesFormatters = function() {
 
     var singleLineSpeciesFormatter = function(species) {
-
         if (species.scientificName && species.commonName) {
             return $('<span/>').append($('<span class="scientific-name"/>').text(scientificName(species))).append($('<span class="common-name"/>').text(' (' + commonName(species)+ ')'));
         }
@@ -36,6 +35,7 @@ var speciesFormatters = function() {
     var multiLineSpeciesFormatter = function(species, queryTerm, config) {
 
         if (!species) return '';
+        console.log(species);
 
         var result = $("<div class='species-result'/>");;
         if (config.showImages) {
@@ -137,7 +137,8 @@ var speciesSearchEngines = function() {
         if (config.listId) {
             options.prefetch = {
                 url: config.speciesListUrl + '?druid='+config.listId+'&includeKvp=true',
-                transform: select2ListTransformer
+                transform: select2ListTransformer,
+                cache:false
             };
         }
         if (config.useAla) {
@@ -210,10 +211,30 @@ var SpeciesViewModel = function(data, options) {
 
     self.loadData = function(data) {
         if (!data) data = {};
+
         self.guid(orBlank(data.guid || data.lsid));
         self.name(orBlank(data.name));
         self.listId(orBlank(data.listId));
         self.scientificName(orBlank(data.scientificName));
+
+        if (!data.commonName) {
+            if (data.kvpValues) {
+                var usableCommonName = null;
+                var commonNameKeys = ['preferred common name', 'common name', 'vernacular name'];
+                for (var i=0; i<commonNameKeys.length; i++) {
+                    usableCommonName = _.find(data.kvpValues, function(kvp) {
+                        if (kvp && kvp.key) {
+                            return kvp.key.toLowerCase() == commonNameKeys[i];
+                        }
+                    });
+                    if (usableCommonName) {
+                        break;
+                    }
+                }
+
+                data.commonName = usableCommonName && usableCommonName.value;
+            }
+        }
         self.commonName(orBlank(data.commonName));
 
         self.transients.speciesTitle = speciesFormatters.multiLineSpeciesFormatter(self.toJS(), '', {showImage: false});
