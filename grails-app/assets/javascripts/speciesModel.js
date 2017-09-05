@@ -137,8 +137,7 @@ var speciesSearchEngines = function() {
         if (config.listId) {
             options.prefetch = {
                 url: config.speciesListUrl + '?druid='+config.listId+'&includeKvp=true',
-                transform: select2ListTransformer,
-                cache:false
+                transform: select2ListTransformer
             };
         }
         if (config.useAla) {
