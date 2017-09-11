@@ -374,7 +374,7 @@ class ModelJSTagLib {
             if (col.computed) {
                 switch (col.dataType) {
                     case 'number':
-                        computedValueRenderer.computedObservable(col, 'this', 'this', out)
+                        computedValueRenderer.computedObservable(col, 'self', 'self', out)
                         break;
                 }
             }

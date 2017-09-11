@@ -19,7 +19,7 @@ class ComputedValueRenderer {
         out << INDENT*5 << "${propertyContext}.${model.name} = ko.computed(function () {\n"
 
         if (model.computed.expression) {
-            renderJSExpression(model.computed, "self")
+            renderJSExpression(model.computed, "self", out)
         }
         else {
             // must be at least one dependant
