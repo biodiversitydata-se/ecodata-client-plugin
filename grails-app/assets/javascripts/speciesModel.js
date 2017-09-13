@@ -35,7 +35,6 @@ var speciesFormatters = function() {
     var multiLineSpeciesFormatter = function(species, queryTerm, config) {
 
         if (!species) return '';
-        console.log(species);
 
         var result = $("<div class='species-result'/>");;
         if (config.showImages) {
