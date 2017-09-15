@@ -32,7 +32,7 @@
             if (specialVariables.indexOf(variable) >= 0) {
                 contextVariable = '$' + variable;
             }
-            if (context[contextVariable]) {
+            if (!_.isUndefined(context[contextVariable])) {
                 result = ko.utils.unwrapObservable(context[contextVariable]);
             }
             else {
