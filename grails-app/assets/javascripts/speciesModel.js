@@ -29,8 +29,26 @@ var speciesFormatters = function() {
     }
 
     function commonName(species) {
-        var commonName = species.commonNameMatches && species.commonNameMatches.length > 0 ? species.commonNameMatches[0] : species.commonName;
-        return  commonName || species.name;
+        var commonName = null;
+        if (species.commonNameMatches && species.commonNameMatches.length > 0) {
+            commonName = species.commonNameMatches[0];
+        }
+        else if (species.kvpValues) {
+            var usableCommonName = null;
+            var commonNameKeys = ['preferred common name', 'common name', 'vernacular name'];
+            for (var i=0; i<commonNameKeys.length; i++) {
+                usableCommonName = _.find(species.kvpValues, function(kvp) {
+                    if (kvp && kvp.key) {
+                        return kvp.key.toLowerCase() == commonNameKeys[i];
+                    }
+                });
+                if (usableCommonName) {
+                    break;
+                }
+            }
+            commonName = usableCommonName && usableCommonName.value;
+        }
+        return commonName || species.commonName;
     }
     var multiLineSpeciesFormatter = function(species, queryTerm, config) {
 
