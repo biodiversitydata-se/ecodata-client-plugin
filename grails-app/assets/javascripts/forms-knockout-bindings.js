@@ -515,7 +515,7 @@
             var currentOptions = $element.find("option").map(function() {return $(this).val();}).get();
             var extraOptions = _.difference(data, currentOptions);
             for (var i=0; i<extraOptions.length; i++) {
-                $element.append($("<option>").val(data[i]).text(data[i]));
+                $element.append($("<option>").val(extraOptions[i]).text(extraOptions[i]));
             }
             $(element).val(valueAccessor().value()).trigger('change');
         }
