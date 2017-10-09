@@ -154,6 +154,9 @@ class ModelTagLib {
         if (model.readonly) {
             renderContext.attributes.add "readonly", "readonly"
         }
+        if (model.placeholder) {
+            renderContext.attributes.add("placeholder", model.placeholder)
+        }
 
         switch (model.type) {
             case 'literal':
