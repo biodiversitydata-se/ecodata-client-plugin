@@ -126,11 +126,13 @@
                 <span class="btn-small btn-success fileinput-button"><i class="fa fa-plus"></i> <input type="file" accept="image/*" name="files" ${validationAttrs?'data-validation-engine="data-validate[groupRequired['+source+']]"':''} ><span>Add files</span>
                 </span>
             </td>
-            <td>
-                <div class="dropzone span12">
-                    Or, drop files here
-                </div>
-            </td>
+            <g:if test="${!options?.disableDragDrop}">
+                <td>
+                    <div class="dropzone span12">
+                        Or, drop files here
+                    </div>
+                </td>
+            </g:if>
         </tr>
         </tbody>
         <tfoot>
