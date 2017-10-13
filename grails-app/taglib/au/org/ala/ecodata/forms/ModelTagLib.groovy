@@ -54,7 +54,8 @@ class ModelTagLib {
                     grid out, attrs, mod
                     break
                 case 'section':
-                    section out, attrs, mod
+                    section out, attrs, mod, ctx
+                    break
                 case 'row':
                     row out, attrs, mod, ctx
                     break
@@ -404,14 +405,14 @@ class ModelTagLib {
     }
 
     // form section
-    def section(out, attrs, model) {
+    def section(out, attrs, model, LayoutRenderContext ctx) {
 
         if (model.title) {
             out << "<h4>${model.title}</h4>"
         }
         out << "<div class=\"row-fluid space-after output-section\">\n"
 
-        viewModelItems(attrs, out, model.items)
+        viewModelItems(out, attrs, model.items, ctx)
 
         out << "</div>"
     }
