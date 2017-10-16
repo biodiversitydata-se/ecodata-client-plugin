@@ -501,7 +501,7 @@ class ModelJSTagLib {
         def insertDefaultModel = defaultRows.join('\n')
 
         // If there are no default rows, insert a single blank row and make it available for editing.
-        if (attrs.edit && insertDefaultModel.isEmpty()) {
+        if (attrs.edit && model.defaultRows == null) {
             insertDefaultModel = "self.data.${model.name}.addRow();"
         }
 
