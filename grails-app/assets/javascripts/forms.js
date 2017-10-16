@@ -353,48 +353,61 @@
         };
 
         self.prepop = function (conf) {
-            var prepopData = self.getPrepopData(conf);
-            if (prepopData) {
-                var mapping = conf.mapping;
+            return self.getPrepopData(conf).pipe(function(prepopData) {
+                if (prepopData) {
+                    var mapping = conf.mapping;
 
-                return self.map(mapping, prepopData);
-            }
-
+                    return self.map(mapping, prepopData);
+                }
+            });
         };
 
         self.loadOrPrepop = function (data) {
 
             var result = data || {};
 
+            var deferred = $.Deferred();
+            var waitingOn = [];
+
             if (config && !config.disablePrepop && config.model) {
                 var conf = config.model['pre-populate'];
 
                 if (conf) {
                     _.each(conf, function (item) {
-                        var prepopData = self.prepop(item);
-
-                        if (prepopData && (item.merge || !data)) {
-                            _.extend(result, self.merge(prepopData, result));
+                        if (item.merge || !data) {
+                            waitingOn.push(self.prepop(item).done(function (prepopData) {
+                                if (prepopData) {
+                                    _.extend(result, self.merge(prepopData, result));
+                                }
+                            }));
                         }
-
                     });
                 }
             }
+            // Wait for all configured pre-pop to complete, then resolve our deferred.
+            $.when.apply($, waitingOn).then(function() {
+                deferred.resolve(result);
+            });
 
-            return result;
+            return deferred;
         };
 
 
         self.getPrepopData = function (conf) {
             var source = conf.source;
+            if (source.url) {
+                return $.post('/fieldcapture/project/searchActivities', source.params);
+            }
+            var deferred = $.Deferred();
+            var data = null;
             if (source && source.hasOwnProperty('context-path')) {
+                data = context;
                 if (source['context-path']) {
-                    return getNestedValue(context, source['context-path']);
-                }
-                else {
-                    return context;
+                    data = getNestedValue(context, source['context-path']);
                 }
             }
+            deferred.resolve(data);
+            return deferred;
         };
 
 

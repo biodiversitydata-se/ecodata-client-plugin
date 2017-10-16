@@ -20,11 +20,11 @@
         };
 
 
-        self.loadData = function (data, documents) {
+        self.loadData = function (outputData, documents) {
 
-            data = self.loadOrPrepop(data);
-            <md:jsLoadModel model="${model}"/>
-
+            self.loadOrPrepop(outputData).done(function(data) {
+                <md:jsLoadModel model="${model}"/>
+            });
             self.transients.dummy.notifySubscribers();
         };
     };
