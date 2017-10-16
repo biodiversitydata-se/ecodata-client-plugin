@@ -128,7 +128,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderImage(WidgetRenderContext context) {
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, context:\$context}"
-        context.writer << context.g.render(template: '/output/imageDataTypeEditModelTemplate', model: [databindAttrs:context.databindAttrs.toString(), name: context.source, validationAttrs:context.validationAttr ], plugin:'ecodata-client-plugin')
+        context.writer << context.g.render(template: '/output/imageDataTypeEditModelTemplate', model: [databindAttrs:context.databindAttrs.toString(), name: context.source, validationAttrs:context.validationAttr, options: context.model.displayOptions], plugin:'ecodata-client-plugin')
     }
 
     @Override
@@ -141,7 +141,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     void renderEmbeddedImage(WidgetRenderContext context) {
         context.addDeferredTemplate('/output/fileUploadTemplate')
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
-        context.writer << context.g.render(template: '/output/imageDataTypeTemplate', plugin:'ecodata-client-plugin', model: [databindAttrs: context.databindAttrs.toString(), options: context.displayOptions, source: context.source])
+        context.writer << context.g.render(template: '/output/imageDataTypeTemplate', plugin:'ecodata-client-plugin', model: [databindAttrs: context.databindAttrs.toString(), options: context.model.displayOptions, source: context.source])
     }
 
     @Override
