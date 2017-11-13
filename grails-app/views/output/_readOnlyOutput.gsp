@@ -23,7 +23,7 @@
             var config = ${fc.modelAsJavascript(model:activityModel.outputConfig?.find{it.outputName == outputName}, default:'{}')};
             config.model = ${fc.modelAsJavascript(model:outputModel)};
             config.excelOutputTemplateUrl = fcConfig.excelOutputTemplateUrl;
-            config.disablePrepop = true;
+            config.disablePrepop = ${disablePrepop};
             config.speciesProfileUrl = fcConfig.speciesProfileUrl;
 
             var context = {
