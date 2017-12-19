@@ -185,7 +185,7 @@ class ModelJSTagLib {
         if (mod.dataType in ['text', 'stringList']) {
             out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'](${value});\n"
         }
-        else if (mod.dataType == 'number') {
+        else if (mod.dataType in ['number', 'boolean']) {
             out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'](${value});\n"
         }
         else if (mod.dataType in ['image', 'photoPoints']) {
