@@ -160,6 +160,10 @@
             });
         }
 
+        if (metadata.displayOptions) {
+            self.displayOptions = metadata.displayOptions;
+        }
+
     };
 
     /**
@@ -255,7 +259,7 @@
         self.$context = context;
         var activityId = output.activityId || config.activityId;
         self.name = output.name;
-        self.outputId = orBlank(output.outputId);
+        self.outputId = output.outputId || '';
 
         self.data = {};
         self.transients = {};
@@ -316,6 +320,24 @@
         // the ko.toJSON conversion is preserved so we can use it to view the active model for debugging
         self.modelAsJSON = function () {
             return JSON.stringify(self.modelForSaving());
+        };
+
+        self.getNestedValue = function(data, path) {
+            // var result = jsonpath.query(data, path);
+            // return _.flatten(result);
+            var paths = path.split('.')
+                , current = data
+                , i;
+
+            for (i = 0; i < paths.length; ++i) {
+
+                if (current[paths[i]] == undefined) {
+                    return undefined;
+                } else {
+                    current = current[paths[i]];
+                }
+            }
+            return current;
         };
 
         /** Merge properties from obj2 into obj1 recursively, favouring obj1 unless undefined / missing. */
@@ -396,14 +418,15 @@
         self.getPrepopData = function (conf) {
             var source = conf.source;
             if (source.url) {
-                return $.post('/fieldcapture/project/searchActivities', source.params);
+                var url = config[source.url];
+                return $.post(url, source.params);
             }
             var deferred = $.Deferred();
             var data = null;
             if (source && source.hasOwnProperty('context-path')) {
                 data = context;
                 if (source['context-path']) {
-                    data = getNestedValue(context, source['context-path']);
+                    data = self.getNestedValue(context, source['context-path']);
                 }
             }
             deferred.resolve(data);
@@ -419,7 +442,7 @@
                 // Presence of a nested mapping element indicates a list.
                 if (_.has(mapping, 'mapping')) {
                     result[mapping.target] = [];
-                    var selectedData = getNestedValue(data, mapping['source-path']);
+                    var selectedData = self.getNestedValue(data, mapping['source-path']);
                     _.each(selectedData, function (d) {
                         var nestedResult = self.map(mapping.mapping, d);
                         if (nestedResult) {
@@ -429,7 +452,7 @@
                     });
                 }
                 else {
-                    result[mapping.target] = getNestedValue(data, mapping['source-path']);
+                    result[mapping.target] = self.getNestedValue(data, mapping['source-path']);
                 }
             });
 
