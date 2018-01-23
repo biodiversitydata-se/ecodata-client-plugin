@@ -65,7 +65,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         // to select from.
         context.databindAttrs.add 'options', context.source + '.constraints'
         context.databindAttrs.add 'optionsCaption', '""'
-        context.databindAttrs.add 'select2', '{allowClear:true}'
+        context.databindAttrs.add 'select2', context.source + '.displayOptions'
         context.writer <<  "<select${context.attributes.toString()} class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
     }
 

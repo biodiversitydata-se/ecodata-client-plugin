@@ -31,7 +31,7 @@ class ModelJSTagLib {
 
         /** The view model definition that relates to the current data model item */
         Map viewModel() {
-            findViewByName(attrs.viewModel, dataModel.name)
+            findViewByName(attrs?.model?.viewModel, dataModel.name)
         }
         /** The attributes passed to the tag library */
         Map attrs
@@ -410,7 +410,13 @@ class ModelJSTagLib {
      */
     String extenderJS(JSModelRenderContext ctx, List extenders = []) {
         extenders = extenders ?: []
-        if (ctx.dataModel.behaviour || ctx.dataModel.warning || ctx.dataModel.constraints) {
+
+        Map viewModel = ctx.viewModel()
+        if (viewModel?.displayOptions) {
+            ctx.dataModel.displayOptions = viewModel.displayOptions
+        }
+
+        if (ctx.dataModel.behaviour || ctx.dataModel.warning || ctx.dataModel.constraints || ctx.dataModel.displayOptions) {
             extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], parent:self}}")
         }
         String extenderJS = ''

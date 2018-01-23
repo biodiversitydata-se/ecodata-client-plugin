@@ -474,6 +474,47 @@
         update: function (element, valueAccessor) {}
     };
 
+    /**
+     * Supports custom rendering of results in a Select2 dropdown.
+     */
+    function constraintIconRenderer(config) {
+        return function(item) {
+
+            var constraint = item.id;
+            if (config[constraint]) {
+                var icon = config[constraint];
+
+                var iconElement;
+                if (icon.url) {
+                    iconElement = $("<img/>").addClass('constraint-image').css("src", icon.url);
+                }
+                else {
+                    iconElement = $("<span/>").addClass('constraint-icon');
+                    if (icon.class) {
+                        if (_.isArray(icon.class)) {
+                            _.each(icon.class, function(val) {
+                                iconElement.addClass(val);
+                            });
+                        }
+                        else {
+                            _.each(icon.class.split(" "), function (val) {
+                                iconElement.addClass(icon.class);
+                            });
+                        }
+                    }
+                    if (icon.style) {
+                        _.each(icon.style, function(value, key) {
+                           iconElement.css(key, value);
+                        });
+                    }
+                }
+                return $("<span/>").append(iconElement).append($("<span/>").addClass('constraint-text').text(constraint));
+            }
+
+            return item.text;
+        };
+    };
+
     ko.bindingHandlers.select2 = {
         init: function(element, valueAccessor) {
             var defaults = {
@@ -482,6 +523,12 @@
                 allowClear:true
             };
             var options = _.defaults(valueAccessor() || {}, defaults);
+            if (options.constraintIcons) {
+                var renderer = constraintIconRenderer(options.constraintIcons);
+                options.templateResult = renderer;
+                options.templateSelection = renderer;
+
+            }
             $(element).select2(options);
             applySelect2ValidationCompatibility(element);
         }
