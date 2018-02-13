@@ -45,3 +45,34 @@
     display:inline-block;
     height: 14px;
 }
+
+
+/** Styling for the condition / trajectory component used by threatened species recovery and state of the environment reporting */
+.condition {
+    stroke-width: 2;
+    stroke: white;
+}
+
+.condition.condition-very-poor {
+    fill:red;
+}
+.condition.condition-poor {
+    fill:orange;
+}
+.condition.condition-good {
+    fill:green
+}
+.condition.condition-very-good {
+    fill:green
+}
+
+.trajectory {
+    fill:white;
+    stroke: #787878;
+    stroke-width: 8;
+}
+.trajectory-icon path{
+    fill: #787878;
+    stroke: #787878;
+    stroke-width: 0;
+}

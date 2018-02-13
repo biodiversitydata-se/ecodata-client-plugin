@@ -707,14 +707,40 @@
 
             self.observableValues.subscribe(syncValues);
         },
-        template:
-            '<div data-bind="foreach: observableValues">\
-                <div class="input-append">\
-                  <span data-bind="template:{nodes:$componentTemplateNodes}"></span><span class="add-on" data-bind="click:$parent.removeValue"><i class="fa fa-remove"></i></span>\
-                </div>\
-            </div>\
-            <i class="fa fa-plus" data-bind="click:addValue"></i>\
-            '
+        template: {element:'template-multi-input'}
+
+    });
+
+    ko.components.register('condition-trajectory', {
+        viewModel: function (params) {
+            console.log(params);
+            var self = this;
+            var offsets = ["Very poor", "Poor", "Good", "Very good"];
+            var trajectories = ["Improving", "Deteriorating", "Stable", "Unclear"];
+
+            var width = 75;
+            var boxWidth = 30;
+            self.boxPosition = ko.computed(function() {
+                var condition = ko.utils.unwrapObservable(params.condition);
+                var index = offsets.indexOf(condition);
+                return index * width + width/2 - boxWidth/2;
+            });
+            self.title = ko.computed(function() {
+                var condition = ko.utils.unwrapObservable(ko.trajectory);
+                return "Condition: "+condition+", Trajectory: "+params.trajectory;
+            });
+
+            self.trajectoryTemplate = ko.computed(function() {
+                var trajectory = ko.utils.unwrapObservable(params.trajectory);
+                if (trajectory) {
+                    return 'template-trajectory-'+trajectory.toLowerCase();
+                }
+                return 'template-trajectory-none';
+            });
+
+        },
+        template:{element:'template-condition-trajectory'}
+
     });
 
     /**
