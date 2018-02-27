@@ -417,7 +417,7 @@ class ModelJSTagLib {
         }
 
         if (ctx.dataModel.behaviour || ctx.dataModel.warning || ctx.dataModel.constraints || ctx.dataModel.displayOptions) {
-            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], parent:self}}")
+            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], parent:self, context:context, config:config}}")
         }
         String extenderJS = ''
         extenders.each {

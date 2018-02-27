@@ -54,6 +54,9 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         // Select one or many view types require that the data model has defined a set of valid options
         // to select from.
         context.databindAttrs.add 'options', context.source + '.constraints'
+        context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
+        context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
+
         context.databindAttrs.add 'optionsCaption', '"Please select"'
         context.writer <<  "<select${context.attributes.toString()} class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
     }
@@ -65,6 +68,9 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         // to select from.
         context.databindAttrs.add 'options', context.source + '.constraints'
         context.databindAttrs.add 'optionsCaption', '""'
+        context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
+        context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
+
         context.databindAttrs.add 'select2', context.source + '.displayOptions'
         context.writer <<  "<select${context.attributes.toString()} class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
     }
@@ -83,6 +89,9 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderSelect2Many(WidgetRenderContext context) {
         context.databindAttrs.add 'options', context.source + '.constraints'
+        context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
+        context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
+
         context.databindAttrs.add 'optionsCaption', '"Please select"'
         context.databindAttrs.add 'multiSelect2', "{value: ${context.source}, tags:true, allowClear:false}"
         context.writer <<  "<select${context.attributes.toString()} multiple=\"multiple\" class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"

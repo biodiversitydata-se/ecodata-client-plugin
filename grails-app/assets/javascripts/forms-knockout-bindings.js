@@ -713,7 +713,6 @@
 
     ko.components.register('condition-trajectory', {
         viewModel: function (params) {
-            console.log(params);
             var self = this;
             var offsets = ["Very poor", "Poor", "Good", "Very good"];
             var trajectories = ["Improving", "Deteriorating", "Stable", "Unclear"];
@@ -745,12 +744,12 @@
 
     /**
      * Extends the target as a ecodata.forms.DataModelItem.  This is required to support many of the
-     * dynamic behaviour features, including warnings and condititional validation rules.
+     * dynamic behaviour features, including warnings and conditional validation rules.
      * @param target the observable to extend.
      * @param context the dataModel metadata as defined for the field in dataModel.json
      */
     ko.extenders.metadata = function(target, options) {
-        ecodata.forms.DataModelItem.apply(target, [options.metadata, options.parent]);
+        ecodata.forms.DataModelItem.apply(target, [options.metadata, options.parent, options.context, options.config]);
     };
 
 })();
