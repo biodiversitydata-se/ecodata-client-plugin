@@ -169,8 +169,6 @@
 
         self.prepop = function (conf) {
             return self.getPrepopData(conf).pipe(function(prepopData) {
-                console.log("prePop");
-                console.log(prepopData);
                 if (prepopData) {
                     var result = prepopData;
                     var mapping = conf.mapping;
@@ -235,7 +233,6 @@
                     data = self.getNestedValue(context, source['context-path']);
                 }
             }
-            console.log("resolving: "+data);
             deferred.resolve(data);
             return deferred;
         };
