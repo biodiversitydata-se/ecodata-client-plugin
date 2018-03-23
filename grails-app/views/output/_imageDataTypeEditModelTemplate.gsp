@@ -17,7 +17,7 @@
             <div class="span8">
                 <div class="row-fluid">
                     <div class="span4 text-left control-group required">
-                        <label class="control-label">Title:</label>
+                        <label class="control-label">Title: <g:if test="${options.titleHelpText}"><i class="fa fa-question-circle" data-bind="popover:{container:'body', content:'${options.titleHelpText}', placement:'top'}"></i></g:if> </label>
                     </div>
                     <div class="span8">
                         <input type="text" data-bind="value:name" ${validationAttrs?'data-validation-engine="data-validate[groupRequired['+source+']]"':''}
@@ -27,7 +27,7 @@
 
                 <div class="row-fluid">
                     <div class="span4 text-left control-group required">
-                        <label class="control-label" >Date Taken:</label>
+                        <label class="control-label" >Date Taken: <i class="fa fa-question-circle" data-bind="popover:{container:'body', content:'Please ensure that this information is accurate and the date that the photograph was taken, not the date it was uploaded (unless they are the same date).', placement:'top'}">&nbsp;</i></label>
                     </div>
                     <div class="span8">
                         <fc:datePicker size=""
@@ -39,8 +39,8 @@
 
                 <div class="row-fluid">
                     <div class="span4 text-left">
-                        <label class="control-label">Licence <i class="icon-question-sign"
-                                                                data-bind="popover:{content:'Creative Commons Attribution (CC BY), Creative Commons-Noncommercial (CC BY-NC), Creative Commons Attribution-Share Alike (CC BY-SA), Creative Commons Attribution-Noncommercial-Share Alike (CC BY-NC-SA)', placement:'top'}">&nbsp;</i>:
+                        <label class="control-label">Licence: <i class="icon-question-sign"
+                                                                data-bind="popover:{content:'Creative Commons Attribution (CC BY), Creative Commons-Noncommercial (CC BY-NC), Creative Commons Attribution-Share Alike (CC BY-SA), Creative Commons Attribution-Noncommercial-Share Alike (CC BY-NC-SA)', placement:'top'}">&nbsp;</i>
                         </label>
                     </div>
                     <div class="span8">
@@ -56,7 +56,7 @@
                 <div class="row-fluid">
                     <div class="span4 text-left">
                         <label class="control-label" for="attribution">
-                            Attribution <i class="icon-question-sign" data-bind="popover:{content:'The name of the photographer', placement:'top'}">&nbsp;</i>:
+                            Attribution: <i class="icon-question-sign" data-bind="popover:{content:'The name of the photographer', placement:'top'}">&nbsp;</i>
                         </label>
                     </div>
                     <div class="span8">
@@ -67,7 +67,7 @@
 
                 <div class="row-fluid">
                     <div class="span4 text-left">
-                        <label class="control-label" for="notes">Notes:</label>
+                        <label class="control-label" for="notes">Notes: <i class="fa fa-question-circle" data-bind="popover:{content:'Additional notes you would like to supply regarding the photo point or photograph.', placement:'top'}">&nbsp;</i></label>
                     </div>
                     <div class="span8">
                         <input id="notes" class="form-control  full-width-input" type="text" data-bind="value:notes">

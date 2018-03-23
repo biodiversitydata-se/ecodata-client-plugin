@@ -48,7 +48,7 @@ var speciesFormatters = function() {
             }
             commonName = usableCommonName && usableCommonName.value;
         }
-        return commonName || species.commonName;
+        return commonName || species.commonName || species.name;
     }
     var multiLineSpeciesFormatter = function(species, queryTerm, config) {
 

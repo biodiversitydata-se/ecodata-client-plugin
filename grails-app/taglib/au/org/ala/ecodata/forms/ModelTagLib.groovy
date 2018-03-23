@@ -411,10 +411,12 @@ class ModelTagLib {
             out << "<h4>${model.title}</h4>"
         }
         out << "<div class=\"row-fluid space-after output-section\">\n"
+        out << "<div class=\"span12\">\n"
 
         viewModelItems(out, attrs, model.items, ctx)
 
-        out << "</div>"
+        out << "</div>\n"
+        out << "</div>\n"
     }
 
     // row model

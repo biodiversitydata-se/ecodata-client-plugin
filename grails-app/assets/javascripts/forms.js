@@ -114,14 +114,146 @@
         return value === undefined ? defaultValue : value;
     };
 
+    ecodata.forms.dataLoader = function(context, config) {
+        var self = this;
+        self.getNestedValue = function(data, path) {
+
+            var paths = path.split('.')
+                , current = data
+                , i;
+
+            for (i = 0; i < paths.length; ++i) {
+
+                if (current[paths[i]] == undefined) {
+                    return undefined;
+                } else {
+                    current = current[paths[i]];
+                }
+            }
+            return current;
+        };
+
+        /** Merge properties from obj2 into obj1 recursively, favouring obj1 unless undefined / missing. */
+        self.merge = function (obj1, obj2, result) {
+
+            var keys = _.union(_.keys(obj1), _.keys(obj2));
+            result = result || {};
+
+            for (var i = 0; i < keys.length; i++) {
+
+                var key = keys[i];
+                if (obj2[key] === undefined) {
+                    result[key] = obj1[key];
+                }
+                else if (obj1[key] === undefined && config.replaceUndefined) {
+                    result[key] = obj2[key];
+                }
+                else if (!obj1.hasOwnProperty(key)) {
+                    result[key] = obj2[key];
+                }
+                else if (_.isArray(obj1[key]) && _.isArray(obj2[key])) {
+                    if (obj2[key].length > obj1[key].length) {
+                        obj2[key].splice(obj1[key].length, obj2[key].length - obj1[key].length); // Delete extra array elements from obj2.
+                    }
+                    result[key] = self.merge(obj1[key], obj2[key], []);
+                }
+                else if (_.isObject(obj1[key]) && _.isObject(obj2[key])) {
+                    result[key] = self.merge(obj1[key], obj2[key]);
+                }
+                else {
+                    result[key] = obj1[key];
+                }
+            }
+            return result;
+        };
+
+        self.prepop = function (conf) {
+            return self.getPrepopData(conf).pipe(function(prepopData) {
+                if (prepopData) {
+                    var result = prepopData;
+                    var mapping = conf.mapping;
+                    if (mapping) {
+                        result = self.map(mapping, prepopData);
+                    }
+                    return result;
+                }
+            });
+        };
+
+        self.map = function (mappingList, data) {
+            var result;
+            if (_.isArray(data)) {
+                result = [];
+                _.each(data, function(d) {
+                    result.push(self.mapObject(mappingList, d));
+                });
+            }
+            else {
+                result = self.mapObject(mappingList, data);
+            }
+
+            return result;
+        };
+
+        self.mapObject = function(mappingList, data) {
+            var result = {};
+
+            _.each(mappingList, function (mapping) {
+
+                // Presence of a nested mapping element indicates a list.
+                if (_.has(mapping, 'mapping')) {
+                    result[mapping.target] = [];
+                    var selectedData = self.getNestedValue(data, mapping['source-path']);
+                    _.each(selectedData, function (d) {
+                        var nestedResult = self.map(mapping.mapping, d);
+                        if (nestedResult) {
+                            result[mapping.target].push(nestedResult);
+                        }
+
+                    });
+                }
+                else {
+                    result[mapping.target] = self.getNestedValue(data, mapping['source-path']);
+                }
+            });
+            return result;
+        };
+
+        self.getPrepopData = function (conf) {
+            var source = conf.source;
+            if (source.url) {
+                var url = config[source.url];
+                return $.post(url, source.params);
+            }
+            var deferred = $.Deferred();
+            var data = null;
+            if (source && source.hasOwnProperty('context-path')) {
+                data = context;
+                if (source['context-path']) {
+                    data = self.getNestedValue(context, source['context-path']);
+                }
+            }
+            deferred.resolve(data);
+            return deferred;
+        };
+
+        return {
+            getPrepopData:self.getPrepopData,
+            prepop:self.prepop,
+            merge:self.merge
+        };
+
+    };
+
 
     /**
      * Implements the constraints specified on a single data model item using the "constraints" attribute in the metadata.
      * @param metadata the metadata definition for the data model item.
      * @constructor
      */
-    ecodata.forms.DataModelItem = function(metadata, parent) {
+    ecodata.forms.DataModelItem = function(metadata, parent, context, config) {
         var self = this;
+        var dataLoader = ecodata.forms.dataLoader(context, config);
 
         self.get = function(name) {
             return metadata[name];
@@ -146,18 +278,47 @@
         };
 
         if (metadata.constraints) {
-            self.constraints = ko.computed(function() {
-                // Support existing configuration style.
-                if (_.isArray(metadata.constraints)) {
-                    return metadata.constraints;
+            var valueProperty = 'id'; // For compatibility with select2 defaults
+            var textProperty = 'text'; // For compatibility with select2 defaults
+            if (_.isObject(metadata.constraints)) {
+                valueProperty = metadata.constraints.valueProperty || valueProperty;
+                textProperty = metadata.constraints.textProperty || textProperty;
+            }
+
+            self.constraints = [];
+            // Support existing configuration style.
+            if (_.isArray(metadata.constraints)) {
+                self.constraints = metadata.constraints;
+            }
+            else if (_.isObject(metadata.constraints)) {
+                if (metadata.constraints.type == 'computed') {
+                    self.constraints = ko.computed(function() {
+                        var rule = _.find(metadata.constraints.options, function(option) {
+                            return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, parent);
+                        });
+                        return rule ? rule.value : metadata.constraints.default;
+                    });
                 }
+                else if (metadata.constraints.type == 'pre-populated') {
+                    self.constraints = ko.observableArray();
+                    dataLoader.prepop(metadata.constraints.config).done(function(data) {
+                        self.constraints(data);
+                    });
+                }
+            }
 
-                var rule = _.find(metadata.constraints.options, function(option) {
-                    return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, parent);
-                });
-
-                return rule ? rule.value : metadata.constraints.default;
-            });
+            self.constraints.value = function(constraint) {
+                if (_.isObject(constraint)) {
+                    return constraint[valueProperty];
+                }
+                return constraint;
+            };
+            self.constraints.text = function(constraint) {
+                if (_.isObject(constraint)) {
+                    return constraint[textProperty];
+                }
+                return constraint;
+            };
         }
 
         if (metadata.displayOptions) {
@@ -251,7 +412,7 @@
     ecodata.forms.OutputModel = function (output, dataModel, context, config) {
 
         var self = this;
-
+        var dataLoader = ecodata.forms.dataLoader(context, config);
         if (!output) {
             output = {};
         }
@@ -322,68 +483,6 @@
             return JSON.stringify(self.modelForSaving());
         };
 
-        self.getNestedValue = function(data, path) {
-            // var result = jsonpath.query(data, path);
-            // return _.flatten(result);
-            var paths = path.split('.')
-                , current = data
-                , i;
-
-            for (i = 0; i < paths.length; ++i) {
-
-                if (current[paths[i]] == undefined) {
-                    return undefined;
-                } else {
-                    current = current[paths[i]];
-                }
-            }
-            return current;
-        };
-
-        /** Merge properties from obj2 into obj1 recursively, favouring obj1 unless undefined / missing. */
-        self.merge = function (obj1, obj2, result) {
-
-            var keys = _.union(_.keys(obj1), _.keys(obj2));
-            result = result || {};
-
-            for (var i = 0; i < keys.length; i++) {
-
-                var key = keys[i];
-                if (obj2[key] === undefined) {
-                    result[key] = obj1[key];
-                }
-                else if (obj1[key] === undefined && config.replaceUndefined) {
-                    result[key] = obj2[key];
-                }
-                else if (!obj1.hasOwnProperty(key)) {
-                    result[key] = obj2[key];
-                }
-                else if (_.isArray(obj1[key]) && _.isArray(obj2[key])) {
-                    if (obj2[key].length > obj1[key].length) {
-                        obj2[key].splice(obj1[key].length, obj2[key].length - obj1[key].length); // Delete extra array elements from obj2.
-                    }
-                    result[key] = self.merge(obj1[key], obj2[key], []);
-                }
-                else if (_.isObject(obj1[key]) && _.isObject(obj2[key])) {
-                    result[key] = self.merge(obj1[key], obj2[key]);
-                }
-                else {
-                    result[key] = obj1[key];
-                }
-            }
-            return result;
-        };
-
-        self.prepop = function (conf) {
-            return self.getPrepopData(conf).pipe(function(prepopData) {
-                if (prepopData) {
-                    var mapping = conf.mapping;
-
-                    return self.map(mapping, prepopData);
-                }
-            });
-        };
-
         self.loadOrPrepop = function (data) {
 
             var result = data || {};
@@ -397,9 +496,9 @@
                 if (conf) {
                     _.each(conf, function (item) {
                         if (item.merge || !data) {
-                            waitingOn.push(self.prepop(item).done(function (prepopData) {
+                            waitingOn.push(dataLoader.prepop(item).done(function (prepopData) {
                                 if (prepopData) {
-                                    _.extend(result, self.merge(prepopData, result));
+                                    _.extend(result, dataLoader.merge(prepopData, result));
                                 }
                             }));
                         }
@@ -415,49 +514,7 @@
         };
 
 
-        self.getPrepopData = function (conf) {
-            var source = conf.source;
-            if (source.url) {
-                var url = config[source.url];
-                return $.post(url, source.params);
-            }
-            var deferred = $.Deferred();
-            var data = null;
-            if (source && source.hasOwnProperty('context-path')) {
-                data = context;
-                if (source['context-path']) {
-                    data = self.getNestedValue(context, source['context-path']);
-                }
-            }
-            deferred.resolve(data);
-            return deferred;
-        };
 
-
-        self.map = function (mappingList, data) {
-            var result = {};
-
-            _.each(mappingList, function (mapping) {
-
-                // Presence of a nested mapping element indicates a list.
-                if (_.has(mapping, 'mapping')) {
-                    result[mapping.target] = [];
-                    var selectedData = self.getNestedValue(data, mapping['source-path']);
-                    _.each(selectedData, function (d) {
-                        var nestedResult = self.map(mapping.mapping, d);
-                        if (nestedResult) {
-                            result[mapping.target].push(nestedResult);
-                        }
-
-                    });
-                }
-                else {
-                    result[mapping.target] = self.getNestedValue(data, mapping['source-path']);
-                }
-            });
-
-            return result;
-        };
 
         self.attachDocument = function (target) {
             var url = config.documentUpdateUrl || fcConfig.documentUpdateUrl;
