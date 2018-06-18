@@ -470,9 +470,6 @@ class ModelTagLib {
         } else {
             at.addSpan("span${layoutContext.span}")
             out << "<span${at.toString()}>"
-            if (model.type != "number") {
-                elementAttributes.addClass 'span12'
-            }
         }
 
         out << INDENT << dataTag(attrs, model, layoutContext.dataContext, attrs.edit, elementAttributes, null, labelAttributes)
