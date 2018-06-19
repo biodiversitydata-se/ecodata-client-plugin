@@ -410,7 +410,7 @@ class ModelTagLib {
         if (model.title) {
             out << "<h4>${model.title}</h4>"
         }
-        out << "<div class=\"row-fluid space-after output-section\">\n"
+        out << "<div class=\"row-fluid output-section\">\n"
         out << "<div class=\"span12\">\n"
 
         viewModelItems(out, attrs, model.items, ctx)
