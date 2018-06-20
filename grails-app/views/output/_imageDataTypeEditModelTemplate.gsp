@@ -31,7 +31,7 @@
                     </div>
                     <div class="span8">
                         <fc:datePicker size=""
-                                       targetField="dateTaken"
+                                       targetField="dateTaken.date"
                                        name="dateTaken"
                                        data-validation-engine="validate[required]" class="form-control span10"/>
                     </div>
