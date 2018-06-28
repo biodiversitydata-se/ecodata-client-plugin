@@ -25,6 +25,10 @@
     margin-bottom: 10px; /* Match the 10px bottom margin on input elements applied by bootstrap */
 }
 
+table td .select2.select2-container {
+    margin-top: 0;
+}
+
 .constraint-icon {
     width:14px;
     height:14px;
@@ -75,4 +79,8 @@
     fill: #787878;
     stroke: #787878;
     stroke-width: 0;
+}
+
+span.preLabel {
+    margin:0;
 }

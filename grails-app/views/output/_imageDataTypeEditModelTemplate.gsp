@@ -17,7 +17,7 @@
             <div class="span8">
                 <div class="row-fluid">
                     <div class="span4 text-left control-group required">
-                        <label class="control-label">Title: <g:if test="${options.titleHelpText}"><i class="fa fa-question-circle" data-bind="popover:{container:'body', content:'${options.titleHelpText}', placement:'top'}"></i></g:if> </label>
+                        <label class="control-label">Title: <g:if test="${options?.titleHelpText}"><i class="fa fa-question-circle" data-bind="popover:{container:'body', content:'${options.titleHelpText}', placement:'top'}"></i></g:if> </label>
                     </div>
                     <div class="span8">
                         <input type="text" data-bind="value:name" ${validationAttrs?'data-validation-engine="data-validate[groupRequired['+source+']]"':''}
@@ -31,7 +31,7 @@
                     </div>
                     <div class="span8">
                         <fc:datePicker size=""
-                                       targetField="dateTaken"
+                                       targetField="dateTaken.date"
                                        name="dateTaken"
                                        data-validation-engine="validate[required]" class="form-control span10"/>
                     </div>
