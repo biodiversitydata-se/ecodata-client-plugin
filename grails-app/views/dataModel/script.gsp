@@ -1,0 +1,45 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<g:set var="outputNameAsIdentifer" value="${md.toSingleWord([name: outputName])}"/>
+ecodata.forms["${outputNameAsIdentifer + 'ViewModel'}"] = function (output, dataModel, context, config) {
+    var self = this;
+    var site = context.site || {};
+    self.name = output.name;
+    self.outputId = output.outputId;
+    self.data = {};
+    self.transients = {};
+    self.transients.dummy = ko.observable();
+
+
+    // load dynamic models - usually objects in a list
+    <md:jsModelObjects model="${model}" site="${site}" edit="${edit}" printable="${printable?:''}" output="${outputName}"/>
+    ecodata.forms.OutputModel.apply(self, [output, dataModel, context, config]);
+
+    // add declarations for dynamic data
+    <md:jsViewModel model="${model}"  output="${outputName}"  edit="${edit}" printable="${printable?:''}"/>
+
+    // this will be called when generating a savable model to remove transient properties
+    self.removeBeforeSave = function (jsData) {
+        <md:jsRemoveBeforeSave model="${model}"/>
+        return self.removeTransients(jsData);
+    };
+
+
+    self.loadData = function (outputData, documents) {
+        self.loadOrPrepop(outputData).done(function(data) {
+            <md:jsLoadModel model="${model}"/>
+        });
+
+        // if there is no data in tables then add an empty row for the user to add data
+        if (typeof self.addRow === 'function' && self.rowCount() === 0) {
+            self.addRow();
+        }
+
+        self.transients.dummy.notifySubscribers();
+    };
+
+    self.reloadGeodata = function() {
+        console.log('Reloading geo fields')
+        // load dynamic data
+        <md:jsReloadGeoModel model="${model}" output="${outputName}"/>
+    }
+};

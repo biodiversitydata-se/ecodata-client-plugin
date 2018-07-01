@@ -186,6 +186,7 @@ var speciesSearchEngines = function() {
 var SpeciesViewModel = function(data, options) {
 
     var self = this;
+    var params = [];
 
     self.guid = ko.observable();
     self.name = ko.observable();
@@ -202,7 +203,10 @@ var SpeciesViewModel = function(data, options) {
         return options.bieUrl + '/species/' + self.guid();
     });
 
-    self.transients.speciesSearchUrl = options.speciesSearchUrl+'&dataFieldName='+options.dataFieldName;
+    options.dataFieldName ? params.push('dataFieldName=' + options.dataFieldName) : null;
+    options.surveyName ? params.push('surveyName=' + options.dataFieldName) : null;
+    options.output ? params.push('output=' + options.output) : null;
+    self.transients.speciesSearchUrl = options.speciesSearchUrl + '&' + params.join('&');
 
     self.speciesSelected = function(event, data) {
         self.loadData(data);
