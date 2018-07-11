@@ -35,6 +35,16 @@ class ModelJSTagLib {
         }
         /** The attributes passed to the tag library */
         Map attrs
+
+        JSModelRenderContext createChildContext() {
+            new JSModelRenderContext(
+                    out:out,
+                    propertyPath: propertyPath,
+                    dataModel: dataModel,
+                    viewModelPath: viewModelPath,
+                    attrs:attrs
+            )
+        }
     }
 
     static namespace = "md"
@@ -62,7 +72,7 @@ class ModelJSTagLib {
             if (model.dataType in ['list', 'photoPoints', 'matrix'] && model.jsClass) {
                 customDataModel(attrs, model, out, "jsClass")
             }
-            else if (model.dataType in ['list', 'photoPoints']) {
+            else if (model.dataType == 'photoPoints') {
                 repeatingModel(ctx)
                 totalsModel attrs, model, out
             }
@@ -94,16 +104,13 @@ class ModelJSTagLib {
 
     def jsViewModel = { attrs ->
         JSModelRenderContext ctx = new JSModelRenderContext(out:out, attrs:attrs, propertyPath:'self.data', viewModelPath: 'self')
-        attrs.model?.dataModel?.each { modelItem ->
+        List items = attrs.model?.dataModel
+        items?.each { modelItem ->
 
             // Lists and matrix data types are only supported at the top level as
             // rendering nested tables / matricies is not supported by the html rendering code.
             if (modelItem.jsMain) {
                 customDataModel(attrs, modelItem, out, "jsMain")
-            }
-            else if (modelItem.dataType  == 'list') {
-                listViewModel(attrs, modelItem, out)
-                columnTotalsModel out, attrs, modelItem
             }
             else if (modelItem.dataType == 'matrix') {
                 matrixViewModel(attrs, modelItem, out)
@@ -113,6 +120,8 @@ class ModelJSTagLib {
                 renderDataModelItem(ctx)
             }
         }
+
+        renderLoad(items, ctx)
     }
 
     /**
@@ -162,6 +171,12 @@ class ModelJSTagLib {
         else if (mod.dataType == "geoMap") {
             geoMapViewModel(mod, ctx.out, ctx.propertyPath, ctx.attrs.readonly?.toBoolean() ?: false, ctx.attrs.edit?.toBoolean() ?: false)
         }
+        else if (mod.dataType  == 'list') {
+            repeatingModel(ctx)
+            listViewModel(ctx)
+            columnTotalsModel out, ctx.attrs, mod
+        }
+
         out << INDENT*3 << "self.transients.site = site;"
     }
 
@@ -173,19 +188,32 @@ class ModelJSTagLib {
     def jsLoadModel = { attrs ->
         JSModelRenderContext ctx = new JSModelRenderContext(out:out, attrs:attrs, propertyPath:'self.data', viewModelPath:'self')
 
-        attrs.model?.dataModel?.each { mod ->
+        renderLoad(attrs.model?.dataModel, ctx)
+    }
+
+
+    void renderLoad(List items, JSModelRenderContext ctx) {
+
+        ctx.out << "self.loadData = function(data) {\n"
+
+        JSModelRenderContext child = ctx.createChildContext()
+
+        Map attrs = ctx.attrs
+
+        items?.each { mod ->
+            child.dataModel = mod
+
             if (mod.dataType == 'list') {
-                out << INDENT*1 << "self.load${mod.name}(data.${mod.name});\n"
+                out << INDENT * 1 << "self.load${mod.name}(data.${mod.name});\n"
                 loadColumnTotals out, attrs, mod
-            }
-            else if (mod.dataType == 'matrix') {
-                out << INDENT*1 << "self.load${mod.name.capitalize()}(data.${mod.name});\n"
-            }
-            else {
-                ctx.dataModel = mod
-                renderInitialiser(ctx)
+            } else if (mod.dataType == 'matrix') {
+                out << INDENT * 1 << "self.load${mod.name.capitalize()}(data.${mod.name});\n"
+            } else {
+                renderInitialiser(child)
             }
         }
+
+        ctx.out << "};\n"
     }
 
     String getDefaultValueAsString(JSModelRenderContext ctx) {
@@ -476,51 +504,21 @@ class ModelJSTagLib {
         def out = ctx.out
         Map attrs = ctx.attrs
         Map model = ctx.dataModel
-        ctx.propertyPath = 'self'
-        ctx.viewModelPath = 'self.$parent'
 
         def edit = attrs.edit as boolean
         def editableRows = viewModelFor(attrs, model.name)?.editableRows
-        out << INDENT*2 << "var ${makeRowModelName(attrs.model.modelName, model.name)} = function (data, dataModel, context, config) {\n"
-        out << INDENT*3 << "var self = this;\n"
-        out << INDENT*3 << "self.\$parent = context.parent.data ? context.parent.data : context.parent;\n"
-        out << INDENT*3 << "self.\$index = context.index;\n"
-        out << INDENT*3 << "self.\$context = context;\n"
-        out << INDENT*3 << "self.dataModel = dataModel;\n"
-        out << INDENT*3 << "if (!data) data = {};\n"
-        out << INDENT*3 << "self.transients = {};\n"
-
         if (edit && editableRows) {
-            // This observable is subscribed to by the SpeciesViewModel (so as to
-            // allow editing to be controlled at the table row level) so needs to
-            // be declared before any model data fields / observables.
-            out << INDENT*3 << "this.isSelected = ko.observable(false);\n"
-            out << """
-            this.commit = function () {
-                self.doAction('commit');
-            };
-            this.reset = function () {
-                self.doAction('reset');
-            };
-            this.doAction = function (action) {
-                var prop, item;
-                for (prop in self) {
-                    if (self.hasOwnProperty(prop)) {
-                        item = self[prop];
-                        if (ko.isObservable(item) && item[action]) {
-                           item[action]();
-                        }
-                    }
-                }
-            };
-            this.isNew = false;
-            this.toJSON = function () {
-                return ko.mapping.toJS(this, {'ignore':['transients', 'isNew', 'isSelected']});
-            };
-"""
+
         }
+        out << INDENT*2 << "var ${makeRowModelName(attrs.model.modelName, model.name)} = function (data, dataModel, context, config) {\n"
+        out << INDENT*4 << "var self = this;\n"
+        out << INDENT*4 << "ecodata.forms.NestedModel.apply(self, [data, dataModel, context, config]);\n"
+
+        JSModelRenderContext childCtx = ctx.createChildContext()
+        childCtx.propertyPath = 'self'
+        childCtx.viewModelPath = 'self.$parent'
         model.columns.each { col ->
-            ctx.dataModel = col
+            childCtx.dataModel = col
             if (col.computed) {
                 switch (col.dataType) {
                     case 'number':
@@ -530,10 +528,12 @@ class ModelJSTagLib {
                 }
             }
             else {
-                renderDataModelItem(ctx)
-                renderInitialiser(ctx)
+                renderDataModelItem(childCtx)
             }
         }
+        renderLoad(ctx.dataModel.columns, childCtx)
+
+        out << INDENT*4 << "self.loadData(data || {});\n"
 
         out << INDENT*2 << "};\n"
     }
@@ -583,11 +583,14 @@ class ModelJSTagLib {
         modelConstraints(ctx)
     }
 
-    void observableArray(JSModelRenderContext ctx, List extenders = []) {
+    void observableArray(JSModelRenderContext ctx, List extenders = [], boolean renderLoadFunction = true) {
         String extenderJS = extenderJS(ctx, extenders)
         ctx.out << "\n" << INDENT*3 << "${ctx.propertyPath}.${ctx.fieldName()} = ko.observableArray()${extenderJS};\n"
         modelConstraints(ctx)
-        populateList(ctx)
+        if (renderLoadFunction) {
+            populateList(ctx)
+        }
+
     }
 
 
@@ -688,29 +691,33 @@ class ModelJSTagLib {
         observableArray(ctx, ["{set: null}"])
     }
 
-    def listViewModel(attrs, model, out) {
+    def listViewModel(JSModelRenderContext ctx) {
+        Map attrs = ctx.attrs
+        Map model = ctx.dataModel
+        def out = ctx.out
+
         def rowModelName = makeRowModelName(attrs.model.modelName, model.name)
         Map viewModel = viewModelFor(attrs, model.name)
         def editableRows = viewModel?.editableRows
         boolean userAddedRows = Boolean.valueOf(viewModel?.userAddedRows)
         def defaultRows = []
         model.defaultRows?.eachWithIndex { row, i ->
-            defaultRows << INDENT*5 + "self.data.${model.name}.addRow(${row.toString()});"
+            defaultRows << INDENT*5 + "${ctx.propertyPath}.${model.name}.addRow(${row.toString()});"
         }
         def insertDefaultModel = defaultRows.join('\n')
 
         // If there are no default rows, insert a single blank row and make it available for editing.
         if (attrs.edit && model.defaultRows == null) {
-            insertDefaultModel = "self.data.${model.name}.addRow();"
+            insertDefaultModel = "${ctx.propertyPath}.${model.name}.addRow();"
         }
 
-        out << """
-            self.data.${model.name} = ko.observableArray([]);
-            var context = _.extend({}, context, {parent:self, listName:'${model.name}'});
-            _.extend(self.data.${model.name}, new ecodata.forms.OutputListSupport(self.dataModel, ${rowModelName}, context, ${userAddedRows}, config));
-            self.data.${model.name}.loadDefaults = function() {
+        out << """var context = _.extend({}, context, {parent:self, listName:'${model.name}'});"""
+        String extender = "{list:{metadata:self.dataModel, constructorFunction:${rowModelName}, context:context, userAddedRows:${userAddedRows}, config:config}}"
+        observableArray(ctx, [extender], false)
+        out << """    
+            ${ctx.propertyPath}.${model.name}.loadDefaults = function() {
                 ${insertDefaultModel}
-            }
+            };
         """
 
         if (attrs.edit && editableRows) {

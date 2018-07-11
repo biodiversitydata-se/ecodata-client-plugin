@@ -754,4 +754,8 @@
         ecodata.forms.DataModelItem.apply(target, [options.metadata, options.parent, options.context, options.config]);
     };
 
+    ko.extenders.list = function(target, options) {
+        ecodata.forms.OutputListSupport.apply(target, [options.metadata, options.constructorFunction, options.context, options.userAddedRows, options.config]);
+    };
+
 })();

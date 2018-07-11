@@ -2,6 +2,7 @@ package au.org.ala.ecodata.forms
 
 
 import grails.converters.JSON
+import org.apache.log4j.Layout
 
 /**
  * Generates web page content for metadata-driven dynamic data entry and display.
@@ -24,6 +25,39 @@ class ModelTagLib {
         String parentView
         String dataContext
         int span
+        def out
+        Map model
+        Map attrs
+
+
+        String getProperty() {
+            if (dataContext) {
+                return dataContext+'.'+model.source
+            }
+            return model.source
+        }
+
+        LayoutRenderContext createChildContext(Map data) {
+            LayoutRenderContext child = new LayoutRenderContext(
+                    out:out,
+                    parentView:parentView,
+                    dataContext:dataContext,
+                    span:span,
+                    model:model,
+                    attrs:attrs
+            )
+            if (data.parentView != null) {
+                child.parentView = data.parentView
+            }
+            if (data.dataContext != null) {
+                child.dataContext = data.dataContext
+            }
+            if (data.span) {
+                child.span = data.span
+            }
+
+            child
+        }
     }
 
     /*---------------------------------------------------*/
@@ -37,19 +71,22 @@ class ModelTagLib {
      */
     def modelView = { attrs ->
 
-        LayoutRenderContext ctx = new LayoutRenderContext(parentView:'', dataContext: 'data', span:LAYOUT_COLUMNS)
+        LayoutRenderContext ctx = new LayoutRenderContext(out:out, parentView:'', dataContext: 'data', span:LAYOUT_COLUMNS, attrs:attrs)
 
-        viewModelItems(out, attrs, attrs.model?.viewModel, ctx)
+        viewModelItems(attrs.model?.viewModel, ctx)
 
         renderDeferredTemplates out
     }
 
-    def viewModelItems(out, Map attrs, List items, LayoutRenderContext ctx) {
+    def viewModelItems(List items, LayoutRenderContext ctx) {
 
+        def out = ctx.out
+        def attrs = ctx.attrs
         items?.eachWithIndex { mod, index ->
+            ctx.model = mod
             switch (mod.type) {
                 case 'table':
-                    table out, attrs, mod
+                    table ctx
                     break
                 case 'grid':
                     grid out, attrs, mod
@@ -85,17 +122,17 @@ class ModelTagLib {
             throw new Exception("Only model elements with a list data type can be the source for a repeating layout")
         }
 
-        LayoutRenderContext childContext = new LayoutRenderContext(parentView:'', dataContext: '', span:ctx.span)
+        LayoutRenderContext childContext = ctx.createChildContext(parentView:'', dataContext: '', span:ctx.span)
 
-        out << """<div class="repeating-section" data-bind="foreach:data.${model.source}">"""
+        out << """<div class="repeating-section" data-bind="foreach:${ctx.property}">"""
         if (model.userAddedRows) {
-            out << """<button class="btn btn-warning pull-right" data-bind="click:\$root.data.${model.source}.removeRow">Remove Section</button>"""
+            out << """<button class="btn btn-warning pull-right" data-bind="click:${ctx.property}.removeRow">Remove Section</button>"""
         }
-        viewModelItems(out, attrs, model.items, childContext)
+        viewModelItems(model.items, childContext)
 
         out << "</div>"
         if (model.userAddedRows) {
-            out << """<button type="button" class="btn btn-small" data-bind="click:data.${model.source}.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>"""
+            out << """<button type="button" class="btn btn-small" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>"""
         }
     }
 
@@ -450,7 +487,7 @@ class ModelTagLib {
         out << "<div class=\"row-fluid output-section boxed-heading\" data-content='${model.title}'>\n"
         out << "<div class=\"span12\">\n"
 
-        viewModelItems(out, attrs, model.items, ctx)
+        viewModelItems(model.items, ctx)
 
         out << "</div>\n"
     }
@@ -460,7 +497,7 @@ class ModelTagLib {
 
         def span = (ctx.span / model.items.size())
 
-        LayoutRenderContext childCtx = new LayoutRenderContext(parentView: 'row', dataContext: ctx.dataContext, span: span)
+        LayoutRenderContext childCtx = ctx.createChildContext(parentView: 'row', dataContext: ctx.dataContext, span: span)
 
         def extraClassAttrs = model.class ?: ""
         def databindAttrs = model.visibility ? "data-bind=\"visible:${model.visibility}\"" : ""
@@ -469,7 +506,7 @@ class ModelTagLib {
         if (model.align == 'right') {
             out << "<div class=\"pull-right\">\n"
         }
-        viewModelItems(out, attrs, model.items, childCtx)
+        viewModelItems(model.items, childCtx)
         if (model.align == 'right') {
             out << "</div>\n"
         }
@@ -478,10 +515,10 @@ class ModelTagLib {
 
     def column(out, attrs, model, LayoutRenderContext ctx) {
 
-        LayoutRenderContext childCtx = new LayoutRenderContext(parentView: 'col', dataContext: ctx.dataContext, span: LAYOUT_COLUMNS)
+        LayoutRenderContext childCtx = ctx.createChildContext(parentView: 'col', dataContext: ctx.dataContext, span: LAYOUT_COLUMNS)
 
         out << "<div class=\"span${ctx.span}\">\n"
-        viewModelItems(out, attrs, model.items, childCtx)
+        viewModelItems(model.items, childCtx)
         out << "</div>"
     }
 
@@ -626,7 +663,11 @@ class ModelTagLib {
         out << INDENT*4 << "</tr></tbody>\n"
     }
 
-    def table(out, attrs, model) {
+    def table(LayoutRenderContext ctx) {
+
+        Map attrs = ctx.attrs
+        def out = ctx.out
+        Map model = ctx.model
 
         def isprintblankform = attrs.printable && attrs.printable != 'pdf'
 
@@ -638,20 +679,23 @@ class ModelTagLib {
             out << model.title
         }
         out << INDENT*3 << "<table class=\"table table-bordered ${model.source} ${tableClass}\" ${validation}>\n"
-        tableHeader out, attrs, model
+        tableHeader ctx
         if (isprintblankform) {
-            tableBodyPrint out, attrs, model
+            tableBodyPrint ctx
         } else {
-            tableBodyEdit out, attrs, model
-            footer out, attrs, model
+            tableBodyEdit ctx
+            footer ctx
         }
 
         out << INDENT*3 << "</table>\n"
         out << INDENT*2 << "</div>\n"
     }
 
-    def tableHeader(out, attrs, table) {
+    def tableHeader(LayoutRenderContext ctx) {
 
+        Map attrs = ctx.attrs
+        def out = ctx.out
+        Map table = ctx.model
 
         out << INDENT*4 << "<thead><tr>"
         table.columns.eachWithIndex { col, i ->
@@ -668,21 +712,10 @@ class ModelTagLib {
         out << '\n' << INDENT*4 << "</tr></thead>\n"
     }
 
-    def tableBodyView (out, attrs, table) {
-        if (!table.source) {
-            out << INDENT*4 << "<tbody><tr>\n"
-        }
-        else {
-            out << INDENT*4 << "<tbody data-bind=\"foreach: data.${table.source}\"><tr>\n"
-        }
-        table.columns.eachWithIndex { col, i ->
-            col.type = col.type ?: getType(attrs, col.source, table.source)
-            out << INDENT*5 << "<td>" << dataTag(attrs, col, '', false) << "</td>" << "\n"
-        }
-        out << INDENT*4 << "</tr></tbody>\n"
-    }
+    def tableBodyPrint (LayoutRenderContext ctx) {
 
-    def tableBodyPrint (out, attrs, table) {
+        def out = ctx.out
+        Map table = ctx.model
 
         def numRows = table.printRows ?: 10
 
@@ -698,14 +731,17 @@ class ModelTagLib {
         out << INDENT * 4 << "</tbody>\n"
     }
 
-    def tableBodyEdit (out, attrs, table) {
+    def tableBodyEdit (LayoutRenderContext ctx) {
+        def out = ctx.out
+        Map attrs = ctx.attrs
+        Map table = ctx.model
         // body elements for main rows
         if (attrs.edit) {
 
             def dataBind
             if (table.source) {
                 def templateName = table.editableRows ? "${table.source}templateToUse" : "'${table.source}viewTmpl'"
-                dataBind = "template:{name:${templateName}, foreach: data.${table.source}}"
+                dataBind = "template:{name:${templateName}, foreach: ${ctx.property}}"
             }
             else {
                 def count = getUnnamedTableCount(true)
@@ -716,15 +752,15 @@ class ModelTagLib {
             out << INDENT*4 << "<tbody data-bind=\"${dataBind}\"></tbody>\n"
             if (table.editableRows) {
                 // write the view template
-                tableViewTemplate(out, attrs, table, false)
+                tableViewTemplate(ctx, false)
                 // write the edit template
-                tableEditTemplate(out, attrs, table)
+                tableEditTemplate(ctx)
             } else {
                 // write the view template
-                tableViewTemplate(out, attrs, table, attrs.edit)
+                tableViewTemplate(ctx, attrs.edit)
             }
         } else {
-            out << INDENT*4 << "<tbody data-bind=\"foreach: data.${table.source}\"><tr>\n"
+            out << INDENT*4 << "<tbody data-bind=\"foreach: ${ctx.property}\"><tr>\n"
             table.columns.eachWithIndex { col, i ->
                 col.type = col.type ?: getType(attrs, col.source, table.source)
                 out << INDENT*5 << "<td>" << dataTag(attrs, col, '', false) << "</td>" << "\n"
@@ -758,7 +794,12 @@ class ModelTagLib {
         }
     }
 
-    def tableViewTemplate(out, attrs, model, edit) {
+    def tableViewTemplate(LayoutRenderContext ctx, edit) {
+
+        def out = ctx.out
+        Map attrs = ctx.attrs
+        Map model = ctx.model
+
         def templateName = model.source ? "${model.source}viewTmpl" : "${getUnnamedTableCount(false)}viewTmpl"
         out << INDENT*4 << "<script id=\"${templateName}\" type=\"text/html\"><tr>\n"
         model.columns.eachWithIndex { col, i ->
@@ -777,17 +818,21 @@ class ModelTagLib {
         if (model.editableRows) {
                 out << INDENT*5 << "<td>\n"
                 out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:\$root.edit${model.source}Row, enable:!\$root.${model.source}Editing()' title='edit'><i class='icon-edit'></i> Edit</button>\n"
-                out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:\$root.data.${model.source}.removeRow, enable:!\$root.${model.source}Editing()' title='remove'><i class='icon-trash'></i> Remove</button>\n"
+                out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:${ctx.property}.removeRow, enable:!\$root.${model.source}Editing()' title='remove'><i class='icon-trash'></i> Remove</button>\n"
                 out << INDENT*5 << "</td>\n"
         } else {
             if (edit && model.source) {
-                out << INDENT*5 << "<td><i data-bind='click:\$root.data.${model.source}.removeRow' class='icon-remove'></i></td>\n"
+                out << INDENT*5 << "<td><i data-bind='click:\$parent.${ctx.property}.removeRow' class='icon-remove'></i></td>\n"
             }
         }
         out << INDENT*4 << "</tr></script>\n"
     }
 
-    def tableEditTemplate(out, attrs, model) {
+    def tableEditTemplate(LayoutRenderContext ctx) {
+        def out = ctx.out
+        Map attrs = ctx.attrs
+        Map model = ctx.model
+
         def templateName = model.source ? "${model.source}viewTmpl" : "${getUnnamedTableCount(false)}viewTmpl"
         out << INDENT*4 << "<script id=\"${templateName}\" type=\"text/html\"><tr>\n"
         model.columns.eachWithIndex { col, i ->
@@ -819,7 +864,11 @@ class ModelTagLib {
     /**
      * Common footer output for both tables and grids.
      */
-    def footer(out, attrs, model) {
+    def footer(LayoutRenderContext ctx) {
+
+        def out = ctx.out
+        Map attrs = ctx.attrs
+        Map model = ctx.model
 
         def colCount = 0
         def containsSpecies = model.columns.find{it.type == 'autocomplete'}
@@ -849,10 +898,10 @@ class ModelTagLib {
         }
         colCount = (model.columns?.size()?:0) + 1
         if (attrs.edit) {
-            out << g.render(template:"/output/editModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, containsSpecies:containsSpecies, disableTableUpload:attrs.disableTableUpload || model.disableTableUpload])
+            out << g.render(template:"/output/editModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, property:ctx.property, containsSpecies:containsSpecies, disableTableUpload:attrs.disableTableUpload || model.disableTableUpload])
         }
         else if (!model.edit && !attrs.printable) {
-            out << g.render(template:"/output/viewModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source])
+            out << g.render(template:"/output/viewModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, property:ctx.property])
         }
         out << INDENT*4 << "</tfoot>\n"
 

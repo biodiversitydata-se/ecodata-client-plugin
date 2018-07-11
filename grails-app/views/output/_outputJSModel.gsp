@@ -18,14 +18,5 @@
             <md:jsRemoveBeforeSave model="${model}"/>
             return self.removeTransients(jsData);
         };
-
-
-        self.loadData = function (outputData, documents) {
-
-            self.loadOrPrepop(outputData).done(function(data) {
-                <md:jsLoadModel model="${model}"/>
-            });
-            self.transients.dummy.notifySubscribers();
-        };
     };
 </asset:script>
