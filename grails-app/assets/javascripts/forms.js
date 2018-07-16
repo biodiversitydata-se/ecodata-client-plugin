@@ -510,6 +510,17 @@
 
         var toIgnore = {ignore: ['transients', '$parent', '$index', '$context', 'dataModel']};
         self.outputNotCompleted = ko.observable(notCompleted);
+
+        self.outputNotCompleted.subscribe(function(newValue) {
+
+            if (newValue && self.dirtyFlag && self.dirtyFlag.isDirty()) {
+                bootbox.confirm("Any data you have entered into this section will be deleted when you save the form.  Continue?", function(result) {
+                    if (!result) {
+                        self.outputNotCompleted(false);
+                    }
+                });
+            }
+        });
         self.transients.optional = config.optional || false;
         self.transients.questionText = config.optionalQuestionText || 'Not applicable';
         self.transients.dummy = ko.observable();
