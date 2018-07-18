@@ -2,7 +2,6 @@ package au.org.ala.ecodata.forms
 
 
 import grails.converters.JSON
-import org.apache.log4j.Layout
 
 /**
  * Generates web page content for metadata-driven dynamic data entry and display.
@@ -16,6 +15,7 @@ class ModelTagLib {
     private final static String SPACE = " ";
     private final static String EQUALS = "=";
     private final static String DEFERRED_TEMPLATES_KEY = "deferredTemplates"
+    private final static String NUMBER_OF_TABLE_COLUMNS = "numberOfTableColumns"
 
     private final static int LAYOUT_COLUMNS = 12 // Bootstrap scaffolding uses a 12 column layout.
 
@@ -203,6 +203,9 @@ class ModelTagLib {
             case 'text':
                 renderer.renderText(renderContext)
                 break;
+            case 'readonlyText':
+                renderer.renderReadonlyText(renderContext)
+                break;
             case 'number':
                 renderer.renderNumber(renderContext)
                 break
@@ -221,11 +224,35 @@ class ModelTagLib {
             case 'selectMany':
                 renderer.renderSelectMany(renderContext)
                 break
+            case 'selectManyCombo':
+                renderer.renderSelectManyCombo(renderContext)
+                break
+            case 'wordCloud':
+                renderer.renderWordCloud(renderContext)
+                break
+            case 'audio':
+                renderer.renderAudio(renderContext)
+                break
             case 'image':
                 renderer.renderImage(renderContext)
                 break
+            case 'imageDialog':
+                renderer.renderImageDialog(renderContext)
+                break
+            case 'embeddedImage':
+                renderer.renderEmbeddedImage(renderContext)
+                break
+            case 'embeddedImages':
+                renderer.renderEmbeddedImages(renderContext)
+                break
             case 'autocomplete':
                 renderer.renderAutocomplete(renderContext)
+                break
+            case 'speciesSearchWithImagePreview':
+                renderer.renderSpeciesSearchWithImagePreview(renderContext)
+                break
+            case 'fusedAutoComplete':
+                renderer.renderFusedAutocomplete(renderContext)
                 break
             case 'photopoint':
                 renderer.renderPhotoPoint(renderContext)
@@ -235,6 +262,9 @@ class ModelTagLib {
                 break
             case 'date':
                 renderer.renderDate(renderContext)
+                break
+            case 'time':
+                renderer.renderTime(renderContext)
                 break
             case 'document':
                 renderer.renderDocument(renderContext)
@@ -253,6 +283,12 @@ class ModelTagLib {
                 break
             case 'multiInput':
                 renderer.renderMultiInput(renderContext)
+                break
+            case 'buttonGroup':
+                renderer.renderButtonGroup(renderContext)
+                break
+            case 'geoMap':
+                renderer.renderGeoMap(renderContext)
                 break
             default:
                 log.warn("Unhandled widget type: ${model.type}")
@@ -444,7 +480,7 @@ class ModelTagLib {
     // form section
     def section(out, attrs, model, LayoutRenderContext ctx) {
 
-        if (model.title) {
+        if (model.title && !model.boxed) {
             out << "<h4>${model.title}</h4>"
         }
         out << "<div class=\"row-fluid output-section\">\n"
