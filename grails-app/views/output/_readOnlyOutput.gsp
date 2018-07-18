@@ -32,7 +32,7 @@
             };
 
             ecodata.forms[viewModelInstance] = new ecodata.forms[viewModelName](output, config.model.dataModel, context, config);
-            ecodata.forms[viewModelInstance].loadData(output.data);
+            ecodata.forms[viewModelInstance].initialise(output.data);
 
             ko.applyBindings(ecodata.forms[viewModelInstance], document.getElementById("ko${blockId}"));
         });
