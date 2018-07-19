@@ -126,7 +126,7 @@ class ModelTagLib {
 
         out << """<div class="repeating-section" data-bind="foreach:${ctx.property}">"""
         if (model.userAddedRows) {
-            out << """<button class="btn btn-warning pull-right" data-bind="click:${ctx.property}.removeRow">Remove Section</button>"""
+            out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">Remove Section</button>"""
         }
         viewModelItems(model.items, childContext)
 
