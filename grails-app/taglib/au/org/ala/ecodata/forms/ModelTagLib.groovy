@@ -484,11 +484,13 @@ class ModelTagLib {
         if (model.title && !model.boxed) {
             out << "<h4>${model.title}</h4>"
         }
+
         out << "<div class=\"row-fluid output-section boxed-heading\" data-content='${model.title}'>\n"
         out << "<div class=\"span12\">\n"
 
         viewModelItems(model.items, ctx)
 
+        out << "</div>\n"
         out << "</div>\n"
     }
 

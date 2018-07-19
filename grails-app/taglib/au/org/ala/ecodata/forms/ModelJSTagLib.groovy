@@ -107,8 +107,7 @@ class ModelJSTagLib {
         List items = attrs.model?.dataModel
         items?.each { modelItem ->
 
-            // Lists and matrix data types are only supported at the top level as
-            // rendering nested tables / matricies is not supported by the html rendering code.
+            // Can't render a matrix inside a matrix
             if (modelItem.jsMain) {
                 customDataModel(attrs, modelItem, out, "jsMain")
             }
@@ -164,6 +163,11 @@ class ModelJSTagLib {
         }
         else if (mod.dataType == 'set') {
             setViewModel(ctx)
+        }
+        else if (mod.dataType  == 'list') {
+            repeatingModel(ctx)
+            listViewModel(ctx)
+            columnTotalsModel out, ctx.attrs, mod
         }
         else if (mod.dataType == 'photoPoints') {
             photoPointModel(ctx)
@@ -264,7 +268,6 @@ class ModelJSTagLib {
         }
         else if (mod.dataType == 'species') {
             out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'].loadData(${value});\n"
-//            out << INDENT*4 << "self.data['${mod.name}'] = new SpeciesViewModel(${value}, ${mod.validate == 'required'}, '${attrs.output}', '${mod.name}', '${attrs.surveyName}');\n"
         }
         else if (mod.dataType == 'document') {
             out << INDENT*4 << "var doc = _.find(context.documents || [], function(document) { return document.documentId == data['${mod.name}']} );\n"
