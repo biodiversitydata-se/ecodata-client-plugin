@@ -1,9 +1,6 @@
 package au.org.ala.ecodata.forms
 
-
 import grails.converters.JSON
-import org.apache.log4j.Layout
-
 /**
  * Generates web page content for metadata-driven dynamic data entry and display.
  */
@@ -483,15 +480,24 @@ class ModelTagLib {
 
         if (model.title && !model.boxed) {
             out << "<h4>${model.title}</h4>"
+            out << "<div class=\"row-fluid output-section\">\n"
+        } else if (model.title && model.boxed) {
+            out << "<div class=\"boxed-heading\" data-content='${model.title}'>\n"
+            out << "<div class=\"row-fluid\">\n"
         }
 
-        out << "<div class=\"row-fluid output-section boxed-heading\" data-content='${model.title}'>\n"
         out << "<div class=\"span12\">\n"
 
         viewModelItems(model.items, ctx)
 
         out << "</div>\n"
-        out << "</div>\n"
+
+        if (model.title && !model.boxed) {
+            out << "</div>"
+        } else if (model.title && model.boxed) {
+            out << "</div>"
+            out << "</div>"
+        }
     }
 
     // row model
