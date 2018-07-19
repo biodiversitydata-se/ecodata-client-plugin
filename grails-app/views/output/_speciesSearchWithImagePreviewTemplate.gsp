@@ -14,7 +14,7 @@
     <g:if test="${!readonly}">
     <div class="span6">
         <div class="row-fluid">
-            <div class="span12" data-bind="slideVisible: transients.guid">
+            <div class="span12" data-bind="slideVisible: transients.image">
                 <div class="sciName">
                     <a href="" class="tooltips" title="view species page" target="BIE"
                        data-bind="attr:{href: transients.bioProfileUrl}, text: name"></a>
@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="row-fluid">
-            <div class="span12" data-bind="slideVisible: transients.guid">
+            <div class="span12" data-bind="slideVisible: transients.image">
                 <img class="speciesThumbnail" alt="thumbnail image of species"
                  data-bind="getImage: transients.guid, attr: {src: transients.image}, visible: transients.image">
             </div>

@@ -66,7 +66,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         model.databindAttrs = context.databindAttrs
         model.validationAttr = context.validationAttr
 
-        context.writer << context.g.render(template: '/output/timeDataTypeEditModelTemplate', model: model)
+        context.writer << context.g.render(template: '/output/timeDataTypeEditModelTemplate', plugin: 'ecodata-client-plugin', model: model)
 
     }
 
@@ -176,7 +176,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderWordCloud(WidgetRenderContext context) {
-        context.databindAttrs.add 'options', 'transients.' + context.model.source + 'Constraints'
+        context.databindAttrs.add 'options', "${context.source}.constraints"
         context.databindAttrs.add 'optionsCaption', '"Please select"'
         context.databindAttrs.add 'value', "${context.source}.addWord"
 
@@ -197,24 +197,26 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderAudio(WidgetRenderContext context) {
         context.databindAttrs.add 'fileUploadWithProgress', "{target:${context.source}.files, config:{}}"
-        context.writer << context.g.render(template: '/output/audioDataTypeEditModelTemplate', model: [databindAttrs:context.databindAttrs.toString(), name: context.source])
+        context.writer << context.g.render(template: '/output/audioDataTypeEditModelTemplate', plugin: 'ecodata-client-plugin', model: [databindAttrs:context.databindAttrs.toString(), name: context.source])
     }
 
     @Override
     void renderImage(WidgetRenderContext context) {
-        context.databindAttrs.add 'imageUpload', "{target:${context.source}, context:\$context}"
-        context.writer << context.g.render(template: '/output/imageDataTypeEditModelTemplate', model: [databindAttrs:context.databindAttrs.toString(), name: context.source, validationAttrs:context.validationAttr, options: context.model.displayOptions], plugin:'ecodata-client-plugin')
+        context.databindAttrs.add 'imageUpload', "{target:${context.source}, context:\$context, config:{}}"
+        def showImgMetadata = (context.model.showMetadata == null ||  context.model.showMetadata == true) ? "block" :"none"
+        def allowImageAdd = (context.model.allowImageAdd == null ||  context.model.allowImageAdd == true) ? "block" :"none"
+        context.writer << context.g.render(template: '/output/imageDataTypeEditModelTemplate', plugin:'ecodata-client-plugin', model: [databindAttrs:context.databindAttrs.toString(), showImgMetadata: showImgMetadata, allowImageAdd: allowImageAdd, name: context.source, validationAttrs:context.validationAttr, options: context.model.displayOptions])
     }
 
     @Override
     void renderImageDialog(WidgetRenderContext context) {
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
-        context.writer << context.g.render(template: '/output/imageDialogDataTypeEditModelTemplate', model: [databindAttrs:context.databindAttrs.toString(), name: context.source])
+        context.writer << context.g.render(template: '/output/imageDialogDataTypeEditModelTemplate', plugin:'ecodata-client-plugin', model: [databindAttrs:context.databindAttrs.toString(), name: context.source])
     }
 
     @Override
     void renderEmbeddedImage(WidgetRenderContext context) {
-        context.addDeferredTemplate('/output/fileUploadTemplate')
+        context.addDeferredTemplate('/output/fileUploadTemplate', plugin:'ecodata-client-plugin')
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
         context.writer << context.g.render(template: '/output/imageDataTypeTemplate', plugin:'ecodata-client-plugin', model: [databindAttrs: context.databindAttrs.toString(), options: context.model.displayOptions, source: context.source])
     }
@@ -254,9 +256,9 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         newAttrs.add "value", "name"
         newAttrs.add "disable", "transients.speciesFieldIsReadOnly"
         newAttrs.add "event", "{focusout:focusLost}"
-//        newAttrs.add "speciesAutocomplete", "{source:transients.source, name:transients.name, guid:transients.guid, scientificName:transients.scientificName, commonName:transients.commonName, matchUnknown: true}"
+//        newAttrs.add "speciesAutocomplete", "{source:transients.source, name:transients.name, guid:transients.guid, scientificName:transients.scientificName, commonName:transients.commonName, matchUnknown: true, url:transients.speciesSearchUrl, result:speciesSelected, valueChangeCallback:textFieldChanged}"
         newAttrs.add "speciesAutocomplete", "{url:transients.speciesSearchUrl, result:speciesSelected, valueChangeCallback:textFieldChanged}"
-        context.writer << context.g.render(template: '/output/speciesSearchWithImagePreviewTemplate', model:[source: context.source, databindAttrs: newAttrs.toString(), validationAttrs:context.validationAttr, attrs: context.attributes.toString()])
+        context.writer << context.g.render(template: '/output/speciesSearchWithImagePreviewTemplate', plugin:'ecodata-client-plugin', model:[source: context.source, databindAttrs: newAttrs.toString(), validationAttrs:context.validationAttr, attrs: context.attributes.toString()])
     }
 
     @Override
@@ -290,8 +292,8 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         if (context.model.displayOptions) {
             context.databindAttrs.add "datepickerOptions", (context.model.displayOptions as JSON).toString().replaceAll("\"", "'")
         }
-        context.writer << "<div class=\"input-append\"><input ${context.attributes.toString()} class=\"input-small\" data-bind=\"${context.databindAttrs}\" type=\"text\" size=\"12\"${context.validationAttr}/>"
-        context.writer << "<span class=\"add-on open-datepicker\"><i class=\"icon-th\"></i></span></div>"
+
+        context.writer << context.g.render(template: '/output/dateDataTypeEditModelTemplate', plugin: 'ecodata-client-plugin', model: [context: context])
     }
 
 
@@ -333,6 +335,6 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         model.putAll(context.model)
         model.readonly = false
         model.validation = context.validationAttr
-        context.writer << context.g.render(template: '/output/dataEntryMap', model: model)
+        context.writer << context.g.render(template: '/output/dataEntryMap', plugin: 'ecodata-client-plugin', model: model)
     }
 }

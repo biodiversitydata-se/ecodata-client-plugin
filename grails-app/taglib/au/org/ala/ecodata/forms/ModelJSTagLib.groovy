@@ -47,6 +47,9 @@ class ModelJSTagLib {
 
     private ComputedValueRenderer computedValueRenderer = new ComputedValueRenderer()
 
+    def modelService
+    def authService
+
     /*------------ JAVASCRIPT for dynamic content -------------*/
 
     def jsModelObjects = { attrs ->
@@ -187,9 +190,10 @@ class ModelJSTagLib {
 
     String getDefaultValueAsString(JSModelRenderContext ctx) {
         Map model = ctx.dataModel
-        if (model.defaultValue != null) {
+        def defaultValue = modelService.evaluateDefaultDataForDataModel(model)
+        if (defaultValue != null) {
             // An empty string will be rendered as nothing in JS which will cause script errors.
-            return model.defaultValue  == "" ? 'undefined' : model.defaultValue
+            return defaultValue  == "" ? 'undefined' : defaultValue
         }
 
         switch (model.dataType) {
@@ -215,6 +219,7 @@ class ModelJSTagLib {
         if (mod.computed) {
             return
         }
+        String defaultValue = getDefaultValueAsString(ctx);
         String value = "ecodata.forms.orDefault(data['${mod.name}'], ${getDefaultValueAsString(ctx)})"
         if (mod.dataType in ['text', 'stringList', 'time']) {
             if (mod.name == 'recordedBy' && mod.dataType == 'text' && attrs.user?.displayName && !value) {
@@ -242,7 +247,7 @@ class ModelJSTagLib {
         // The date is currently resetting to 1 Jan 1970 if any value is set after initialisation
         // (including undefined/null/'') so this block avoids updating the model if there is no date supplied.
         else if (mod.dataType == 'date') {
-            out << INDENT*4 << "if (data['${mod.name}']) {\n"
+            out << INDENT*4 << "if (data['${mod.name}'] || \"${defaultValue}\") {\n"
             out << INDENT*5 << "${ctx.propertyPath}['${mod.name}'](${value});\n"
             out << INDENT*4 << "}\n"
         }

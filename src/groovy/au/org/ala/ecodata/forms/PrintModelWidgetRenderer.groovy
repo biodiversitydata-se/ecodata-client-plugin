@@ -64,7 +64,7 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderAudio(WidgetRenderContext context) {
-        context.writer << context.g.render(template: '/output/audioDataTypeViewModelTemplate',
+        context.writer << context.g.render(template: '/output/audioDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
                 model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: "''", hideFile: true])
     }
 
@@ -179,6 +179,6 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderGeoMap(WidgetRenderContext context) {
         context.model.readonly = true
-        context.writer << context.g.render(template: '/output/dataEntryMap', model: context.model)
+        context.writer << context.g.render(template: '/output/dataEntryMap', plugin: 'ecodata-client-plugin', model: context.model)
     }
 }

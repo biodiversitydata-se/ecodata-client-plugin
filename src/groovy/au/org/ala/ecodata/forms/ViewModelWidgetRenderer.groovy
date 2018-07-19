@@ -96,21 +96,21 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderAudio(WidgetRenderContext context) {
-        context.writer << context.g.render(template: '/output/audioDataTypeViewModelTemplate',
+        context.writer << context.g.render(template: '/output/audioDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
                 model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: "''", hideFile: false])
     }
 
     @Override
     void renderImage(WidgetRenderContext context) {
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
-        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate',
+        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
                 model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: "''"])
     }
 
     @Override
     void renderImageDialog(WidgetRenderContext context) {
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
-        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate',
+        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
                 model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: '$index()'])
     }
 
@@ -206,13 +206,13 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderGeoMap(WidgetRenderContext context) {
         context.model.readonly = true
-        context.writer << context.g.render(template: '/output/dataEntryMap', model: context.model)
+        context.writer << context.g.render(template: '/output/dataEntryMap', plugin: 'ecodata-client-plugin', model: context.model)
     }
 
     @Override
     void renderSpeciesSearchWithImagePreview(WidgetRenderContext context) {
         def newAttrs = new Databindings()
         newAttrs.add "text", "name"
-        context.writer << context.g.render(template: '/output/speciesSearchWithImagePreviewTemplate', model:[source: context.source, databindAttrs: newAttrs.toString(), validationAttrs:context.validationAttr, attrs: context.attributes.toString(), readonly: true])
+        context.writer << context.g.render(template: '/output/speciesSearchWithImagePreviewTemplate', plugin: 'ecodata-client-plugin', model:[source: context.source, databindAttrs: newAttrs.toString(), validationAttrs:context.validationAttr, attrs: context.attributes.toString(), readonly: true])
     }
 }

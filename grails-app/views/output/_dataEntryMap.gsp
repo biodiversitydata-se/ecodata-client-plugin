@@ -30,16 +30,6 @@
 //    });
 
 </script>
-<g:if env="development">
-        Allow Points: <span data-bind="text:activityLevelData.pActivity.allowPoints">Allow Points</span> <br/>
-        Allow Polygons: <span data-bind="text:activityLevelData.pActivity.allowPolygons"></span> <br/>
-        Allow Additional Survey Sites: <span data-bind="text:activityLevelData.pActivity.allowAdditionalSurveySites"></span> <br/>
-        Default zoom to: <span data-bind="text:activityLevelData.pActivity.defaultZoomArea"> </span> <br/>
-        Select only: <span data-bind="text:activityLevelData.pActivity.selectFromSitesOnly"> </span> <br/>
-        Site ID： <span data-bind="text:data.${source}"/></span>
-</g:if>
-
-
 <g:if test="${!hideSiteSelection}">
     <div class="${isHorizontal ? 'span6' : 'row-fluid'}" data-bind="visible: data.${source}SitesArray().length > 0">
         <div>
@@ -75,7 +65,7 @@
 
 <g:if test="${!isHorizontal}">
     <div class="row-fluid margin-bottom-1">
-        <m:map id="${source}Map" width="${mobile ? '90%': '90%'}"/>
+        <m:map id="${source}Map" width="100%"/>
     </div>
 </g:if>
 
@@ -218,10 +208,10 @@
                     <div class="row-fluid">
                         <div class="span12">
                             <g:if test="${readonly}">
-                                <textarea id="${source}Notes" type="text" data-bind="text: data.${source}Notes" readonly class="form-control full-width"></textarea>
+                                <textarea id="${source}Notes" type="text" data-bind="text: data.${source}Notes" readonly class="full-width"></textarea>
                             </g:if>
                             <g:else>
-                                <textarea id="${source}Notes" type="text" data-bind="value: data.${source}Notes" class="form-control full-width"></textarea>
+                                <textarea id="${source}Notes" type="text" data-bind="value: data.${source}Notes" class="full-width"></textarea>
                             </g:else>
                         </div>
                     </div>
@@ -254,11 +244,11 @@
                     <div class="row-fluid">
                         <div class="span12">
                             <g:if test="${readonly}">
-                                <textarea id="${source}Locality" type="text" data-bind="value: data.${source}Locality" readonly class="form-control full-width"></textarea>
+                                <textarea id="${source}Locality" type="text" data-bind="value: data.${source}Locality" readonly class=" full-width"></textarea>
                             </g:if>
                             <g:else>
                                 <form class="form-inline">
-                                    <textarea id="${source}Locality" type="text" data-bind="value: data.${source}Locality" class="form-control full-width"></textarea>
+                                    <textarea id="${source}Locality" type="text" data-bind="value: data.${source}Locality" class="full-width"></textarea>
                                     <g:if test="${!autoLocalitySearch}">
                                         <button id="reverseGeocodeLocality" class="btn btn-default margin-top-1">Search for locality match</button>
                                     </g:if>
@@ -270,6 +260,19 @@
                 </div>
             </div>
         </g:if>
+    </div>
+    <div class="expandable-debug">
+        <h3>Debug</h3>
+        <div>
+        <g:if env="development">
+            Allow Points: <span data-bind="text:activityLevelData.pActivity.allowPoints">Allow Points</span> <br/>
+            Allow Polygons: <span data-bind="text:activityLevelData.pActivity.allowPolygons"></span> <br/>
+            Allow Additional Survey Sites: <span data-bind="text:activityLevelData.pActivity.allowAdditionalSurveySites"></span> <br/>
+            Default zoom to: <span data-bind="text:activityLevelData.pActivity.defaultZoomArea"> </span> <br/>
+            Select only: <span data-bind="text:activityLevelData.pActivity.selectFromSitesOnly"> </span> <br/>
+            Site ID： <span data-bind="text:data.${source}"/></span>
+        </g:if>
+        </div>
     </div>
 </div>
 

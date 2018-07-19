@@ -376,6 +376,8 @@
                         result = result + "<div class='autoLine2'>" + row.rankString + ": " + row.name + "</div>";
                     } else if (row.rankString) {
                         result = result + "<div class='autoLine2'>" + row.rankString + "</div>";
+                    } else {
+                        result = result + "<div class='autoLine2'>" + row.name + "</div>";
                     }
                 }
                 result += '</a>';

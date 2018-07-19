@@ -25,9 +25,10 @@ grails.project.dependency.resolution = {
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
-        grailsCentral()
-        mavenLocal()
+//        grailsCentral()
         mavenCentral()
+        mavenLocal()
+        mavenRepo "http://nexus.ala.org.au/content/groups/public/"
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
         //mavenRepo "http://repository.codehaus.org"
@@ -41,6 +42,7 @@ grails.project.dependency.resolution = {
 
     plugins {
         compile ":asset-pipeline:2.13.1"
+        compile":ala-auth:2.2.0"
         build(":release:3.1.2",
               ":rest-client-builder:2.1.1") {
             export = false
