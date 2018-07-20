@@ -168,11 +168,7 @@ class ModelJSTagLib {
         else if (mod.dataType == "geoMap") {
             geoMapViewModel(mod, ctx.out, ctx.propertyPath, ctx.attrs.readonly?.toBoolean() ?: false, ctx.attrs.edit?.toBoolean() ?: false)
         }
-        else if (mod.dataType  == 'list') {
-            repeatingModel(ctx)
-            listViewModel(ctx)
-            columnTotalsModel out, ctx.attrs, mod
-        }
+
 
         out << INDENT*3 << "self.transients.site = site;"
     }
