@@ -81,13 +81,6 @@ class ModelJSTagLib {
             }
         }
 
-        // todo: is site and species list configuartion necessary here?
-        // TODO only necessary if the model has a field of type species.
-        out << INDENT*2 << "var speciesLists = ${attrs.speciesLists.toString()};\n"
-
-        def site = attrs.site ? attrs.site.toString() : "{}"
-        out << INDENT*2 << "var site = ${site};\n"
-
         insertControllerScripts(attrs, attrs.model?.viewModel)
 
     }

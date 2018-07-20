@@ -23,20 +23,6 @@ ecodata.forms["${outputNameAsIdentifer + 'ViewModel'}"] = function (output, data
         return self.removeTransients(jsData);
     };
 
-
-    self.loadData = function (outputData, documents) {
-        self.loadOrPrepop(outputData).done(function(data) {
-            <md:jsLoadModel model="${model}"/>
-        });
-
-        // if there is no data in tables then add an empty row for the user to add data
-        if (typeof self.addRow === 'function' && self.rowCount() === 0) {
-            self.addRow();
-        }
-
-        self.transients.dummy.notifySubscribers();
-    };
-
     self.reloadGeodata = function() {
         console.log('Reloading geo fields')
         // load dynamic data
