@@ -1,4 +1,9 @@
+//= require validatejs/0.11.1/validate.js
+//= require expr-eval/1.2.1/bundle
 //= require forms-knockout-bindings.js
+//= require speciesModel.js
+//= require images.js
+//= require image-gallery.js
 
 /**
  * Support functions for the ecodata forms rendering feature.

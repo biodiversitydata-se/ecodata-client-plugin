@@ -9,7 +9,8 @@ class DataModelController {
         if (outputName) {
             Map data = [:]
             data.outputName = outputName
-            data.edit = true
+            data.edit = params.getBoolean('edit', false)
+            data.readonly= !data.edit
             data.model = modelService.getDataModelFromOutputName(outputName)
             render view: 'script', model: data
         } else {
