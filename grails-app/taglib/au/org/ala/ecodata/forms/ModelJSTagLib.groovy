@@ -168,9 +168,6 @@ class ModelJSTagLib {
         else if (mod.dataType == "geoMap") {
             geoMapViewModel(mod, ctx.out, ctx.propertyPath, ctx.attrs.readonly?.toBoolean() ?: false, ctx.attrs.edit?.toBoolean() ?: false)
         }
-
-
-        out << INDENT*3 << "self.transients.site = site;"
     }
 
     /**
@@ -639,7 +636,7 @@ class ModelJSTagLib {
                 , listSitesUrl: '${createLink(controller: 'site', action: 'ajaxList' )}'
                 , getSiteUrl: '${createLink(controller: 'site', action: 'index' )}'
                 , uniqueNameUrl: '${createLink(controller: 'site', action: 'checkSiteName' )}'
-                , activityLevelData: activityLevelData
+                , activityLevelData: context
                 , hideSiteSelection: ${model.hideSiteSelection}
                 , hideMyLocation: ${model.hideMyLocation}
             });
