@@ -222,7 +222,7 @@ var SpeciesViewModel = function(data, options) {
     self.transients.image = ko.observable(data.image || '');
 
     options.dataFieldName ? params.push('dataFieldName=' + options.dataFieldName) : null;
-    options.surveyName ? params.push('surveyName=' + options.dataFieldName) : null;
+    options.surveyName ? params.push('surveyName=' + options.surveyName) : null;
     options.output ? params.push('output=' + options.output) : null;
     self.transients.speciesSearchUrl = options.speciesSearchUrl + '&' + params.join('&');
 
