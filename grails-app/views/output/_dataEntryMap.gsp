@@ -13,23 +13,6 @@
         <m:map id="${source}Map" width="100%"/>
     </div>
 </g:if>
-
-<script>
-    function validator_site_check(field, rules, i, options){
-        var result = activityLevelData.checkMapInfo()
-        if (!result.validation)
-            return result.message;
-        else
-            return true;
-    }
-
-//    $(document).ready(function(){
-//        $('select#siteLocation').change(function(){
-//           $('select#siteLocation').validationEngine('validate')
-//        });
-//    });
-
-</script>
 <g:if test="${!hideSiteSelection}">
     <div class="${isHorizontal ? 'span6' : 'row-fluid'}" data-bind="visible: data.${source}SitesArray().length > 0">
         <div>
@@ -45,15 +28,14 @@
                         <span class="output-text" data-bind="text: data.${source}Name() "></span>
                     </g:if>
                     <g:else>
-                        <!-- ko with: checkMapInfo -->
-                           <!-- ko ifnot: validation -->
+                    <!-- ko with: checkMapInfo -->
+                        <!-- ko ifnot: validation -->
                         <span class="label label-important" data-bind="text:message"></span><br/>
                         <!-- /ko -->
                     <!-- /ko -->
                         <select id="siteLocation"
                                 data-bind='options: data.${source}SitesArray, optionsText: "name", optionsValue: "siteId", value: data.${source}, optionsCaption: "${textOnSiteLocation}", disable: ${readonly} || data.${source}Loading'
                                 class="form-control input-xlarge full-width" data-validation-engine="validate[required,funcCall[validator_site_check]"></select>
-
                     </g:else>
                 </div>
             </div>

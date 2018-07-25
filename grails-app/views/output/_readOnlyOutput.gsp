@@ -28,7 +28,8 @@
 
             var context = {
                 project: fcConfig.project,
-                documents:<fc:modelAsJavascript model="${activity.documents}"/>
+                documents:<fc:modelAsJavascript model="${activity.documents}"/>,
+                pActivity: fcConfig.project
             };
 
             ecodata.forms[viewModelInstance] = new ecodata.forms[viewModelName](output, config.model.dataModel, context, config);

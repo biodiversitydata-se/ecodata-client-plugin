@@ -686,6 +686,10 @@
             return checkWarningsInObject(dataModel, self.data);
         };
 
+        self.isMapPresent  = function () {
+            return !!self.mapElementId
+        };
+
         self.initialise = function (outputData) {
 
             self.loadOrPrepop(outputData).done(function(data) {

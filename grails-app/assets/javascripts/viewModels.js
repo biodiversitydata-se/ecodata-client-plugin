@@ -80,7 +80,7 @@ function enmapify(args) {
 
 
         loadingObservable = container[name + "Loading"] = ko.observable(false),
-        checkMapInfo = viewModel.checkMapInfo=activityLevelData.checkMapInfo = ko.computed(function(){
+        checkMapInfo = viewModel.checkMapInfo = ko.computed(function(){
             var lat = latObservable(), lon = lonObservable(), siteId = siteIdObservable();
 
             if (!siteId && !lon && !lat )
@@ -110,6 +110,11 @@ function enmapify(args) {
             return {validation:false, message:"You have not created or selected a location yet"};
 
         });
+
+    viewModel.mapElementId = name + "Map";
+    viewModel.getSiteId = function () {
+        return siteIdObservable();
+    };
 
     // add event handling functions
     if(!viewModel.on){
@@ -169,9 +174,9 @@ function enmapify(args) {
         mapOptions.otherLayers = otherLayers;
     }
 
-    var map = new ALA.Map(name + 'Map', mapOptions);
+    var map = new ALA.Map(viewModel.mapElementId, mapOptions);
 
-    container[name + "Map"] = map;
+    container[viewModel.mapElementId] = map;
 
     var latSubscriber = latObservable.subscribe(updateMarkerPosition);
     var lngSubscriber = lonObservable.subscribe(updateMarkerPosition);
@@ -443,19 +448,6 @@ function enmapify(args) {
             completeDraw();
         else
             completeDrawWithoutAdditionalSite();
-        // if (type === 'marker') {
-        //     if (allowAdditionalSurveySites)
-        //         completeDraw();
-        //     latLonDisabledObservable(false);
-        //     return;
-        // }else{
-        //     latLonDisabledObservable(true);
-        // }
-        // if (allowAdditionalSurveySites)
-        //     completeDraw();
-        // else
-        //     completeDrawWithoutAdditionalSite();
-
     });
     var saved = false;
     map.registerListener("draw:edited", function (e) {
@@ -841,3 +833,17 @@ AddSiteViewModel.prototype.checkUniqueName = function (name) {
             }
         });
 };
+
+function validator_site_check(field, rules, i, options){
+    field = field && field[0];
+    var model = ko.dataFor(field);
+    if( model && (typeof model.checkMapInfo == 'function')) {
+        var result = model.checkMapInfo();
+        if (!result.validation)
+            return result.message;
+        else
+            return true;
+    }
+
+    return "Site validation failed. Please let administrator know.";
+}
