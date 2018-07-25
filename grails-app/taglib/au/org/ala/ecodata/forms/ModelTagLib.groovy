@@ -89,7 +89,7 @@ class ModelTagLib {
                     grid out, attrs, mod
                     break
                 case 'section':
-                    section out, attrs, mod, ctx
+                    section mod, ctx
                     break
                 case 'row':
                     row out, attrs, mod, ctx
@@ -476,7 +476,9 @@ class ModelTagLib {
     }
 
     // form section
-    def section(out, attrs, model, LayoutRenderContext ctx) {
+    def section(model, LayoutRenderContext ctx) {
+
+        def out = ctx.out
 
         if (model.title && !model.boxed) {
             out << "<h4>${model.title}</h4>"
@@ -484,6 +486,9 @@ class ModelTagLib {
         } else if (model.title && model.boxed) {
             out << "<div class=\"boxed-heading\" data-content='${model.title}'>\n"
             out << "<div class=\"row-fluid\">\n"
+        }
+        else {
+            out << "<div class=\"row-fluid output-section\">\n"
         }
 
         out << "<div class=\"span12\">\n"
@@ -496,6 +501,9 @@ class ModelTagLib {
             out << "</div>"
         } else if (model.title && model.boxed) {
             out << "</div>"
+            out << "</div>"
+        }
+        else {
             out << "</div>"
         }
     }
