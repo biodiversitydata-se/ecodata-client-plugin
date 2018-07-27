@@ -270,11 +270,11 @@ class ModelJSTagLib {
         }
         else if (mod.dataType == "geoMap") {
             boolean readonly = attrs.readonly?.toBoolean() ?: false
-            String siteId = attrs.activity?.siteId?:"";
             out << INDENT*4 << """
                     if (data.${mod.name} && typeof data.${mod.name} !== 'undefined') {
-                        var siteId = "${siteId}" || data.${mod.name}; 
-                        self.data.${mod.name}(siteId);
+                        self.data.${mod.name}(data.${mod.name});
+                    } else {
+                        self.loadActivitySite();
                     }
                     
                     if (data.${mod.name}Latitude && typeof data.${mod.name}Latitude !== 'undefined') {
@@ -662,9 +662,8 @@ class ModelJSTagLib {
         def attrs = ctx.attrs
         def model = ctx.dataModel
         String configVarName = ctx.dataModel.name+"Config"
-        ctx.out << INDENT*3 << "var ${configVarName} = _.extend(config, {printable:'${ctx.attrs.printable?:''}', dataFieldName:'${model.name}', output: '${attrs.output}', surveyName: '${attrs.surveyName}' });\n"
+        ctx.out << INDENT*3 << "var ${configVarName} = _.extend(config, {printable:'${ctx.attrs.printable?:''}', dataFieldName:'${model.name}', output: '${attrs.output}', surveyName: '${attrs.surveyName?:""}' });\n"
         ctx.out << INDENT*3 << "${ctx.propertyPath}.${ctx.dataModel.name} = new SpeciesViewModel({}, ${configVarName});\n"
-//        out << INDENT*3 << "self.data.${model.name} = new SpeciesViewModel({}, ${model.validate == 'required'}, '${attrs.output}', '${model.name}', '${attrs.surveyName}');\n"
     }
 
     def imageModel(JSModelRenderContext ctx) {

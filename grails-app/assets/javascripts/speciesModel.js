@@ -23,25 +23,52 @@ var speciesFormatters = function() {
         return $('<div class="species-image-holder"/>').css('background-image', 'url('+imageUrl+')').append();
     }
 
-    function scientificName(species) {
-        var scientificName = species.scientificNameMatches && species.scientificNameMatches.length > 0 ? species.scientificNameMatches[0] : species.scientificName;
+    function scientificName(species, config) {
+        var scientificName;
+        if ( config && config.scientificNameField) {
+            var scientificNameField = config.scientificNameField == 'rawScientificName' ? 'name' : config.scientificNameField;
+            scientificName = species[scientificNameField];
+            if (!scientificName ){
+                scientificName = getValueForKey(species.kvpValues, scientificNameField);
+                scientificName = scientificName && scientificName.value;
+            }
+
+            species.scientificName = scientificName;
+        } else {
+            scientificName = species.scientificNameMatches && species.scientificNameMatches.length > 0 ? species.scientificNameMatches[0] : species.scientificName;
+        }
+
         return scientificName || '';
     }
 
-    function commonName(species) {
+    function getValueForKey(kvpValues, key) {
+        key = key.toLowerCase();
+        return _.find(kvpValues, function (kvp) {
+            if (kvp && kvp.key) {
+                return kvp.key.toLowerCase() == key;
+            }
+        });
+    };
+
+    function commonName(species, config) {
         var commonName = null;
-        if (species.commonNameMatches && species.commonNameMatches.length > 0) {
+        if( config && config.commonNameField){
+            var commonNameField = config.commonNameField == 'rawScientificName' ? 'name' : config.commonNameField;
+            commonName = species[commonNameField];
+            if (!commonName ) {
+                commonName = getValueForKey(species.kvpValues, config.commonNameField);
+                commonName = commonName && commonName.value;
+            }
+
+            species.commonName =  commonName;
+        } else if (species.commonNameMatches && species.commonNameMatches.length > 0) {
             commonName = species.commonNameMatches[0];
         }
         else if (species.kvpValues) {
             var usableCommonName = null;
             var commonNameKeys = ['preferred common name', 'common name', 'vernacular name'];
             for (var i=0; i<commonNameKeys.length; i++) {
-                usableCommonName = _.find(species.kvpValues, function(kvp) {
-                    if (kvp && kvp.key) {
-                        return kvp.key.toLowerCase() == commonNameKeys[i];
-                    }
-                });
+                usableCommonName = getValueForKey(species.kvpValues, commonNameKeys[i]);
                 if (usableCommonName) {
                     break;
                 }
@@ -58,7 +85,7 @@ var speciesFormatters = function() {
         if (config.showImages) {
             result.append(image(species, config));
         }
-        result.append($('<div class="name-holder"/>').append($('<div class="scientific-name"/>').html(scientificName(species))).append($('<div class="common-name"/>').html(commonName(species))));
+        result.append($('<div class="name-holder"/>').append($('<div class="scientific-name"/>').html(scientificName(species, config))).append($('<div class="common-name"/>').html(commonName(species, config))));
 
         return result;
     };
@@ -158,12 +185,23 @@ var speciesSearchEngines = function() {
             };
         }
         if (config.useAla) {
-            var params = '?type=search&q=%';
+            var params = 'type=search&q=%';
             if (config.alaFq) {
                 params+='&fq='+encodeURIComponent(config.alaFq);
             }
+
+            // Biocollect has a proxy function which needs dataFieldName and output.
+            if (config.dataFieldName && (config.searchBieUrl.indexOf('dataFieldName') == -1)) {
+                params += '&dataFieldName=' + config.dataFieldName;
+            }
+
+            if (config.output && (config.searchBieUrl.indexOf('output') == -1)) {
+                params += '&output=' + config.output;
+            }
+
+            var questionMarkOrAmpersand = config.searchBieUrl.indexOf('?') > -1 ? '&' : '?';
             options.remote = {
-                url: config.searchBieUrl + params,
+                url: config.searchBieUrl + questionMarkOrAmpersand + params,
                 wildcard: '%',
                 transform: select2AlaTransformer
             };
@@ -274,8 +312,8 @@ var SpeciesViewModel = function(data, options) {
             }
         }
         self.commonName(orBlank(data.commonName));
-
-        self.transients.speciesTitle = speciesFormatters.multiLineSpeciesFormatter(self.toJS(), '', {showImage: false});
+        speciesConfig.showImage = false;
+        self.transients.speciesTitle = speciesFormatters.multiLineSpeciesFormatter(self.toJS(), '', speciesConfig);
         self.transients.textFieldValue(self.name());
         if (self.guid() && !options.printable) {
 
@@ -308,9 +346,6 @@ var SpeciesViewModel = function(data, options) {
 
     };
 
-    if (data) {
-        self.loadData(data);
-    }
     self.focusLost = function(event) {
         self.transients.editing(false);
         if (self.name()) {
@@ -550,6 +585,11 @@ var SpeciesViewModel = function(data, options) {
 
     self.guidFromOutputSpeciesId(species);
     self.populateSingleSpecies(populate);
+
+    if (data) {
+        self.loadData(data);
+    }
+
     if (species.name && !self.outputSpeciesId()) {
         self.assignOutputSpeciesId(); // This will result in the data being marked as dirty.
     }

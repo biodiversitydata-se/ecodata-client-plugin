@@ -100,6 +100,13 @@ function enmapify(args) {
                     return {validation:false, message:"The record only accepts Polygons"};
             }
 
+            if (selectFromSitesOnly){
+                if (siteId && !lat && !lon)
+                    return {validation:true};
+                else
+                    return {validation:false, message:"You must select a site from the drop down list."};
+            }
+
             if (allowPolygons && allowPoints){
                 if (siteId)
                     return {validation:true};
@@ -112,9 +119,6 @@ function enmapify(args) {
         });
 
     viewModel.mapElementId = name + "Map";
-    viewModel.getSiteId = function () {
-        return siteIdObservable();
-    };
 
     // add event handling functions
     if(!viewModel.on){
@@ -182,6 +186,14 @@ function enmapify(args) {
     var lngSubscriber = lonObservable.subscribe(updateMarkerPosition);
 
     var siteIdSubscriber;
+
+    viewModel.getSiteId = function () {
+        return siteIdObservable();
+    };
+    viewModel.loadActivitySite = function () {
+        var siteId = activityLevelData.activity && activityLevelData.activity.siteId;
+        siteId && siteIdObservable(siteId);
+    };
 
     function updateFieldsForMap(params) {
         latSubscriber.dispose();

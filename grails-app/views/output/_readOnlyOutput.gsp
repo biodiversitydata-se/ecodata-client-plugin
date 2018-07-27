@@ -21,10 +21,10 @@
 
             var output = <fc:modelAsJavascript model="${output}"/>;
             var config = ${fc.modelAsJavascript(model:activityModel.outputConfig?.find{it.outputName == outputName}, default:'{}')};
+            config = _.defaults(config, fcConfig);
             config.model = ${fc.modelAsJavascript(model:outputModel)};
             config.excelOutputTemplateUrl = fcConfig.excelOutputTemplateUrl;
             config.disablePrepop = ${disablePrepop != null ? Boolean.valueOf(disablePrepop) : true};
-            config.speciesProfileUrl = fcConfig.speciesProfileUrl;
 
             var context = {
                 project: fcConfig.project,

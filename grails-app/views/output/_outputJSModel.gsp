@@ -10,7 +10,7 @@
         ecodata.forms.OutputModel.apply(self, [output, dataModel, context, config]);
 
         // add declarations for dynamic data
-        <md:jsViewModel model="${model}"  output="${outputName}"  edit="${edit}" printable="${printable?:''}"/>
+        <md:jsViewModel model="${model}"  output="${outputName}"  edit="${edit}" printable="${printable?:''}" readonly="${!edit}" surveyName="${surveyName}"/>
 
         // this will be called when generating a savable model to remove transient properties
         self.removeBeforeSave = function (jsData) {
