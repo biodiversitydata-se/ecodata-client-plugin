@@ -43,7 +43,7 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        compile ":asset-pipeline:2.13.1"
+        compile ":asset-pipeline:2.14.1"
         compile":ala-auth:2.2.0"
         build(":release:3.1.2",
               ":rest-client-builder:2.1.1") {
