@@ -26,7 +26,7 @@ var speciesFormatters = function() {
     function scientificName(species, config) {
         var scientificName;
         if ( config && config.scientificNameField) {
-            var scientificNameField = config.scientificNameField == 'rawScientificName' ? 'name' : config.scientificNameField;
+            var scientificNameField = config.scientificNameField == 'rawScientificName' ? 'name' : config.scientificNameField == 'matchedName' ? 'scientificName' : config.scientificNameField;
             scientificName = species[scientificNameField];
             if (!scientificName ){
                 scientificName = getValueForKey(species.kvpValues, scientificNameField);
@@ -53,7 +53,7 @@ var speciesFormatters = function() {
     function commonName(species, config) {
         var commonName = null;
         if( config && config.commonNameField){
-            var commonNameField = config.commonNameField == 'rawScientificName' ? 'name' : config.commonNameField;
+            var commonNameField = config.commonNameField == 'rawScientificName' ? 'name' : config.commonNameField == 'matchedName' ? 'scientificName' : config.commonNameField;
             commonName = species[commonNameField];
             if (!commonName ) {
                 commonName = getValueForKey(species.kvpValues, config.commonNameField);
