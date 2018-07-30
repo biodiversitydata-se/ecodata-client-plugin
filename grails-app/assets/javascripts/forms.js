@@ -341,26 +341,25 @@
     ecodata.forms.OutputListSupport = function (dataModel, ListItemType, context, userAddedRows, config) {
         var self = this;
 
+        var toIgnore = {ignore: ['transients', '$parent', '$index', '$context', 'dataModel']};
         var parent = context.parent;
         var listName = context.listName;
-
-        var list = parent.data[listName];
 
         self.listName = listName;
         self.addRow = function (data) {
             var newItem = self.newItem(data, self.rowCount());
-            list.push(newItem);
+            self.push(newItem);
         };
         self.newItem = function(data, index) {
             var itemDataModel = _.indexBy(dataModel[listName].columns, 'name');
-            var itemContext = _.extend({}, context, {index:index});
+            var itemContext = _.extend({}, context, {index:index, parent:context.parent});
             return new ListItemType(data, itemDataModel, itemContext, config);
         };
         self.removeRow = function (item) {
-            list.remove(item);
+            self.remove(item);
         };
         self.rowCount = function () {
-            return list().length;
+            return self().length;
         };
         self.appendTableRows = ko.observable(userAddedRows);
         self.tableDataUploadVisible = ko.observable(false);
@@ -371,34 +370,111 @@
         self.downloadTemplate = function () {
             // Download a blank template if we are appending, otherwise download a template containing the existing data.
             if (self.appendTableRows()) {
-                parent.downloadTemplate(listName);
+                var url = config.excelOutputTemplateUrl + '?listName=' + listName + '&type=' + output.name;
+                $.fileDownload(url);
             }
             else {
-                parent.downloadDataTemplate(listName, true, userAddedRows);
+                self.downloadTemplateWithData(true, userAddedRows);
             }
         };
-        self.downloadTemplateWithData = function () {
-            parent.downloadDataTemplate(listName, false, true);
+        self.downloadTemplateWithData = function (editMode, userAddedRows) {
+            var data = ko.mapping.toJS(self(), toIgnore);
+            var params = {
+                listName: listName,
+                type: context.outputModel.name,
+                editMode: editMode || false,
+                allowExtraRows: userAddedRows || false,
+                data: JSON.stringify(data)
+            };
+            var url = config.excelOutputTemplateUrl;
+            $.fileDownload(url, {
+                httpMethod: 'POST',
+                data: params
+            });
         };
-        self.tableDataUploadOptions = parent.buildTableOptions(self);
+        self.tableDataUploadOptions =  {
+            url: config.excelDataUploadUrl,
+            done: function (e, data) {
+                if (data.result.error) {
+                    self.uploadFailed(data.result.error);
+                }
+                else {
+                    parent['load' + listName](data.result.data, self.appendTableRows());
+                }
+            },
+            fail: function (e, data) {
+                self.uploadFailed(data);
+            },
+            dataType: 'json',
+            uploadTemplateId: listName + "template-upload",
+            downloadTemplateId: listName + "template-download",
+            formData: {type: context.outputModel.name, listName: listName}
+
+        };
+        self.uploadFailed = function (message) {
+            var text = "<span class='label label-important'>Important</span><h4>There was an error uploading your data.</h4>";
+            text += "<p>" + message + "</p>";
+            bootbox.alert(text)
+        };
         self.allowUserAddedRows = userAddedRows;
         self.findDocumentInContext = function(documentId) {
-            return parent.findDocumentInContext(documentId);
+            return context.outputModel.findDocumentInContext(documentId);
         };
 
         parent['load'+listName] = function(data, append) {
             if (!append) {
-                list([]);
+                self([]);
             }
             if (data === undefined) {
-                list.loadDefaults();
+                self.loadDefaults();
             }
             else {
                 _.each(data, function(row, i) {
-                    list.push(self.newItem(row, i));
+                    self.push(self.newItem(row, i));
                 });
             }
         };
+    };
+
+    ecodata.forms.NestedModel = function(data, dataModel, context, config) {
+        var self = this;
+
+        // Expose the context as poperties to make it availble to forumula bindings
+        self.$parent = context.parent;
+        self.$index = context.index;
+        self.$context = context;
+        self.dataModel = dataModel;
+        if (!data) {
+            data = {};
+        }
+        self.transients = {};
+
+        if (config.edit && config.editableRows) {
+            self.isSelected = ko.obserable(false);
+            this.commit = function () {
+                self.doAction('commit');
+            };
+            this.reset = function () {
+                self.doAction('reset');
+            };
+            this.doAction = function (action) {
+                var prop, item;
+                for (prop in self) {
+                    if (self.hasOwnProperty(prop)) {
+                        item = self[prop];
+                        if (ko.isObservable(item) && item[action]) {
+                            item[action]();
+                        }
+                    }
+                }
+            };
+            this.isNew = false;
+            this.toJSON = function () {
+                return ko.mapping.toJS(this, {'ignore':['transients', 'isNew', 'isSelected']});
+            };
+
+        }
+
     };
 
     /**
@@ -413,6 +489,7 @@
     ecodata.forms.OutputModel = function (output, dataModel, context, config) {
 
         var self = this;
+        context.outputModel = self;
         var dataLoader = ecodata.forms.dataLoader(context, config);
         if (!output) {
             output = {};
@@ -433,6 +510,17 @@
 
         var toIgnore = {ignore: ['transients', '$parent', '$index', '$context', 'dataModel']};
         self.outputNotCompleted = ko.observable(notCompleted);
+
+        self.outputNotCompleted.subscribe(function(newValue) {
+
+            if (newValue && self.dirtyFlag && self.dirtyFlag.isDirty()) {
+                bootbox.confirm("Any data you have entered into this section will be deleted when you save the form.  Continue?", function(result) {
+                    if (!result) {
+                        self.outputNotCompleted(false);
+                    }
+                });
+            }
+        });
         self.transients.optional = config.optional || false;
         self.transients.questionText = config.optionalQuestionText || 'Not applicable';
         self.transients.dummy = ko.observable();
@@ -462,6 +550,7 @@
         self.removeTransients = function (jsData) {
             delete jsData.activityType;
             delete jsData.transients;
+            delete jsData.data.locationSitesArray;
             return jsData;
         };
 
@@ -595,7 +684,19 @@
 
         self.checkWarnings = function() {
             return checkWarningsInObject(dataModel, self.data);
-        }
+        };
+
+        self.isMapPresent  = function () {
+            return !!self.mapElementId
+        };
+
+        self.initialise = function (outputData) {
+
+            self.loadOrPrepop(outputData).done(function(data) {
+                self.loadData(data);
+            });
+            self.transients.dummy.notifySubscribers();
+        };
 
 
     };

@@ -1,8 +1,8 @@
 class EcodataClientPluginGrailsPlugin {
     // the plugin version
-    def version = "0.7"
+    def version = "1.0-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "2.5 > *"
+    def grailsVersion = "2.4.5 > *"
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
         "grails-app/views/error.gsp"
