@@ -21,19 +21,18 @@
 
             var output = <fc:modelAsJavascript model="${output}"/>;
             var config = ${fc.modelAsJavascript(model:activityModel.outputConfig?.find{it.outputName == outputName}, default:'{}')};
-            config = _.defaults(config, fcConfig);
             config.model = ${fc.modelAsJavascript(model:outputModel)};
             config.excelOutputTemplateUrl = fcConfig.excelOutputTemplateUrl;
             config.disablePrepop = ${disablePrepop != null ? Boolean.valueOf(disablePrepop) : true};
+            config.speciesProfileUrl = fcConfig.speciesProfileUrl;
 
             var context = {
                 project: fcConfig.project,
-                documents:<fc:modelAsJavascript model="${activity.documents}"/>,
-                pActivity: fcConfig.project
+                documents:<fc:modelAsJavascript model="${activity.documents}"/>
             };
 
             ecodata.forms[viewModelInstance] = new ecodata.forms[viewModelName](output, config.model.dataModel, context, config);
-            ecodata.forms[viewModelInstance].initialise(output.data);
+            ecodata.forms[viewModelInstance].loadData(output.data);
 
             ko.applyBindings(ecodata.forms[viewModelInstance], document.getElementById("ko${blockId}"));
         });

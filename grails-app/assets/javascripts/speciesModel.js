@@ -23,52 +23,25 @@ var speciesFormatters = function() {
         return $('<div class="species-image-holder"/>').css('background-image', 'url('+imageUrl+')').append();
     }
 
-    function scientificName(species, config) {
-        var scientificName;
-        if ( config && config.scientificNameField) {
-            var scientificNameField = config.scientificNameField == 'rawScientificName' ? 'name' : config.scientificNameField == 'matchedName' ? 'scientificName' : config.scientificNameField;
-            scientificName = species[scientificNameField];
-            if (!scientificName ){
-                scientificName = getValueForKey(species.kvpValues, scientificNameField);
-                scientificName = scientificName && scientificName.value;
-            }
-
-            species.scientificName = scientificName;
-        } else {
-            scientificName = species.scientificNameMatches && species.scientificNameMatches.length > 0 ? species.scientificNameMatches[0] : species.scientificName;
-        }
-
+    function scientificName(species) {
+        var scientificName = species.scientificNameMatches && species.scientificNameMatches.length > 0 ? species.scientificNameMatches[0] : species.scientificName;
         return scientificName || '';
     }
 
-    function getValueForKey(kvpValues, key) {
-        key = key.toLowerCase();
-        return _.find(kvpValues, function (kvp) {
-            if (kvp && kvp.key) {
-                return kvp.key.toLowerCase() == key;
-            }
-        });
-    };
-
-    function commonName(species, config) {
+    function commonName(species) {
         var commonName = null;
-        if( config && config.commonNameField){
-            var commonNameField = config.commonNameField == 'rawScientificName' ? 'name' : config.commonNameField == 'matchedName' ? 'scientificName' : config.commonNameField;
-            commonName = species[commonNameField];
-            if (!commonName ) {
-                commonName = getValueForKey(species.kvpValues, config.commonNameField);
-                commonName = commonName && commonName.value;
-            }
-
-            species.commonName =  commonName;
-        } else if (species.commonNameMatches && species.commonNameMatches.length > 0) {
+        if (species.commonNameMatches && species.commonNameMatches.length > 0) {
             commonName = species.commonNameMatches[0];
         }
         else if (species.kvpValues) {
             var usableCommonName = null;
             var commonNameKeys = ['preferred common name', 'common name', 'vernacular name'];
             for (var i=0; i<commonNameKeys.length; i++) {
-                usableCommonName = getValueForKey(species.kvpValues, commonNameKeys[i]);
+                usableCommonName = _.find(species.kvpValues, function(kvp) {
+                    if (kvp && kvp.key) {
+                        return kvp.key.toLowerCase() == commonNameKeys[i];
+                    }
+                });
                 if (usableCommonName) {
                     break;
                 }
@@ -85,7 +58,7 @@ var speciesFormatters = function() {
         if (config.showImages) {
             result.append(image(species, config));
         }
-        result.append($('<div class="name-holder"/>').append($('<div class="scientific-name"/>').html(scientificName(species, config))).append($('<div class="common-name"/>').html(commonName(species, config))));
+        result.append($('<div class="name-holder"/>').append($('<div class="scientific-name"/>').html(scientificName(species))).append($('<div class="common-name"/>').html(commonName(species))));
 
         return result;
     };
@@ -180,28 +153,17 @@ var speciesSearchEngines = function() {
         };
         if (config.listId) {
             options.prefetch = {
-                url: config.speciesListUrl + '?druid='+config.listIds.join(',')+'&includeKvp=true',
+                url: config.speciesListUrl + '?druid='+config.listId+'&includeKvp=true',
                 transform: select2ListTransformer
             };
         }
         if (config.useAla) {
-            var params = 'type=search&q=%';
+            var params = '?type=search&q=%';
             if (config.alaFq) {
                 params+='&fq='+encodeURIComponent(config.alaFq);
             }
-
-            // Biocollect has a proxy function which needs dataFieldName and output.
-            if (config.dataFieldName && (config.searchBieUrl.indexOf('dataFieldName') == -1)) {
-                params += '&dataFieldName=' + config.dataFieldName;
-            }
-
-            if (config.output && (config.searchBieUrl.indexOf('output') == -1)) {
-                params += '&output=' + config.output;
-            }
-
-            var questionMarkOrAmpersand = config.searchBieUrl.indexOf('?') > -1 ? '&' : '?';
             options.remote = {
-                url: config.searchBieUrl + questionMarkOrAmpersand + params,
+                url: config.searchBieUrl + params,
                 wildcard: '%',
                 transform: select2AlaTransformer
             };
@@ -224,32 +186,14 @@ var speciesSearchEngines = function() {
 var SpeciesViewModel = function(data, options) {
 
     var self = this;
-    var params = [];
-    var species = data;
-    var populate = options.populate || false;
-    var output = options.output || "";
-    var dataFieldName = options.dataFieldName || "";
-    var surveyName = options.surveyName || "";
 
     self.guid = ko.observable();
     self.name = ko.observable();
     self.scientificName = ko.observable();
     self.commonName = ko.observable();
 
-    // Reference to output species uuid - for uniqueness retrieved from ecodata server
-    self.outputSpeciesId = ko.observable();
     self.listId = ko.observable();
-
     self.transients = {};
-    self.transients.name = ko.observable(species.name);
-    self.transients.guid = ko.observable(species.guid);
-    self.transients.scientificName = ko.observable(species.scientificName);
-    self.transients.speciesFieldIsReadOnly = ko.observable(false);
-    self.transients.commonName = ko.observable(species.commonName);
-    self.transients.image = ko.observable(species.image || '');
-    self.transients.source = ko.observable(fcConfig.speciesSearchUrl +
-        '&output=' + output+ '&dataFieldName=' + dataFieldName + '&surveyName=' + surveyName);
-    self.transients.bieUrl = ko.observable();
     self.transients.speciesInformation = ko.observable();
     self.transients.speciesTitle = ko.observable();
     self.transients.editing = ko.observable(false);
@@ -257,12 +201,8 @@ var SpeciesViewModel = function(data, options) {
     self.transients.bioProfileUrl =  ko.computed(function (){
         return options.bieUrl + '/species/' + self.guid();
     });
-    self.transients.image = ko.observable(data.image || '');
 
-    options.dataFieldName ? params.push('dataFieldName=' + options.dataFieldName) : null;
-    options.surveyName ? params.push('surveyName=' + options.surveyName) : null;
-    options.output ? params.push('output=' + options.output) : null;
-    self.transients.speciesSearchUrl = options.speciesSearchUrl + '&' + params.join('&');
+    self.transients.speciesSearchUrl = options.speciesSearchUrl+'&dataFieldName='+options.dataFieldName;
 
     self.speciesSelected = function(event, data) {
         self.loadData(data);
@@ -312,8 +252,8 @@ var SpeciesViewModel = function(data, options) {
             }
         }
         self.commonName(orBlank(data.commonName));
-        speciesConfig.showImage = false;
-        self.transients.speciesTitle = speciesFormatters.multiLineSpeciesFormatter(self.toJS(), '', speciesConfig);
+
+        self.transients.speciesTitle = speciesFormatters.multiLineSpeciesFormatter(self.toJS(), '', {showImage: false});
         self.transients.textFieldValue(self.name());
         if (self.guid() && !options.printable) {
 
@@ -346,6 +286,9 @@ var SpeciesViewModel = function(data, options) {
 
     };
 
+    if (data) {
+        self.loadData(data);
+    }
     self.focusLost = function(event) {
         self.transients.editing(false);
         if (self.name()) {
@@ -377,12 +320,6 @@ var SpeciesViewModel = function(data, options) {
             speciesConfig = {};
         }
         speciesConfig.listId = speciesConfig && speciesConfig.speciesLists && speciesConfig.speciesLists.length > 0 ? speciesConfig.speciesLists[0].dataResourceUid : '';
-        if(speciesConfig.listId) {
-            speciesConfig.listIds = [];
-            for (var i in speciesConfig.speciesLists) {
-                speciesConfig.listIds.push(speciesConfig.speciesLists[i].dataResourceUid);
-            }
-        }
 
         var defaults = {
             showImages: true,
@@ -491,107 +428,6 @@ var SpeciesViewModel = function(data, options) {
             }
             callback({results: results, pagination: {more: end < list.length , page: params.page}});
         }
-    }
-
-    self.transients.guid.subscribe(function (newValue) {
-        self.name(self.transients.name());
-        self.guid(self.transients.guid());
-        self.scientificName(self.transients.scientificName());
-        self.commonName(self.transients.commonName());
-        self.transients.bieUrl(fcConfig.bieUrl + '/species/' + self.guid());
-    });
-
-    self.name.subscribe(function (newName) {
-        if (!self.outputSpeciesId() && newName != species.name) {
-            self.assignOutputSpeciesId();
-        }
-    });
-
-    self.populateSingleSpecies = function (populate) {
-        if (!self.name() && !self.guid() && fcConfig.getSingleSpeciesUrl && populate) {
-            $.ajax({
-                url: fcConfig.getSingleSpeciesUrl + '?output=' + output+ '&dataFieldName=' + dataFieldName
-                +'&surveyName=' + surveyName,
-                type: 'GET',
-                contentType: 'application/json',
-                success: function (data) {
-                    if (data.name && data.guid) {
-                        self.transients.name(data.name);
-                        self.transients.scientificName(data.scientificName);
-                        self.transients.commonName(data.commonName);
-                        self.transients.speciesFieldIsReadOnly(true);
-                        self.transients.guid(data.guid); // This will update the non-transient data.
-                    }
-                },
-                error: function (data) {
-                    console.log('Error retrieving single species')
-                }
-            });
-        }
-    };
-
-    self.reset = function () {
-        self.name("");
-        self.guid("");
-        self.scientificName("");
-        self.commonName("");
-        self.transients.name("");
-        self.transients.guid("");
-        self.transients.scientificName("");
-        self.transients.commonName("");
-    };
-
-    self.guidFromOutputSpeciesId = function(species) {
-        if (species.outputSpeciesId) {
-            self.outputSpeciesId(species.outputSpeciesId);
-            $.ajax({
-                url: fcConfig.getGuidForOutputSpeciesUrl+ "/" + species.outputSpeciesId,
-                type: 'GET',
-                contentType: 'application/json',
-                success: function (data) {
-                    self.transients.bieUrl(data.guid ? fcConfig.bieUrl + '/species/' + data.guid : fcConfig.bieUrl);
-                },
-                error: function (data) {
-                    bootbox.alert("Error retrieving species data, please try again later.");
-                }
-            });
-
-        }
-    };
-
-    /**
-     * Obtain a unique id for this species to correlate the form data with occurance
-     * records produced for export to the ALA
-     */
-    self.assignOutputSpeciesId = function() {
-        var idRequired = fcConfig.getOutputSpeciesIdUrl;
-        if (idRequired && !self.outputSpeciesId() && self.guid()) {
-            self.transients.bieUrl(fcConfig.bieUrl + '/species/' + self.guid());
-            $.ajax({
-                url: fcConfig.getOutputSpeciesIdUrl,
-                type: 'GET',
-                contentType: 'application/json',
-                success: function (data) {
-                    if (data.outputSpeciesId) {
-                        self.outputSpeciesId(data.outputSpeciesId);
-                    }
-                },
-                error: function (data) {
-                    bootbox.alert("Error retrieving species data, please try again later.");
-                }
-            });
-        }
-    };
-
-    self.guidFromOutputSpeciesId(species);
-    self.populateSingleSpecies(populate);
-
-    if (data) {
-        self.loadData(data);
-    }
-
-    if (species.name && !self.outputSpeciesId()) {
-        self.assignOutputSpeciesId(); // This will result in the data being marked as dirty.
     }
 };
 

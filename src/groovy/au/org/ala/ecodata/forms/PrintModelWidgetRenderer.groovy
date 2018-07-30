@@ -16,16 +16,6 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
     }
 
     @Override
-    void renderReadonlyText(WidgetRenderContext context) {
-        defaultRender(context)
-    }
-
-    @Override
-    void renderTime(WidgetRenderContext context) {
-        defaultRender(context)
-    }
-
-    @Override
     void renderNumber(WidgetRenderContext context) {
         defaultRender(context)
     }
@@ -58,17 +48,6 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
     }
 
     @Override
-    void renderSelectManyCombo(WidgetRenderContext context) {
-        renderCheckboxes(context)
-    }
-
-    @Override
-    void renderAudio(WidgetRenderContext context) {
-        context.writer << context.g.render(template: '/output/audioDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
-                model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: "''", hideFile: true])
-    }
-
-    @Override
     void renderImage(WidgetRenderContext context) {
         defaultRender(context)
     }
@@ -94,11 +73,6 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
     }
 
     @Override
-    void renderFusedAutocomplete(WidgetRenderContext context) {
-        defaultRender(context)
-    }
-
-    @Override
     void renderPhotoPoint(WidgetRenderContext context) {
         defaultRender(context)
     }
@@ -119,11 +93,6 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
     }
 
     @Override
-    void renderButtonGroup(WidgetRenderContext context) {
-
-    }
-
-    @Override
     void renderSpeciesSelect(WidgetRenderContext context) {
         defaultRender(context)
     }
@@ -137,6 +106,8 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
 
 
         context.writer << "<span class=\"span12 printed-form-field\"></span>"
+        // context.databindAttrs.add 'value', context.source
+//        context.writer << "<input ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}' ${context.validationAttr} type='text' class='input-small'/>"
     }
 
     private void renderCheckboxes(WidgetRenderContext context) {
@@ -164,21 +135,5 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderMultiInput(WidgetRenderContext context) {
         renderTextArea(context)
-    }
-
-    @Override
-    void renderWordCloud(WidgetRenderContext context) {
-        defaultRender(context)
-    }
-
-    @Override
-    void renderSpeciesSearchWithImagePreview(WidgetRenderContext context) {
-        defaultRender(context)
-    }
-
-    @Override
-    void renderGeoMap(WidgetRenderContext context) {
-        context.model.readonly = true
-        context.writer << context.g.render(template: '/output/dataEntryMap', plugin: 'ecodata-client-plugin', model: context.model)
     }
 }

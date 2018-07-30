@@ -376,8 +376,6 @@
                         result = result + "<div class='autoLine2'>" + row.rankString + ": " + row.name + "</div>";
                     } else if (row.rankString) {
                         result = result + "<div class='autoLine2'>" + row.rankString + "</div>";
-                    } else {
-                        result = result + "<div class='autoLine2'>" + row.name + "</div>";
                     }
                 }
                 result += '</a>';
@@ -752,10 +750,6 @@
      */
     ko.extenders.metadata = function(target, options) {
         ecodata.forms.DataModelItem.apply(target, [options.metadata, options.parent, options.context, options.config]);
-    };
-
-    ko.extenders.list = function(target, options) {
-        ecodata.forms.OutputListSupport.apply(target, [options.metadata, options.constructorFunction, options.context, options.userAddedRows, options.config]);
     };
 
 })();

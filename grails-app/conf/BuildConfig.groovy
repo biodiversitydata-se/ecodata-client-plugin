@@ -25,10 +25,9 @@ grails.project.dependency.resolution = {
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
-//        grailsCentral()
-        mavenCentral()
+        grailsCentral()
         mavenLocal()
-        mavenRepo "https://nexus.ala.org.au/content/groups/public/"
+        mavenCentral()
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
         //mavenRepo "http://repository.codehaus.org"
@@ -38,13 +37,10 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.27'
-        compile "org.apache.httpcomponents:httpcore:4.4.1"
-        compile "org.apache.httpcomponents:httpclient:4.4.1"
     }
 
     plugins {
-        compile ":asset-pipeline:2.14.1"
-        compile":ala-auth:2.2.0"
+        compile ":asset-pipeline:2.13.1"
         build(":release:3.1.2",
               ":rest-client-builder:2.1.1") {
             export = false

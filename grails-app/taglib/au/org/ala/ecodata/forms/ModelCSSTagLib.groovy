@@ -37,7 +37,7 @@ class ModelCSSTagLib {
         def tableClass = model.source
 
         out << '<style type="text/css">\n'
-        if (!model.disableHeaderWrap || model.allowHeaderWrap || attrs.forceHeaderWrap) {
+        if (!model.disableHeaderWrap) {
             out << INDENT*2 << "table.${tableClass} th {white-space:normal;}\n"
         }
 
