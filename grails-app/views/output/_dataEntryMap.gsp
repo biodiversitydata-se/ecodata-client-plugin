@@ -295,7 +295,7 @@
             var el = document.getElementById("${source}Map"),
                 viewModel = ko.dataFor(el);
 
-            if(viewModel){
+            if(viewModel && viewModel.data){
                 var long = viewModel.data.${source}Longitude,
                     lat = viewModel.data.${source}Latitude;
 
@@ -314,7 +314,7 @@
             var el = document.getElementById("${source}Map"),
                 viewModel = ko.dataFor(el);
 
-            if(viewModel){
+            if(viewModel && viewModel.data){
                 var source = viewModel.data.${source}Source;
                 source && source('Google maps');
             }
