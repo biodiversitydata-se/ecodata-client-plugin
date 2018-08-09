@@ -29,10 +29,11 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             'grails-app/assets/vendor/knockout/3.4.0/knockout-3.4.0.js',
-            'grails-app/assets/vendor/expr-eval/1.0/parser.js',
+            'grails-app/assets/vendor/expr-eval/1.2.1/bundle.js',
             'grails-app/assets/vendor/select2/4.0.3/js/select2.full.js',
             'grails-app/assets/vendor/underscorejs/1.8.3/underscore.js',
             'grails-app/assets/vendor/typeahead/0.11.1/bloodhound.js',
+            'grails-app/assets/vendor/underscorejs/1.8.3/underscore.js',
             'grails-app/assets/javascripts/*.js',
             'test/js/util/*.js',
             'test/js/spec/**/*.js'

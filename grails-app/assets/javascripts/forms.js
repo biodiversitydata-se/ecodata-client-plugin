@@ -1,19 +1,111 @@
+//= require emitter/emitter
 //= require validatejs/0.11.1/validate.js
 //= require expr-eval/1.2.1/bundle
 //= require forms-knockout-bindings.js
 //= require speciesModel.js
 //= require images.js
 //= require image-gallery.js
+//= require viewModels.js
+
 
 /**
  * Support functions for the ecodata forms rendering feature.
  */
-(function() {
+(function () {
 
     // base namespace for the forms library
     if (!window.ecodata) {
-        ecodata = {forms:{}};
+        ecodata = {forms: {}};
     }
+
+    ecodata.forms.utils = {
+
+        neat_number: function (number, decimals) {
+            var str = ecodata.forms.utils.number_format(number, decimals);
+            if (str.indexOf('.') === -1) {
+                return str;
+            }
+            // trim trailing zeros beyond the decimal point
+            while (str[str.length - 1] === '0') {
+                str = str.substr(0, str.length - 1);
+            }
+            if (str[str.length - 1] === '.') {
+                str = str.substr(0, str.length - 1);
+            }
+            return str;
+        },
+
+        number_format: function (number, decimals, dec_point, thousands_sep) {
+            // http://kevin.vanzonneveld.net
+            // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+            // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+            // +     bugfix by: Michael White (http://getsprink.com)
+            // +     bugfix by: Benjamin Lupton
+            // +     bugfix by: Allan Jensen (http://www.winternet.no)
+            // +    revised by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+            // +     bugfix by: Howard Yeend
+            // +    revised by: Luke Smith (http://lucassmith.name)
+            // +     bugfix by: Diogo Resende
+            // +     bugfix by: Rival
+            // +      input by: Kheang Hok Chin (http://www.distantia.ca/)
+            // +   improved by: davook
+            // +   improved by: Brett Zamir (http://brett-zamir.me)
+            // +      input by: Jay Klehr
+            // +   improved by: Brett Zamir (http://brett-zamir.me)
+            // +      input by: Amir Habibi (http://www.residence-mixte.com/)
+            // +     bugfix by: Brett Zamir (http://brett-zamir.me)
+            // +   improved by: Theriault
+            // +      input by: Amirouche
+            // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+            // *     example 1: number_format(1234.56);
+            // *     returns 1: '1,235'
+            // *     example 2: number_format(1234.56, 2, ',', ' ');
+            // *     returns 2: '1 234,56'
+            // *     example 3: number_format(1234.5678, 2, '.', '');
+            // *     returns 3: '1234.57'
+            // *     example 4: number_format(67, 2, ',', '.');
+            // *     returns 4: '67,00'
+            // *     example 5: number_format(1000);
+            // *     returns 5: '1,000'
+            // *     example 6: number_format(67.311, 2);
+            // *     returns 6: '67.31'
+            // *     example 7: number_format(1000.55, 1);
+            // *     returns 7: '1,000.6'
+            // *     example 8: number_format(67000, 5, ',', '.');
+            // *     returns 8: '67.000,00000'
+            // *     example 9: number_format(0.9, 0);
+            // *     returns 9: '1'
+            // *    example 10: number_format('1.20', 2);
+            // *    returns 10: '1.20'
+            // *    example 11: number_format('1.20', 4);
+            // *    returns 11: '1.2000'
+            // *    example 12: number_format('1.2000', 3);
+            // *    returns 12: '1.200'
+            // *    example 13: number_format('1 000,50', 2, '.', ' ');
+            // *    returns 13: '100 050.00'
+            // Strip all characters but numerical ones.
+            number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+            var n = !isFinite(+number) ? 0 : +number,
+                prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                s = '',
+                toFixedFix = function (n, prec) {
+                    var k = Math.pow(10, prec);
+                    return '' + Math.round(n * k) / k;
+                };
+            // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+            s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+            if (s[0].length > 3) {
+                s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+            }
+            if ((s[1] || '').length < prec) {
+                s[1] = s[1] || '';
+                s[1] += new Array(prec - s[1].length + 1).join('0');
+            }
+            return s.join(dec);
+        }
+    };
 
     /**
      * Helper function for evaluating expressions defined in the metadata.  These may be used to compute values
@@ -87,7 +179,7 @@
                     numberOfDecimalPlaces = 2;
                 }
 
-                result = neat_number(result, numberOfDecimalPlaces);
+                result = ecodata.forms.utils.neat_number(result, numberOfDecimalPlaces);
             }
 
             return result;
@@ -111,13 +203,13 @@
 
     }();
 
-    ecodata.forms.orDefault = function(value, defaultValue) {
+    ecodata.forms.orDefault = function (value, defaultValue) {
         return value === undefined ? defaultValue : value;
     };
 
-    ecodata.forms.dataLoader = function(context, config) {
+    ecodata.forms.dataLoader = function (context, config) {
         var self = this;
-        self.getNestedValue = function(data, path) {
+        self.getNestedValue = function (data, path) {
 
             var paths = path.split('.')
                 , current = data
@@ -169,7 +261,7 @@
         };
 
         self.prepop = function (conf) {
-            return self.getPrepopData(conf).pipe(function(prepopData) {
+            return self.getPrepopData(conf).pipe(function (prepopData) {
                 if (prepopData) {
                     var result = prepopData;
                     var mapping = conf.mapping;
@@ -185,7 +277,7 @@
             var result;
             if (_.isArray(data)) {
                 result = [];
-                _.each(data, function(d) {
+                _.each(data, function (d) {
                     result.push(self.mapObject(mappingList, d));
                 });
             }
@@ -196,7 +288,7 @@
             return result;
         };
 
-        self.mapObject = function(mappingList, data) {
+        self.mapObject = function (mappingList, data) {
             var result = {};
 
             _.each(mappingList, function (mapping) {
@@ -239,9 +331,9 @@
         };
 
         return {
-            getPrepopData:self.getPrepopData,
-            prepop:self.prepop,
-            merge:self.merge
+            getPrepopData: self.getPrepopData,
+            prepop: self.prepop,
+            merge: self.merge
         };
 
     };
@@ -252,26 +344,26 @@
      * @param metadata the metadata definition for the data model item.
      * @constructor
      */
-    ecodata.forms.DataModelItem = function(metadata, parent, context, config) {
+    ecodata.forms.DataModelItem = function (metadata, parent, context, config) {
         var self = this;
         var dataLoader = ecodata.forms.dataLoader(context, config);
 
-        self.get = function(name) {
+        self.get = function (name) {
             return metadata[name];
         };
 
-        self.checkWarnings = function() {
+        self.checkWarnings = function () {
             //var rules = str.split(/\[|,|\]/);
             var warningRule = metadata.warning;
 
             var constraints = {
                 val: warningRule
             };
-            return validate({val:self()}, constraints, {fullMessages:false});
+            return validate({val: self()}, constraints, {fullMessages: false});
         };
 
-        self.evaluateBehaviour = function(type, defaultValue) {
-            var rule = _.find(metadata.behaviour, function(rule) {
+        self.evaluateBehaviour = function (type, defaultValue) {
+            var rule = _.find(metadata.behaviour, function (rule) {
                 return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, parent);
             });
 
@@ -293,8 +385,8 @@
             }
             else if (_.isObject(metadata.constraints)) {
                 if (metadata.constraints.type == 'computed') {
-                    self.constraints = ko.computed(function() {
-                        var rule = _.find(metadata.constraints.options, function(option) {
+                    self.constraints = ko.computed(function () {
+                        var rule = _.find(metadata.constraints.options, function (option) {
                             return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, parent);
                         });
                         return rule ? rule.value : metadata.constraints.default;
@@ -302,19 +394,19 @@
                 }
                 else if (metadata.constraints.type == 'pre-populated') {
                     self.constraints = ko.observableArray();
-                    dataLoader.prepop(metadata.constraints.config).done(function(data) {
+                    dataLoader.prepop(metadata.constraints.config).done(function (data) {
                         self.constraints(data);
                     });
                 }
             }
 
-            self.constraints.value = function(constraint) {
+            self.constraints.value = function (constraint) {
                 if (_.isObject(constraint)) {
                     return constraint[valueProperty];
                 }
                 return constraint;
             };
-            self.constraints.text = function(constraint) {
+            self.constraints.text = function (constraint) {
                 if (_.isObject(constraint)) {
                     return constraint[textProperty];
                 }
@@ -350,9 +442,9 @@
             var newItem = self.newItem(data, self.rowCount());
             self.push(newItem);
         };
-        self.newItem = function(data, index) {
+        self.newItem = function (data, index) {
             var itemDataModel = _.indexBy(dataModel[listName].columns, 'name');
-            var itemContext = _.extend({}, context, {index:index, parent:context.parent});
+            var itemContext = _.extend({}, context, {index: index, parent: context.parent});
             return new ListItemType(data, itemDataModel, itemContext, config);
         };
         self.removeRow = function (item) {
@@ -392,7 +484,7 @@
                 data: params
             });
         };
-        self.tableDataUploadOptions =  {
+        self.tableDataUploadOptions = {
             url: config.excelDataUploadUrl,
             done: function (e, data) {
                 if (data.result.error) {
@@ -417,11 +509,11 @@
             bootbox.alert(text)
         };
         self.allowUserAddedRows = userAddedRows;
-        self.findDocumentInContext = function(documentId) {
+        self.findDocumentInContext = function (documentId) {
             return context.outputModel.findDocumentInContext(documentId);
         };
 
-        parent['load'+listName] = function(data, append) {
+        parent['load' + listName] = function (data, append) {
             if (!append) {
                 self([]);
             }
@@ -429,14 +521,14 @@
                 self.loadDefaults();
             }
             else {
-                _.each(data, function(row, i) {
+                _.each(data, function (row, i) {
                     self.push(self.newItem(row, i));
                 });
             }
         };
     };
 
-    ecodata.forms.NestedModel = function(data, dataModel, context, config) {
+    ecodata.forms.NestedModel = function (data, dataModel, context, config) {
         var self = this;
 
         // Expose the context as poperties to make it availble to forumula bindings
@@ -470,7 +562,7 @@
             };
             this.isNew = false;
             this.toJSON = function () {
-                return ko.mapping.toJS(this, {'ignore':['transients', 'isNew', 'isSelected']});
+                return ko.mapping.toJS(this, {'ignore': ['transients', 'isNew', 'isSelected']});
             };
 
         }
@@ -511,10 +603,10 @@
         var toIgnore = {ignore: ['transients', '$parent', '$index', '$context', 'dataModel']};
         self.outputNotCompleted = ko.observable(notCompleted);
 
-        self.outputNotCompleted.subscribe(function(newValue) {
+        self.outputNotCompleted.subscribe(function (newValue) {
 
             if (newValue && self.dirtyFlag && self.dirtyFlag.isDirty()) {
-                bootbox.confirm("Any data you have entered into this section will be deleted when you save the form.  Continue?", function(result) {
+                bootbox.confirm("Any data you have entered into this section will be deleted when you save the form.  Continue?", function (result) {
                     if (!result) {
                         self.outputNotCompleted(false);
                     }
@@ -596,14 +688,12 @@
                 }
             }
             // Wait for all configured pre-pop to complete, then resolve our deferred.
-            $.when.apply($, waitingOn).then(function() {
+            $.when.apply($, waitingOn).then(function () {
                 deferred.resolve(result);
             });
 
             return deferred;
         };
-
-
 
 
         self.attachDocument = function (target) {
@@ -656,18 +746,18 @@
                 formData: {type: output.name, listName: listName}
             };
         };
-        self.findDocumentInContext = function(documentId) {
-            return _.find(context.documents || [], function(document) {
+        self.findDocumentInContext = function (documentId) {
+            return _.find(context.documents || [], function (document) {
                 return document.documentId === documentId;
             })
         };
 
         function checkWarningsInObject(items, obj) {
             var warnings = []
-            _.each(items, function(item) {
+            _.each(items, function (item) {
                 var dataModelItem = obj[item.name];
                 if (item.dataType == 'list') {
-                    _.each(obj[item.name](), function(listItem) {
+                    _.each(obj[item.name](), function (listItem) {
                         warnings = warnings.concat(checkWarningsInObject(item.columns, listItem));
                     });
                 }
@@ -682,17 +772,17 @@
             return warnings;
         }
 
-        self.checkWarnings = function() {
+        self.checkWarnings = function () {
             return checkWarningsInObject(dataModel, self.data);
         };
 
-        self.isMapPresent  = function () {
+        self.isMapPresent = function () {
             return !!self.mapElementId
         };
 
         self.initialise = function (outputData) {
 
-            self.loadOrPrepop(outputData).done(function(data) {
+            self.loadOrPrepop(outputData).done(function (data) {
                 self.loadData(data);
             });
             self.transients.dummy.notifySubscribers();
