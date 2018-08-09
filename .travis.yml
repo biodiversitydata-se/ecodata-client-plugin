@@ -13,6 +13,8 @@ before_install:
 - chmod +x ala_common.sh
 - source ./ala_common.sh
 - ala_travis_grails_setup_env
+before_script:
+- npm install
 script:
 - node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
 - ala_travis_grails_build
