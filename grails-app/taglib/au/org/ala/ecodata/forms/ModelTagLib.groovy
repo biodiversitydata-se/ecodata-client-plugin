@@ -288,6 +288,9 @@ class ModelTagLib {
             case 'geoMap':
                 renderer.renderGeoMap(renderContext)
                 break
+            case 'feature':
+                renderer.renderFeature(renderContext)
+                break
             default:
                 log.warn("Unhandled widget type: ${model.type}")
                 break

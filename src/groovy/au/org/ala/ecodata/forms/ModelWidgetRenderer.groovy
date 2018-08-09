@@ -36,6 +36,7 @@ public interface ModelWidgetRenderer {
     void renderMultiInput(WidgetRenderContext context)
     void renderButtonGroup(WidgetRenderContext context)
     void renderGeoMap(WidgetRenderContext context)
+    void renderFeature(WidgetRenderContext context)
 }
 
 

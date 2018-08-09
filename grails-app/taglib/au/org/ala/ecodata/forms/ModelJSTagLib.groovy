@@ -168,6 +168,9 @@ class ModelJSTagLib {
         else if (mod.dataType == "geoMap") {
             geoMapViewModel(mod, ctx.out, ctx.propertyPath, ctx.attrs.readonly?.toBoolean() ?: false, ctx.attrs.edit?.toBoolean() ?: false)
         }
+        else if (mod.dataType == "feature") {
+            featureModel(ctx)
+        }
     }
 
     /**
@@ -641,6 +644,10 @@ class ModelJSTagLib {
                 , hideMyLocation: ${model.hideMyLocation}
             });
         """
+    }
+
+    def featureModel(JSModelRenderContext ctx) {
+        observable(ctx, ["{feature:true}"])
     }
 
     def audioModel(JSModelRenderContext ctx) {

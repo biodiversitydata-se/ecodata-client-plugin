@@ -337,4 +337,10 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         model.validation = context.validationAttr
         context.writer << context.g.render(template: '/output/dataEntryMap', plugin: 'ecodata-client-plugin', model: model)
     }
+
+    @Override
+    void renderFeature(WidgetRenderContext context) {
+        context.addDeferredTemplate('/output/mapInDialogTemplate')
+        context.writer << "<feature params=\"model:${context.source}\"></feature>"
+    }
 }
