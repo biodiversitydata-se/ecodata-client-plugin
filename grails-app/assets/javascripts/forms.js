@@ -261,7 +261,7 @@
         };
 
         self.prepop = function (conf) {
-            return self.getPrepopData(conf).pipe(function (prepopData) {
+            return self.getPrepopData(conf).then(function (prepopData) {
                 if (prepopData) {
                     var result = prepopData;
                     var mapping = conf.mapping;
@@ -782,10 +782,11 @@
 
         self.initialise = function (outputData) {
 
-            self.loadOrPrepop(outputData).done(function (data) {
+            return self.loadOrPrepop(outputData).done(function (data) {
                 self.loadData(data);
+                self.transients.dummy.notifySubscribers();
             });
-            self.transients.dummy.notifySubscribers();
+
         };
 
 
