@@ -19,7 +19,7 @@ grails.project.fork = [
 clover {
     on = false // Slows down testing individual classes too much.  Override by passing -clover.on to test-app e.g. grails test-app -clover.on unit:
     reporttask = { ant, binding, self ->
-        ant.'clover-check'(target: "3%", haltOnFailure: true) { }
+        ant.'clover-check'(target: "1%", haltOnFailure: true) { }
     }
 }
 
