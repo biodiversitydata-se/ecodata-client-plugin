@@ -17,6 +17,8 @@ describe("OutputModel Spec", function () {
         searchBieUrl:''
     };
 
+
+
     beforeAll(function() {
         window.fcConfig = {};
     });
@@ -37,7 +39,7 @@ describe("OutputModel Spec", function () {
     });
 
 
-    it("should allow the output model to be populated by the pre-populate configuration if no output data is supplied", function() {
+    it("should allow the output model to be populated by the pre-populate configuration if no output data is supplied", function(done) {
 
         var context = {
             some: {
@@ -46,13 +48,15 @@ describe("OutputModel Spec", function () {
         };
         var model = new Flora_Survey_Details_ViewModel({name:"Flora Survey Details"}, {}, context, config);
 
-        model.loadData();
+        model.initialise().done(function(result) {
+            expect(model.data.notes()).toEqual("test");
+            done();
+        });
 
-        expect(model.data.notes()).toEqual("test");
 
     });
 
-    it("should use supplied output data in preference to pre-populate data", function() {
+    it("should use supplied output data in preference to pre-populate data", function(done) {
 
         var context = {
             some: {
@@ -62,9 +66,11 @@ describe("OutputModel Spec", function () {
 
         var model = new Flora_Survey_Details_ViewModel({name:"Flora Survey Details"}, {}, context, config);
 
-        model.initialise({notes:'test 2'});
+        model.initialise({notes:'test 2'}).done(function(result) {
 
-        expect(model.data.notes()).toEqual("test 2");
+            expect(model.data.notes()).toEqual("test 2");
+            done();
+        });
 
     });
 

@@ -133,16 +133,12 @@ Flora_Survey_Details_ViewModel = function (output, dataModel, context, config) {
         return parent.removeBeforeSave(jsData);
     };
 
+    self.loadData = function (data) {
+        self.loadsurveyResultsFlora(data.surveyResultsFlora);
+        self.data['soilSampleCollected'](data['soilSampleCollected']);
+        self.data['notes'](data['notes']);
 
-    self.loadData = function (outputData, documents) {
+        self.transients.dummy.notifySubscribers();
 
-        self.loadOrPrepop(outputData).done(function(data){
-
-            self.loadsurveyResultsFlora(data.surveyResultsFlora);
-            self.data['soilSampleCollected'](data['soilSampleCollected']);
-            self.data['notes'](data['notes']);
-
-            self.transients.dummy.notifySubscribers();
-        });
     };
 };

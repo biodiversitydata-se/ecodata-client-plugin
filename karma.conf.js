@@ -21,7 +21,7 @@ module.exports = function (config) {
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
         frameworks: [
-            'jquery-1.11.0', // Because we are using a grails plugin for jquery it is not easily available via a project path.
+            'jquery-3.3.1', // Because we are using a grails plugin for jquery it is not easily available via a project path.
             'jasmine-jquery',
             'jasmine'],
 

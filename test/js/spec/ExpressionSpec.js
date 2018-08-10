@@ -8,7 +8,7 @@ describe("Expression Spec", function () {
         };
 
         var model = new ecodata.forms.SimpleExpressionViewModel({}, {}, {}, {});
-        model.initialise(data);
+        model.loadData(data);
 
         expect(Number(model.data.affectedArea())).toEqual(40);
     });
@@ -26,9 +26,8 @@ describe("Expression Spec", function () {
         };
 
         var model = new ecodata.forms.NestedExpressionViewModel({}, nestedExpressionDataModel, {}, {});
-        model.initialise(data);
+        model.loadData(data);
 
-        console.log(model.data.nested());
         expect(Number(model.data.nested()[0].affectedArea())).toEqual(40);
     });
 
