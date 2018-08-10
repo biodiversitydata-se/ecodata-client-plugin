@@ -7,7 +7,7 @@ grails.project.fork = [
     //  compile: [maxMemory: 256, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
 
     // configure settings for the test-app JVM, uses the daemon by default
-    test: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
+    test: false, // Clover was giving errors with forked tests.
     // configure settings for the run-app JVM
     run: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, forkReserve:false],
     // configure settings for the run-war JVM
@@ -15,6 +15,14 @@ grails.project.fork = [
     // configure settings for the Console UI JVM
     console: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256]
 ]
+
+clover {
+    on = false // Slows down testing individual classes too much.  Override by passing -clover.on to test-app e.g. grails test-app -clover.on unit:
+    reporttask = { ant, binding, self ->
+        ant.'clover-check'(target: "3%", haltOnFailure: true) { }
+    }
+}
+
 
 grails.project.dependency.resolver = "maven" // or ivy
 grails.project.dependency.resolution = {
@@ -40,14 +48,21 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.27'
         compile "org.apache.httpcomponents:httpcore:4.4.1"
         compile "org.apache.httpcomponents:httpclient:4.4.1"
+
+        test 'org.openclover:clover:4.3.0'
     }
 
     plugins {
         compile ":asset-pipeline:2.14.1"
         compile":ala-auth:2.2.0"
+        compile (":ala-map:2.1.7") {
+            excludes "resources"
+        }
         build(":release:3.1.2",
               ":rest-client-builder:2.1.1") {
             export = false
         }
+
+        test 'org.grails.plugins:clover:4.3.0'
     }
 }
