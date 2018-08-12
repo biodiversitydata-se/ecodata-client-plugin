@@ -18,8 +18,25 @@ grails.project.fork = [
 
 clover {
     on = false // Slows down testing individual classes too much.  Override by passing -clover.on to test-app e.g. grails test-app -clover.on unit:
+    reports.dir = "target/clover/report"
     reporttask = { ant, binding, self ->
+        ant.mkdir(dir: "${clover.reports.dir}")
+        ant.'clover-report' {
+
+            ant.current(outfile: "${clover.reports.dir}") {
+                format(type: "html")
+                ant.columns {
+                    lineCount()
+                    complexity()
+                    filteredElements(format: "bar")
+                    uncoveredElements(format: "raw")
+                    totalElements(format: "raw")
+                    totalPercentageCovered()
+                }
+            }
+        }
         ant.'clover-check'(target: "1%", haltOnFailure: true) { }
+
     }
 }
 
@@ -52,9 +69,10 @@ grails.project.dependency.resolution = {
         test 'org.openclover:clover:4.3.0'
     }
 
+    def tomcatVersion = '7.0.55'
     plugins {
         compile ":asset-pipeline:2.14.1"
-        compile":ala-auth:2.2.0"
+        //compile":ala-auth:2.2.0"
         compile (":ala-map:2.1.7") {
             excludes "resources"
         }
@@ -64,5 +82,7 @@ grails.project.dependency.resolution = {
         }
 
         test 'org.grails.plugins:clover:4.3.0'
+
+        build ":tomcat:$tomcatVersion"
     }
 }

@@ -136,11 +136,11 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'value', '\$data'
         context.databindAttrs.add 'checked', "${context.source}"
         context.databindAttrs.add 'attr', "{'name': ${nameBinding}}"
-
+        context.attributes.addClass('checkbox-list')
         context.writer << """
-                <ul class="checkbox-list" data-bind="foreach: ${constraints}">
+                <ul${context.attributes.toString()} data-bind="foreach: ${constraints}">
                     <li>
-                        <label>
+                        <label class="checkbox">
                             <!-- ko with:_.extend({}, \$parent, {\$data:\$data, \$parentContext:\$parentContext}) -->
                             <input type="checkbox" name="${context.source}" data-bind="${context.databindAttrs.toString()}" ${context.validationAttr}/><span data-bind="text:\$data"/></span>
                             <!-- /ko -->

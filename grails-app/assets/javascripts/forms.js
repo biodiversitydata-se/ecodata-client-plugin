@@ -7,7 +7,19 @@
 //= require image-gallery.js
 //= require viewModels.js
 
-
+// returns blank string if the property is undefined, else the value
+function orBlank(v) {
+    return v === undefined ? '' : v;
+}
+function orFalse(v) {
+    return v === undefined ? false : v;
+}
+function orZero(v) {
+    return v === undefined ? 0 : v;
+}
+function orEmptyArray(v) {
+    return v === undefined ? [] : v;
+}
 /**
  * Support functions for the ecodata forms rendering feature.
  */
