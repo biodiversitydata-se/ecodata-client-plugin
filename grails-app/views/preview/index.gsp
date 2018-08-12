@@ -35,6 +35,10 @@
         var model = new ecodata.forms[modelName](output, dataModel, context, config);
 
         ko.applyBindings(model);
+
+        // Expose our model in the global scope to get at it easily with GEB
+        window.model = model
+        window.modelReady = true
     });
 
 </script>

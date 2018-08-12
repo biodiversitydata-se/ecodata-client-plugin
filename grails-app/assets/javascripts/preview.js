@@ -1,5 +1,6 @@
 //= require jquery/3.3.1/jquery-3.3.1.min.js
 //= require knockout/3.4.0/knockout-3.4.0.debug.js
+//= require knockout/3.4.0/knockout.mapping-latest.js
 //= require jquery-ui/jquery-ui-1.9.2.custom.js
 //= require fileupload-9.0.0/jquery.fileupload.js
 //= require fileupload-9.0.0/jquery.fileupload-ui.js

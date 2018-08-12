@@ -66,7 +66,13 @@ grails.project.dependency.resolution = {
         compile "org.apache.httpcomponents:httpcore:4.4.1"
         compile "org.apache.httpcomponents:httpclient:4.4.1"
 
+        //test 'xml-apis:xml-apis:1.4.01'
         test 'org.openclover:clover:4.3.0'
+        test "org.gebish:geb-spock:1.0"
+        test "org.seleniumhq.selenium:selenium-support:2.53.1"
+        test "org.seleniumhq.selenium:selenium-firefox-driver:2.53.1"
+        test "org.seleniumhq.selenium:selenium-chrome-driver:2.53.1"
+        test "com.codeborne:phantomjsdriver:1.3.0"
     }
 
     def tomcatVersion = '7.0.55'
@@ -82,6 +88,7 @@ grails.project.dependency.resolution = {
         }
 
         test 'org.grails.plugins:clover:4.3.0'
+        test 'org.grails.plugins:geb:1.0'
 
         build ":tomcat:$tomcatVersion"
     }
