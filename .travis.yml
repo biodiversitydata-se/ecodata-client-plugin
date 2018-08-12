@@ -17,7 +17,7 @@ before_script:
 - npm install
 script:
 - node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
-- grails test-app -clover.on :unit --non-interactive --stacktrace
+- grails -Dgeb.env=phantomjs test-app -clover.on --non-interactive --stacktrace
 - ala_travis_grails_build
 env:
   global:
