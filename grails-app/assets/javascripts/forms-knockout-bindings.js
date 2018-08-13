@@ -3,6 +3,15 @@
  */
 (function() {
 
+    // Binding to exclude the contained html from the current binding context.
+    // Used when you want to bind a section of html to a different viewModel.
+    ko.bindingHandlers.stopBinding = {
+        init: function() {
+            return { controlsDescendantBindings: true };
+        }
+    };
+    ko.virtualElements.allowedBindings.stopBinding = true;
+
     var image = function(props) {
 
         var imageObj = {
@@ -765,12 +774,11 @@
         }
 
         target.areaHa = function() {
-            var areaInM2 = turf.area(target());
+            var areaInM2 = turf.area(ko.utils.unwrapObservable(target));
             return m2ToHa(areaInM2);
         };
-
-        target.perimeter = function() {
-            turf.length(target(), {units:'kilometers'});
+        target.lengthKm = function() {
+            return turf.length(ko.utils.unwrapObservable(target), {units:'kilometers'});
         };
     };
 
@@ -790,7 +798,8 @@
                 allowPolygons:true,
                 allowPoints:false,
                 markerOrShapeNotBoth: true,
-                hideMyLocation:true
+                hideMyLocation:true,
+                baseLayersName:'Open Layers'
             };
 
             var config = _.defaults(defaults, params);
@@ -852,6 +861,15 @@
             self.showMap = function() {
                 var $modal = $('#map-modal');
                 $modal.modal('show').on('shown', function() {
+                    // Set the map to fit the screen.  The full screen modal plugin will have set the max-height
+                    // on the modal-body, use that to set the map height.
+
+                    var maxHeight = $('#map-modal .modal-body').css('max-height');
+                    var height = Number(maxHeight.substring(0, maxHeight.length - 2));
+                    if (!height) {
+                        height = 500;
+                    }
+                    $('#map-popup').height(height-5);
 
                     ko.applyBindings(self, $modal[0]);
                     if (!self.map) {
