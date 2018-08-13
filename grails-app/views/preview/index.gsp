@@ -21,6 +21,7 @@
                     outputName: model.modelName]}">
 
 </g:render>
+
 <asset:deferredScripts/>
 <script>
     $(function() {
@@ -37,7 +38,7 @@
         ko.applyBindings(model);
 
         // Expose our model in the global scope to get at it easily with GEB
-        window.model = model
+        window.model = model;
         window.modelReady = true
     });
 

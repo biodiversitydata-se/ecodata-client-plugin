@@ -10,8 +10,8 @@ class PreviewController {
     def index() {
 
         String modelName = params.name ?: EXAMPLE_MODEL
-
-        [model:getExample(modelName), view:'preview']
+        Map model = getExample(modelName)
+        render ([model:[model:model, title:model.modelName], view:'index'])
 
     }
 
@@ -22,11 +22,15 @@ class PreviewController {
             respond status:400
         }
 
-        [model:model, view:'preview']
+        render ([model:[model:model, title:model.modelName], view:'index'])
     }
 
 
     private Map getExample(String name) {
+        if (!name.endsWith('.json')) {
+            name += '.json'
+        }
+
         String path = EXAMPLE_MODELS_PATH + name
         JSON.parse(getClass().getResourceAsStream(path), 'UTF-8')
     }

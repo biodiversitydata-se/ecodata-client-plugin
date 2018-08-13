@@ -6,8 +6,14 @@ class UrlMappings {
                 // apply constraints here
             }
         }
-
-        "/"(view:"/index")
+        "/preview" {
+            controller = 'preview'
+            action = [GET: 'index', POST: 'model']
+        }
+        "/" {
+            controller = 'preview'
+            action = [GET: 'index', POST: 'model']
+        }
         "500"(view:'/error')
 	}
 }
