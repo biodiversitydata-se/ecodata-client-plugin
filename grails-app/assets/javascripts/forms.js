@@ -127,32 +127,61 @@ function orEmptyArray(v) {
      * @type {{evaluate, evaluateBoolean, evaluateString}}
      */
     ecodata.forms.expressionEvaluator = function () {
+        var specialBindings = function() {
+            var SQUARE_METERS_IN_HECTARE = 10000;
+            function m2ToHa(areaM2) {
+                return areaM2 / SQUARE_METERS_IN_HECTARE;
+            }
+
+            return {
+                $geom: {
+                    lengthKm: function (geoJSON) {
+                        return turf.length(geoJSON, {units: 'kilometers'})
+                    },
+                    areaHa: function (geoJSON) {
+                        return m2ToHa(turf.area(geoJSON))
+                    }
+                }
+
+            };
+        }();
+
+        var preprocessBindings = function(variable) {
+            var specialVariables = {
+                'index':'$index',
+                'parent':'$parent'
+            }
+            return specialVariables[variable] ? specialVariables[variable] : variable;
+        };
+
         function bindVariable(variable, context) {
             if (!context) {
                 return;
             }
             var result;
-            var contextVariable = variable;
-            var specialVariables = ['index', 'parent'];
-            if (specialVariables.indexOf(variable) >= 0) {
-                contextVariable = '$' + variable;
-            }
-            if (!_.isUndefined(context[contextVariable])) {
-                result = ko.utils.unwrapObservable(context[contextVariable]);
+
+            var contextVariable = preprocessBindings(variable);
+            if (specialBindings[contextVariable]) {
+                result = specialBindings[contextVariable];
             }
             else {
-                if (context['$parent']) {
-                    result = bindVariable(variable, context['$parent']);
+                if (!_.isUndefined(context[contextVariable])) {
+                    result = ko.utils.unwrapObservable(context[contextVariable]);
                 }
+                else {
+                    // Try to evaluate against the parent
+                    if (context['$parent']) {
+                        result = bindVariable(variable, context['$parent']);
+                    }
+                }
+
             }
             return result;
-
         }
 
         function bindVariables(variables, context) {
 
-            // TODO - use metadata to cast numerical model values to numbers to support mathematical operations.
-            // Currently any expression literals have to be strings which means numerics aren't well supported.
+            // Currently any expression literals have to be strings which means numeric values aren't well supported.
             var boundVariables = {};
             for (var i = 0; i < variables.length; i++) {
                 boundVariables[variables[i]] = bindVariable(variables[i], context);
@@ -190,8 +219,13 @@ function orEmptyArray(v) {
                 if (numberOfDecimalPlaces == undefined) {
                     numberOfDecimalPlaces = 2;
                 }
+                if (_.isFunction(result.toFixed)) {
+                    result = result.toFixed(numberOfDecimalPlaces);
+                }
+                else {
+                    result = ecodata.forms.utils.neat_number(result, numberOfDecimalPlaces);
+                }
 
-                result = ecodata.forms.utils.neat_number(result, numberOfDecimalPlaces);
             }
 
             return result;

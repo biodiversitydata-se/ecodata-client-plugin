@@ -30,5 +30,7 @@
 //= require MapUtilities.js
 //= require siteDisplay.js
 
+//= require turf-2.0.2/turf.min.js
+
 // from biocollect
 //= require leaflet-plugins-2.0.0/layer/tile/Google.js
