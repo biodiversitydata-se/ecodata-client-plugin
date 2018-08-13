@@ -31,3 +31,8 @@
 
 # "temporary" build files
 /target
+
+/.idea
+/node_modules
+/.slcache
+/*.iml
