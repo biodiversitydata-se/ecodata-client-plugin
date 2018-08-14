@@ -1,6 +1,8 @@
 .btn.edit-feature {
     width: 100%;
     height: 100%;
+    max-height:500px;
+    max-width:500px;
 }
 
 .mini-feature {

@@ -341,6 +341,6 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderFeature(WidgetRenderContext context) {
         context.addDeferredTemplate('/output/mapInDialogTemplate')
-        context.writer << "<feature params=\"model:${context.source}\"></feature>"
+        context.writer << "<feature ${context.attributes.toString()} params=\"model:${context.source}\"></feature>"
     }
 }
