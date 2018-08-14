@@ -1,0 +1,16 @@
+.btn.edit-feature {
+    width: 100%;
+    height: 100%;
+}
+
+.mini-feature {
+    min-width: 30px;
+    min-height: 30px;
+    width: 100%;
+    height: 100%;
+}
+.mini-feature path {
+    stroke:red;
+    stroke-width:1px;
+    fill: #ff000033;
+}

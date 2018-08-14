@@ -1,5 +1,4 @@
 //= require jquery/3.3.1/jquery-3.3.1.min.js
-//= require knockout/3.4.0/knockout-3.4.0.debug.js
 //= require knockout/3.4.0/knockout.mapping-latest.js
 //= require bootstrap/js/bootstrap.js
 //= require bootstrap-datepicker/js/bootstrap-datepicker.js
@@ -16,6 +15,5 @@
 //= require jquery.fileDownload/jQuery.fileDownload
 //= require leaflet-manifest.js
 //= require forms.js
-//= require wms
-//= require mapWithFeatures.js
-//= require activity.js
+//= require feature.js
+
