@@ -6,18 +6,19 @@ import length from '@turf/length';
 import bbox from '@turf/bbox';
 */
 
-ko.extenders.feature = function(target, options) {
+ko.extenders.feature = function (target, options) {
     var SQUARE_METERS_IN_HECTARE = 10000;
+
     function m2ToHa(areaM2) {
         return areaM2 / SQUARE_METERS_IN_HECTARE;
     }
 
-    target.areaHa = function() {
+    target.areaHa = function () {
         var areaInM2 = turf.area(ko.utils.unwrapObservable(target));
         return m2ToHa(areaInM2);
     };
-    target.lengthKm = function() {
-        return turf.length(ko.utils.unwrapObservable(target), {units:'kilometers'});
+    target.lengthKm = function () {
+        return turf.length(ko.utils.unwrapObservable(target), {units: 'kilometers'});
     };
 };
 
@@ -27,7 +28,7 @@ ko.extenders.feature = function(target, options) {
  * The svg will take the size of the container.
  */
 ko.bindingHandlers.geojson2svg = {
-    update: function(element, valueAccessor) {
+    update: function (element, valueAccessor) {
         var geojson = ko.utils.unwrapObservable(valueAccessor());
 
         if (geojson) {
@@ -39,11 +40,11 @@ ko.bindingHandlers.geojson2svg = {
             var bounds = turf.extent(geojson);
 
             var s = geojson2svg({
-                viewportSize: {width:width,height:height},
-                mapExtent:{left:bounds[0] ,right: bounds[2], bottom: bounds[1], top:bounds[3]}
+                viewportSize: {width: width, height: height},
+                mapExtent: {left: bounds[0], right: bounds[2], bottom: bounds[1], top: bounds[3]}
             }).convert(geojson);
 
-            $element.html('<svg xmlns="http://www.w3.org/2000/svg"  width="'+width+'" height="'+height+'" x="0" y="0">'+s+'</svg>');
+            $element.html('<svg xmlns="http://www.w3.org/2000/svg"  width="' + width + '" height="' + height + '" x="0" y="0">' + s + '</svg>');
         }
 
     }
@@ -63,16 +64,20 @@ ko.components.register('feature', {
 
         var defaults = {
             mapElementId: 'map-popup',
-            selectFromSitesOnly :false,
-            allowPolygons:true,
-            allowPoints:false,
+            selectFromSitesOnly: false,
+            allowPolygons: true,
+            allowPoints: false,
             markerOrShapeNotBoth: true,
-            hideMyLocation:true,
-            baseLayersName:'Open Layers',
-            mapPopupSelector:'#map-modal'
+            hideMyLocation: true,
+            baseLayersName: 'Open Layers',
+            mapPopupSelector: '#map-modal'
         };
 
         var config = _.defaults(defaults, params);
+
+        var $modal = $(config.mapPopupSelector);
+        var $mapStorage = $('body');
+        var mapContainerKey = 'map';
 
         var mapOptions = {
             wmsFeatureUrl: config.proxyFeatureUrl + "?featureId=",
@@ -123,14 +128,23 @@ ko.components.register('feature', {
             mapOptions.otherLayers = otherLayers;
         }
 
-        self.ok = function() {
-            model(self.map.getGeoJSON());
+        self.ok = function () {
+            var map = $mapStorage.data(mapContainerKey);
+            model(map.getGeoJSON());
         };
 
 
-        self.showMap = function() {
-            var $modal = $(config.mapPopupSelector);
-            $modal.modal('show').on('shown', function() {
+        self.showMap = function () {
+            var map = $mapStorage.data(mapContainerKey);
+
+            if (!map) {
+                map = new ALA.Map(config.mapElementId, mapOptions);
+                $mapStorage.data(mapContainerKey, map);
+            }
+            else {
+                map.clearLayers();
+            }
+            $modal.modal('show').on('shown', function () {
                 // Set the map to fit the screen.  The full screen modal plugin will have set the max-height
                 // on the modal-body, use that to set the map height.
                 var $body = $modal.find('.modal-body');
@@ -139,20 +153,17 @@ ko.components.register('feature', {
                 if (!height) {
                     height = 500;
                 }
-                $('#'+config.mapElementId).height(height);
+                $('#' + config.mapElementId).height(height);
+                var map = $mapStorage.data(mapContainerKey);
+
+                if (model()) {
+                    map.setGeoJSON(model());
+                }
+                map.redraw();
 
                 ko.applyBindings(self, $modal[0]);
-                if (!self.map) {
-                    self.map = new ALA.Map(config.mapElementId, mapOptions);
-                }
-                else {
-                    self.map.redraw();
-                }
-                if (model()) {
-                    self.map.setGeoJSON(model());
-                }
 
-            }).on('hide', function() {
+            }).on('hide', function () {
                 ko.cleanNode($modal[0]);
             });
         };
