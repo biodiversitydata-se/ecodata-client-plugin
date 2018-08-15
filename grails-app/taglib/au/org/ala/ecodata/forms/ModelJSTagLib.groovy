@@ -58,7 +58,6 @@ class ModelJSTagLib {
     private ComputedValueRenderer computedValueRenderer = new ComputedValueRenderer()
 
     def modelService
-    def authService
 
     /*------------ JAVASCRIPT for dynamic content -------------*/
 
@@ -236,13 +235,14 @@ class ModelJSTagLib {
     void renderInitialiser(JSModelRenderContext ctx) {
         Map mod = ctx.dataModel
         def attrs = ctx.attrs
+        def out = ctx.out
 
         if (mod.computed) {
             return
         }
         String defaultValue = getDefaultValueAsString(ctx);
         String value = "ecodata.forms.orDefault(data['${mod.name}'], ${getDefaultValueAsString(ctx)})"
-        if (mod.dataType in ['text', 'stringList', 'time']) {
+        if (mod.dataType in ['text', 'stringList', 'time', 'feature']) {
             if (mod.name == 'recordedBy' && mod.dataType == 'text' && attrs.user?.displayName && !value) {
                 out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'](ecodata.forms.orDefault(data['${mod.name}'], '${attrs.user.displayName}'));\n"
             } else {

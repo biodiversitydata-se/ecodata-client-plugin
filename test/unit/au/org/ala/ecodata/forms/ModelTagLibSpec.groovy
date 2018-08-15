@@ -75,11 +75,6 @@ class ModelTagLibSpec extends Specification {
         String actualStr = actual.toString()
         String expectedStr = expected.toString()
 
-        log.info "Actual:"
-        log.info actualStr
-        log.info "Expected:"
-        log.info expectedStr
-
         // Wrap both expected and actual in <html></html> so the XML parser doesn't complain if we are expecting a list of nodes
         Iterator actualXml = x1.parse(new StringReader("<html>"+actualStr+"</html>")).depthFirst()
         Iterator expectedXml = x1.parse(new StringReader("<html>"+expectedStr+"</html>")).depthFirst()
