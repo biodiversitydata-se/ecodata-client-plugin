@@ -20,7 +20,7 @@ class EditModelWidgetRenderSpec extends Specification {
         editModelWidgetRenderer.renderFeature(ctx)
 
         then:
-        ctx.writer.toString() == """<feature params="feature:myFeature, config:featureMapConfig"></feature>"""
+        ctx.writer.toString() == """<feature params="feature:myFeature, config:\$config.getConfig('feature', myFeature)"></feature>"""
     }
 
     def "the feature view model has a dependency on a global template, and must specifiy this"() {

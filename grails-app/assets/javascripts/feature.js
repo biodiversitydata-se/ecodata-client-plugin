@@ -118,44 +118,48 @@ ecodata.forms.featureMap = function(options) {
 
 
         ALA.Map.call(self, mapOptions.mapElementId, mapOptions);
-        // We don't want this added to the "drawnItems" layer in the ALA.map as that layer is managed
-        // for individual form sections.
-        var geoLayer = L.geoJson(options.selectableFeatures).addTo(self.getMapImpl());
 
-        var geoList = new L.Control.GeoJSONSelector(geoLayer, {
-            collapsed:true,
-            zoomToLayer: true,
-            activeListFromLayer: true,
-            activeLayerFromList: true,
-            listOnlyVisibleLayers: false,
-            position:'topleft',
-            multiple:true
-        });
+        if (options.selectableFeatures) {
+            // We don't want this added to the "drawnItems" layer in the ALA.map as that layer is managed
+            // for individual form sections.
+            var geoLayer = L.geoJson(options.selectableFeatures).addTo(self.getMapImpl());
 
-        geoList.on('selector:change', function(e) {
-            if (e.selected) {
-                _selectedFeatures = _.union(_selectedFeatures, e.layers);
-            }
-            else {
-                _selectedFeatures = _.without(_selectedFeatures, e.layers);
-            }
-        });
+            var geoList = new L.Control.GeoJSONSelector(geoLayer, {
+                collapsed:true,
+                zoomToLayer: true,
+                activeListFromLayer: true,
+                activeLayerFromList: true,
+                listOnlyVisibleLayers: false,
+                position:'topleft',
+                multiple:true
+            });
 
-        self.addControl(geoList);
+            geoList.on('selector:change', function(e) {
+                if (e.selected) {
+                    _selectedFeatures = _.union(_selectedFeatures, e.layers);
+                }
+                else {
+                    _selectedFeatures = _.without(_selectedFeatures, e.layers);
+                }
+            });
 
-        var getDrawnItems = self.getGeoJSON;
-        self.getGeoJSON = function() {
-            var drawnAndSelected = getDrawnItems();
+            self.addControl(geoList);
 
-            if (_selectedFeatures) {
-                _.each(_selectedFeatures, function(layer) {
-                    drawnAndSelected.features.push(layer.toGeoJSON());
-                });
-            }
-            console.log(drawnAndSelected);
-            return drawnAndSelected;
-        };
+            var getDrawnItems = self.getGeoJSON;
+            self.getGeoJSON = function() {
+                var drawnAndSelected = getDrawnItems();
 
+                if (_selectedFeatures) {
+                    _.each(_selectedFeatures, function(layer) {
+                        drawnAndSelected.features.push(layer.toGeoJSON());
+                    });
+                }
+                console.log(drawnAndSelected);
+                return drawnAndSelected;
+            };
+
+
+        }
 
         return self;
     }
