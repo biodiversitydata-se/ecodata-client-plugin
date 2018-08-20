@@ -34,3 +34,5 @@
 
 // from biocollect
 //= require leaflet-plugins-2.0.0/layer/tile/Google.js
+
+//= require leaflet-geojson-selector/0.4.0/js/leaflet-geojson-selector.src.js

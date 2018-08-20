@@ -12,6 +12,22 @@
     };
     ko.virtualElements.allowedBindings.stopBinding = true;
 
+    /**
+     * Exposes extra context to child bindings via the binding context.
+     * Used as a mechanism to allow clients to pass configuration to
+     * components rendered by this plugin.
+     */
+    ko.bindingHandlers.withContext = {
+        init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+            // Make a modified binding context, with a extra properties, and apply it to descendant elements
+            var innerBindingContext = bindingContext.extend(valueAccessor);
+            ko.applyBindingsToDescendants(innerBindingContext, element);
+
+            // Also tell KO *not* to bind the descendants itself, otherwise they will be bound twice
+            return { controlsDescendantBindings: true };
+        }
+    };
+
     var image = function(props) {
 
         var imageObj = {
@@ -766,6 +782,14 @@
     ko.extenders.list = function(target, options) {
         ecodata.forms.OutputListSupport.apply(target, [options.metadata, options.constructorFunction, options.context, options.userAddedRows, options.config]);
     };
+
+
+    /**
+     * This is kind of a hack to make the closure config object available to the any components that use the model.
+     */
+    ko.extenders.configurationContainer = function(target, config) {
+        target.globalConfig = config;
+    }
 
 })();
 

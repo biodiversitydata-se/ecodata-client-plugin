@@ -558,15 +558,19 @@ class ModelJSTagLib {
             ctx.dataModel.displayOptions = viewModel.displayOptions
         }
 
-        if (ctx.dataModel.behaviour || ctx.dataModel.warning || ctx.dataModel.constraints || ctx.dataModel.displayOptions) {
+        if (requiresMetadataExtender(ctx.dataModel)) {
             extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], parent:self, context:context, config:config}}")
-//            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], parent:self, context:{}, config:{}}}")
         }
         String extenderJS = ''
         extenders.each {
             extenderJS += ".extend(${it})"
         }
         extenderJS
+    }
+
+    private boolean requiresMetadataExtender(Map dataModel) {
+        dataModel.behaviour || dataModel.warning || dataModel.constraints || dataModel.displayOptions
+
     }
 
     void observable(JSModelRenderContext ctx, List extenders = []) {

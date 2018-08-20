@@ -7,6 +7,9 @@ import bbox from '@turf/bbox';
 */
 
 ko.extenders.feature = function (target, options) {
+
+    self.config = options.config && options.config.mapConfig || {};
+
     var SQUARE_METERS_IN_HECTARE = 10000;
 
     function m2ToHa(areaM2) {
@@ -20,6 +23,7 @@ ko.extenders.feature = function (target, options) {
     target.lengthKm = function () {
         return turf.length(ko.utils.unwrapObservable(target), {units: 'kilometers'});
     };
+
 };
 
 
@@ -50,51 +54,35 @@ ko.bindingHandlers.geojson2svg = {
     }
 };
 
-ko.components.register('feature', {
+ecodata.forms.featureMap = function(options) {
 
-    viewModel: function (params) {
-        var self = this;
+    var self = this;
+    var _selectedFeatures = [];
 
-        var model = params.model;
 
-        if (!model) {
-            throw "The model attribute is required for this component";
-        }
-        self.model = model;
-
+    function initialise(options) {
         var defaults = {
             mapElementId: 'map-popup',
             selectFromSitesOnly: false,
             allowPolygons: true,
             allowPoints: false,
             markerOrShapeNotBoth: true,
-            hideMyLocation: true,
+            hideMyLocation: false,
             baseLayersName: 'Open Layers',
-            mapPopupSelector: '#map-modal'
-        };
-
-        var config = _.defaults(defaults, params);
-
-        var $modal = $(config.mapPopupSelector);
-        var $mapStorage = $('body');
-        var mapContainerKey = 'map';
-
-        var mapOptions = {
-            wmsFeatureUrl: config.proxyFeatureUrl + "?featureId=",
-            wmsLayerUrl: config.spatialGeoserverUrl + "/wms/reflect?",
-            //set false to keep consistance with edit mode.  We need to enter edit mode to move marker.
-            //If we set it true, we can move point, but cannot update site. And if we enter edit mode and exit, marker is no longer draggable.  Could be a bug in leaflet
-            draggableMarkers: false,
-            drawControl: !config.readonly,
-            showReset: false,
-            singleDraw: true,
-            singleMarker: true,
-            markerOrShapeNotBoth: config.markerOrShapeNotBoth,
-            useMyLocation: !config.readonly && !config.hideMyLocation,
-            allowSearchLocationByAddress: !config.readonly,
-            allowSearchRegionByAddress: false,
+            showReset:false,
+            singleMarker: false,
             zoomToObject: true,
             markerZoomToMax: true,
+            singleDraw: false
+        };
+        var config = _.defaults(defaults, options);
+        var mapOptions = _.extend(config, {
+            wmsFeatureUrl: config.proxyFeatureUrl + "?featureId=",
+            wmsLayerUrl: config.spatialGeoserverUrl + "/wms/reflect?",
+            drawControl: !config.readonly,
+            useMyLocation: config.userMyLocation,
+            allowSearchLocationByAddress: !config.readonly,
+            allowSearchRegionByAddress: false,
             drawOptions: config.readonly ?
                 {
                     polyline: false,
@@ -112,7 +100,7 @@ ko.components.register('feature', {
                     marker: !config.selectFromSitesOnly && config.allowPoints,
                     edit: !config.selectFromSitesOnly
                 }
-        };
+        });
 
 
         // undefined/null, Google Maps or Default should enable Google Maps view
@@ -128,44 +116,124 @@ ko.components.register('feature', {
             mapOptions.otherLayers = otherLayers;
         }
 
-        self.ok = function () {
-            var map = $mapStorage.data(mapContainerKey);
-            model(map.getGeoJSON());
+
+        ALA.Map.call(self, mapOptions.mapElementId, mapOptions);
+        // We don't want this added to the "drawnItems" layer in the ALA.map as that layer is managed
+        // for individual form sections.
+        var geoLayer = L.geoJson(options.selectableFeatures).addTo(self.getMapImpl());
+
+        var geoList = new L.Control.GeoJSONSelector(geoLayer, {
+            collapsed:true,
+            zoomToLayer: true,
+            activeListFromLayer: true,
+            activeLayerFromList: true,
+            listOnlyVisibleLayers: false,
+            position:'topleft',
+            multiple:true
+        });
+
+        geoList.on('selector:change', function(e) {
+            if (e.selected) {
+                _selectedFeatures = _.union(_selectedFeatures, e.layers);
+            }
+            else {
+                _selectedFeatures = _.without(_selectedFeatures, e.layers);
+            }
+        });
+
+        self.addControl(geoList);
+
+        var getDrawnItems = self.getGeoJSON;
+        self.getGeoJSON = function() {
+            var drawnAndSelected = getDrawnItems();
+
+            if (_selectedFeatures) {
+                _.each(_selectedFeatures, function(layer) {
+                    drawnAndSelected.features.push(layer.toGeoJSON());
+                });
+            }
+            console.log(drawnAndSelected);
+            return drawnAndSelected;
         };
 
 
-        self.showMap = function () {
-            var map = $mapStorage.data(mapContainerKey);
+        return self;
+    }
 
-            if (!map) {
-                map = new ALA.Map(config.mapElementId, mapOptions);
-                $mapStorage.data(mapContainerKey, map);
+    var mapKey = 'featureMap'
+    var $mapStorage = $('body');
+    var map = $mapStorage.data(mapKey);
+
+    if (!map) {
+        map = initialise(options);
+        $mapStorage.data(mapKey, map);
+    }
+
+    return map;
+
+};
+
+ko.components.register('feature', {
+
+    viewModel: function (params) {
+        var self = this;
+
+        var model = params.feature;
+
+        if (!model) {
+            throw "The model attribute is required for this component";
+        }
+        self.model = model;
+
+        var defaults = {
+            mapPopupSelector: '#map-modal',
+            mapElementId: 'map-popup' // Needed to size the map....
+        };
+
+        var config = _.defaults(defaults, params.options);
+
+        var $modal = $(config.mapPopupSelector);
+        var $mapElement = $('#'+config.mapElementId);
+
+        var map = ecodata.forms.featureMap(config);
+
+        self.ok = function () {
+            model(map.getGeoJSON());
+        };
+
+        function sizeMap() {
+            // Set the map to fit the screen.  The full screen modal plugin will have set the max-height
+            // on the modal-body, use that to set the map height.
+            var $body = $modal.find('.modal-body');
+            var maxHeight = $body.css('max-height');
+            var height = Number(maxHeight.substring(0, maxHeight.length - 2));
+            if (!height) {
+                height = 500;
             }
-            else {
-                map.clearLayers();
-            }
-            $modal.modal('show').on('shown', function () {
-                // Set the map to fit the screen.  The full screen modal plugin will have set the max-height
-                // on the modal-body, use that to set the map height.
-                var $body = $modal.find('.modal-body');
-                var maxHeight = $body.css('max-height');
-                var height = Number(maxHeight.substring(0, maxHeight.length - 2));
-                if (!height) {
-                    height = 500;
-                }
-                $('#' + config.mapElementId).height(height);
-                var map = $mapStorage.data(mapContainerKey);
+            $mapElement.height(height-5);
+        }
+
+        self.showMap = function () {
+
+            //map.clearLayers();
+
+            $modal.on('shown', function () {
+                sizeMap();
 
                 if (model()) {
                     map.setGeoJSON(model());
+                    //map.redraw();
                 }
-                map.redraw();
+                else {
+                    map.redraw();
+                    map.resetMap();
+                }
 
                 ko.applyBindings(self, $modal[0]);
 
             }).on('hide', function () {
                 ko.cleanNode($modal[0]);
-            });
+            }).modal();
         };
 
     },

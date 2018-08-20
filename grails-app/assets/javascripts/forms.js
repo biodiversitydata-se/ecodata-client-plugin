@@ -387,12 +387,20 @@ function orEmptyArray(v) {
 
     /**
      * Implements the constraints specified on a single data model item using the "constraints" attribute in the metadata.
+     * Also provides access to global configuration and context for components that need it.
+     *
      * @param metadata the metadata definition for the data model item.
-     * @constructor
+     * @param parent the container (e.g. OutputModel or NestedModel) in which this data model item is defined.  Used to make
+     * the parent data available for expression evaluation or constraint evaluation.
+     * @param context global context in which the form is being rendered.  For MERIT/BioCollect this will include
+     * project/site/activity/survey type information.
+     * @param config other configuration items, such as URLs for species searching etc.
      */
     ecodata.forms.DataModelItem = function (metadata, parent, context, config) {
         var self = this;
-        var dataLoader = ecodata.forms.dataLoader(context, config);
+
+        self.context = context;
+        self.config = config;
 
         self.get = function (name) {
             return metadata[name];
@@ -440,6 +448,7 @@ function orEmptyArray(v) {
                 }
                 else if (metadata.constraints.type == 'pre-populated') {
                     self.constraints = ko.observableArray();
+                    var dataLoader = ecodata.forms.dataLoader(context, config);
                     dataLoader.prepop(metadata.constraints.config).done(function (data) {
                         self.constraints(data);
                     });
@@ -462,6 +471,22 @@ function orEmptyArray(v) {
 
         if (metadata.displayOptions) {
             self.displayOptions = metadata.displayOptions;
+        }
+
+    };
+
+    ecodata.forms.configManager = function(config, context) {
+        if (!config) {
+            config = {}
+        }
+
+        function getConfig(key, dataModelItem) {
+            var clientConfig = config[key] || {};
+            return _.defaults(clientConfig, dataModelItem.config);
+        };
+
+        return {
+            getConfig: getConfig
         }
 
     };
@@ -633,7 +658,11 @@ function orEmptyArray(v) {
             output = {};
         }
         self.dataModel = _.indexBy(dataModel, 'name');
+
+        // Make this properties available to the binding context for use by components.
         self.$context = context;
+        self.$config = ecodata.forms.configManager(config, context);
+
         var activityId = output.activityId || config.activityId;
         self.name = output.name;
         self.outputId = output.outputId || '';
@@ -646,7 +675,7 @@ function orEmptyArray(v) {
             notCompleted = config.collapsedByDefault;
         }
 
-        var toIgnore = {ignore: ['transients', '$parent', '$index', '$context', 'dataModel']};
+        var toIgnore = {ignore: ['transients', '$parent', '$index', '$context', '$config', 'dataModel']};
         self.outputNotCompleted = ko.observable(notCompleted);
 
         self.outputNotCompleted.subscribe(function (newValue) {
