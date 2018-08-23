@@ -131,7 +131,17 @@ ecodata.forms.featureMap = function(options) {
                 activeLayerFromList: true,
                 listOnlyVisibleLayers: false,
                 position:'topleft',
-                multiple:true
+                multiple:true,
+                style: {
+                    color:'#00f',
+                    fill:false,
+                    fillColor:'#08f',
+                    fillOpacity: 0.4,
+                    opacity: 1,
+                    weight: 1
+                },
+                activeStyle: {fill:true},
+                selectStyle: {fill:true}
             });
 
             geoList.on('selector:change', function(e) {
