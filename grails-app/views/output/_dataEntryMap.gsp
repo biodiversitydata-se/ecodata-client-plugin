@@ -243,19 +243,19 @@
             </div>
         </g:if>
     </div>
+    <g:if env="development">
     <div class="expandable-debug">
         <h3>Debug</h3>
         <div>
-        <g:if env="development">
             Allow Points: <span data-bind="text:activityLevelData.pActivity.allowPoints">Allow Points</span> <br/>
             Allow Polygons: <span data-bind="text:activityLevelData.pActivity.allowPolygons"></span> <br/>
             Allow Additional Survey Sites: <span data-bind="text:activityLevelData.pActivity.allowAdditionalSurveySites"></span> <br/>
             Default zoom to: <span data-bind="text:activityLevelData.pActivity.defaultZoomArea"> </span> <br/>
             Select only: <span data-bind="text:activityLevelData.pActivity.selectFromSitesOnly"> </span> <br/>
             Site ID： <span data-bind="text:data.${source}"/></span>
-        </g:if>
         </div>
     </div>
+    </g:if>
 </div>
 
 <script type="text/html" id="AddSiteModal">
