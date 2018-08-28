@@ -41,7 +41,7 @@ ko.bindingHandlers.geojson2svg = {
             var width = $element.width() || 100;
             var height = $element.height() || 100;
 
-            var bounds = turf.extent(geojson);
+            var bounds = turf.bbox(geojson);
 
             var s = geojson2svg({
                 viewportSize: {width: width, height: height},

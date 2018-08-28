@@ -32,5 +32,8 @@
     "test": "karma start karma.conf.js"
   },
   "author": "",
-  "license": ""
+  "license": "",
+  "dependencies": {
+    "browserify": "^16.2.2"
+  }
 }
