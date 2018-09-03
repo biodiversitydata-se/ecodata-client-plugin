@@ -25,6 +25,8 @@ function orEmptyArray(v) {
  */
 (function () {
 
+    $.fn.select2.defaults.set( "width", "100%" );
+
     // base namespace for the forms library
     if (!window.ecodata) {
         ecodata = {forms: {}};
