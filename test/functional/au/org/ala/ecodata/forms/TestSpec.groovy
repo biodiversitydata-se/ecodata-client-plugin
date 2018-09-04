@@ -15,6 +15,7 @@ class TestSpec extends GebReportingSpec {
 
         when:
         page.findFieldByModelName("textField").value("value1")
+        page.commitEdits()
 
 
         then:
@@ -23,4 +24,29 @@ class TestSpec extends GebReportingSpec {
 
         page.model.data.textField == "value1"
     }
+
+
+    def "number fields should allow decimals by default"() {
+        when:
+        to PreviewPage
+
+        then:
+        title == "Preview Test Output"
+        page.model != null
+
+        when:
+        page.findFieldByModelName("numberField").value("1.03")
+
+
+        then:
+        page.findFieldByModelName("numberField").getAt(0).value() == "1.03"
+        page.commitEdits()
+
+        page.model.data.numberField == "1.03"
+
+        and: "The HTML5 validation psuedo class has not been applied"
+        // Note the :invalid selector won't work with the HTMLUnit driver.
+        $(":invalid").size() == 0
+    }
+
 }

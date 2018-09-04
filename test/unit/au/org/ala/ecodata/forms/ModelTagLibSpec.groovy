@@ -33,7 +33,7 @@ class ModelTagLibSpec extends Specification {
         mb.div(class:"row-fluid output-section") {
             div(class:"span12") {}
         }
-        compareHtml(actualOut, expectedOut)
+        TestUtils.compareHtml(actualOut, expectedOut)
     }
 
     def "the view model type section supports a title attribute"() {
@@ -49,7 +49,7 @@ class ModelTagLibSpec extends Specification {
         mb.div(class:"row-fluid output-section") {
             div(class:"span12") {}
         }
-        compareHtml(actualOut, expectedOut)
+        TestUtils.compareHtml(actualOut, expectedOut)
     }
 
     def "the view model type section supports a boxed title attribute"() {
@@ -66,30 +66,8 @@ class ModelTagLibSpec extends Specification {
                 div(class:"span12") {}
             }
         }
-        compareHtml(actualOut, expectedOut)
+        TestUtils.compareHtml(actualOut, expectedOut)
     }
 
-    private void compareHtml(Writer actual, Writer expected) {
-        XmlSlurper x1 = new XmlSlurper()
 
-        String actualStr = actual.toString()
-        String expectedStr = expected.toString()
-
-        // Wrap both expected and actual in <html></html> so the XML parser doesn't complain if we are expecting a list of nodes
-        Iterator actualXml = x1.parse(new StringReader("<html>"+actualStr+"</html>")).depthFirst()
-        Iterator expectedXml = x1.parse(new StringReader("<html>"+expectedStr+"</html>")).depthFirst()
-
-        while (expectedXml.hasNext()) {
-            assert actualXml.hasNext()
-
-            NodeChild expectedNode = expectedXml.next()
-            NodeChild actualNode = actualXml.next()
-
-            assert expectedNode.name() == actualNode.name()
-            assert expectedNode.attributes() == actualNode.attributes()
-
-        }
-
-
-    }
 }

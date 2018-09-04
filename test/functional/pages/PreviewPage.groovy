@@ -19,4 +19,9 @@ class PreviewPage extends Page {
         $("[data-bind*="+name+"]")
     }
 
+    void commitEdits() {
+        // Tab out of current edit so the model updates.
+        $("h3").click()
+    }
+
 }

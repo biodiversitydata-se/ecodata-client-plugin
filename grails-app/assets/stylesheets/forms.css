@@ -84,3 +84,7 @@ table td .select2.select2-container {
 span.preLabel {
     margin:0;
 }
+
+input[type=number] {
+    text-align: center;
+}

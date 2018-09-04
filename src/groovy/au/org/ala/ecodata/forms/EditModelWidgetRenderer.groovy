@@ -25,9 +25,8 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderNumber(WidgetRenderContext context) {
         context.attributes.addClass context.getInputWidth()
-        context.attributes.add 'style','text-align:center'
         context.databindAttrs.add 'value', context.source
-        context.writer << "<input${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr} type='number' class='input-mini'/>"
+        context.writer << "<input${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr} type='number' step='any'/>"
     }
 
     @Override
@@ -121,7 +120,6 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderMultiInput(WidgetRenderContext context) {
-
         context.writer << """<multi-input params="values: ${context.model.source}, template:'${context.model.source}InputTemplate'">
                               <input type="text" ${context.attributes.toString()} ${context.validationAttr} data-bind="value:val" class="input-small">
                            </multi-input>"""
