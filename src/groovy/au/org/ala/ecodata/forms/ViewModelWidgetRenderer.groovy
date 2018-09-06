@@ -20,6 +20,18 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
     }
 
     @Override
+    void renderTime(WidgetRenderContext context) {
+        context.databindAttrs.add 'text', context.source
+        context.writer << "<span ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>"
+    }
+
+    @Override
+    void renderReadonlyText(WidgetRenderContext context) {
+        context.databindAttrs.add 'value', context.source
+        context.writer << "<span ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>"
+    }
+
+    @Override
     void renderNumber(WidgetRenderContext context) {
         context.databindAttrs.add 'text', context.source
         context.writer << "<span ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>"
@@ -63,16 +75,42 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
     }
 
     @Override
+    void renderSelectManyCombo(WidgetRenderContext context) {
+        def tagsBlock = "<div id='tagsBlock' data-bind='foreach: ${context.source}'>" +
+                "<span class='tag label label-default' comboList='${context.source}'>" +
+                '<input type="hidden" data-bind="value: $data" name="tags" class="tags group">' +
+                '<span data-bind="text: $data"></span>' +
+                '</span></div>'
+        context.writer << tagsBlock
+    }
+
+    @Override
+    void renderWordCloud(WidgetRenderContext context) {
+        def tagsBlock = "<div id='tagsBlock' data-bind='foreach: ${context.source}'>" +
+                "<span class='tag label label-default' comboList='${context.source}'>" +
+                '<input type="hidden" data-bind="value: $data" name="tags" class="tags group">' +
+                '<span data-bind="text: $data"></span>' +
+                '</span></div>'
+        context.writer << tagsBlock
+    }
+
+    @Override
+    void renderAudio(WidgetRenderContext context) {
+        context.writer << context.g.render(template: '/output/audioDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
+                model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: "''", hideFile: false])
+    }
+
+    @Override
     void renderImage(WidgetRenderContext context) {
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
-        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate',
+        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
                 model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: "''"])
     }
 
     @Override
     void renderImageDialog(WidgetRenderContext context) {
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
-        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate',
+        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
                 model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: '$index()'])
     }
 
@@ -98,6 +136,14 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderSpeciesSelect(WidgetRenderContext context) {
         renderReadOnlySpecies(context)
+    }
+
+    @Override
+    void renderFusedAutocomplete(WidgetRenderContext context) {
+        context.databindAttrs.add 'text', 'name'
+        context.writer << """<span data-bind="with: ${context.source}"><span${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>
+            <a  target="_blank" data-bind="visible: guid, attr: {href: transients.bioProfileUrl}"><i class="icon-info-sign"></i></a>
+            </span>"""
     }
 
     @Override
@@ -152,4 +198,21 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
         context.writer << "<span ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>"
     }
 
+    @Override
+    void renderButtonGroup(WidgetRenderContext context) {
+
+    }
+
+    @Override
+    void renderGeoMap(WidgetRenderContext context) {
+        context.model.readonly = true
+        context.writer << context.g.render(template: '/output/dataEntryMap', plugin: 'ecodata-client-plugin', model: context.model)
+    }
+
+    @Override
+    void renderSpeciesSearchWithImagePreview(WidgetRenderContext context) {
+        def newAttrs = new Databindings()
+        newAttrs.add "text", "name"
+        context.writer << context.g.render(template: '/output/speciesSearchWithImagePreviewTemplate', plugin: 'ecodata-client-plugin', model:[source: context.source, databindAttrs: newAttrs.toString(), validationAttrs:context.validationAttr, attrs: context.attributes.toString(), readonly: true])
+    }
 }
