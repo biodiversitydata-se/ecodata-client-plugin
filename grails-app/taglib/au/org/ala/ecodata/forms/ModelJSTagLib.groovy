@@ -639,6 +639,7 @@ class ModelJSTagLib {
                 , activityLevelData: context
                 , hideSiteSelection: ${model.hideSiteSelection}
                 , hideMyLocation: ${model.hideMyLocation}
+                , context: config
             });
         """
     }

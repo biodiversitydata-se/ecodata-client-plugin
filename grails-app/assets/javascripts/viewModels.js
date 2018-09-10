@@ -34,6 +34,7 @@ function enmapify(args) {
         updateSiteUrl = args.updateSiteUrl,
         listSitesUrl = args.listSitesUrl,
         getSiteUrl = args.getSiteUrl,
+        context = args.context,
         activityLevelData = args.activityLevelData,
         uniqueNameUrl = args.uniqueNameUrl + "/" + ( activityLevelData.pActivity.projectActivityId || activityLevelData.pActivity.projectId),
         hideSiteSelection = args.hideSiteSelection || false,
@@ -178,7 +179,7 @@ function enmapify(args) {
         mapOptions.otherLayers = otherLayers;
     }
 
-    var map = new ALA.Map(viewModel.mapElementId, mapOptions);
+    var map = context.siteMap = new ALA.Map(viewModel.mapElementId, mapOptions);
 
     container[viewModel.mapElementId] = map;
 
