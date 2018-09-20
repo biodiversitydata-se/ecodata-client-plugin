@@ -232,6 +232,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         def newAttrs = new Databindings()
 
         newAttrs.add "value", "transients.textFieldValue"
+        newAttrs.add "disable", "transients.speciesFieldIsReadOnly"
         newAttrs.add "event", "{focusout:focusLost}"
         newAttrs.add "speciesAutocomplete", "{url:transients.speciesSearchUrl, result:speciesSelected, valueChangeCallback:textFieldChanged}"
 

@@ -507,26 +507,15 @@ var SpeciesViewModel = function(data, options) {
         }
     });
 
-    self.populateSingleSpecies = function (populate) {
-        if (!self.name() && !self.guid() && fcConfig.getSingleSpeciesUrl && populate) {
-            $.ajax({
-                url: fcConfig.getSingleSpeciesUrl + '?output=' + output+ '&dataFieldName=' + dataFieldName
-                +'&surveyName=' + surveyName,
-                type: 'GET',
-                contentType: 'application/json',
-                success: function (data) {
-                    if (data.name && data.guid) {
-                        self.transients.name(data.name);
-                        self.transients.scientificName(data.scientificName);
-                        self.transients.commonName(data.commonName);
-                        self.transients.speciesFieldIsReadOnly(true);
-                        self.transients.guid(data.guid); // This will update the non-transient data.
-                    }
-                },
-                error: function (data) {
-                    console.log('Error retrieving single species')
-                }
-            });
+    self.populateSingleSpecies = function () {
+        if (speciesConfig && (speciesConfig.type === 'SINGLE_SPECIES') && speciesConfig.singleSpecies) {
+            var data = speciesConfig.singleSpecies;
+            self.transients.textFieldValue(data.name);
+            self.transients.name(data.name);
+            self.transients.scientificName(data.scientificName);
+            self.transients.commonName(data.commonName);
+            self.transients.speciesFieldIsReadOnly(true);
+            self.transients.guid(data.guid); // This will update the non-transient data.
         }
     };
 
@@ -584,7 +573,7 @@ var SpeciesViewModel = function(data, options) {
     };
 
     self.guidFromOutputSpeciesId(species);
-    self.populateSingleSpecies(populate);
+    setTimeout(self.populateSingleSpecies, 0);
 
     if (data) {
         self.loadData(data);
