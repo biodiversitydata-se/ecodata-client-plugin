@@ -418,7 +418,7 @@
             var el = document.getElementById("${source}Map"),
                 viewModel = ko.dataFor(el);
 
-            if(viewModel){
+            if(viewModel && viewModel.data){
                 var lng = viewModel.data.${source}Longitude(),
                     lat = viewModel.data.${source}Latitude();
                 if((prevLat != lat) && (prevLng != lng)){
