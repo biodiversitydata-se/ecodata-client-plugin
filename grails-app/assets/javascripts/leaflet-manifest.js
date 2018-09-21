@@ -29,7 +29,7 @@
 //= require MapUtilities.js
 //= require siteDisplay.js
 
-//= require turf/6.0.1/turf-packaged.js
+//= require turf/turf-packaged.js
 
 // from biocollect
 //= require leaflet-plugins-2.0.0/layer/tile/Google.js
