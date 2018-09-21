@@ -295,7 +295,7 @@
             var el = document.getElementById("${source}Map"),
                 viewModel = ko.dataFor(el);
 
-            if(viewModel && viewModel.data){
+            if(isGeoMapPresentInViewModel(viewModel)){
                 var long = viewModel.data.${source}Longitude,
                     lat = viewModel.data.${source}Latitude;
 
@@ -314,7 +314,7 @@
             var el = document.getElementById("${source}Map"),
                 viewModel = ko.dataFor(el);
 
-            if(viewModel && viewModel.data){
+            if(isGeoMapPresentInViewModel(viewModel)){
                 var source = viewModel.data.${source}Source;
                 source && source('Google maps');
             }
@@ -411,6 +411,10 @@
             $('#${source}Longitude').change()
         }
 
+        function isGeoMapPresentInViewModel (viewModel) {
+            return viewModel && viewModel.data && viewModel.data.${source}Longitude && viewModel.data.${source}Latitude;
+        }
+
         /**
          * Get address for a given lat/lng using openstreetmap
          */
@@ -418,7 +422,7 @@
             var el = document.getElementById("${source}Map"),
                 viewModel = ko.dataFor(el);
 
-            if(viewModel && viewModel.data){
+            if(isGeoMapPresentInViewModel(viewModel)){
                 var lng = viewModel.data.${source}Longitude(),
                     lat = viewModel.data.${source}Latitude();
                 if((prevLat != lat) && (prevLng != lng)){
