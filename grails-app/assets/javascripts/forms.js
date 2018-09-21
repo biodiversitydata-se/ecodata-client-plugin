@@ -251,6 +251,64 @@ function orEmptyArray(v) {
 
     }();
 
+
+    /**
+     * Creates an instance of the view model identified by the supplied name.
+     */
+    ecodata.forms.initialiseOutputViewModel = function(outputViewModelName, dataModel, output, config, context) {
+
+        var defaults = {
+            constructorFunction : ecodata.forms[outputViewModelName + 'ViewModel'],
+            dirtyFlag: ko.simpleDirtyFlag,
+            viewRootElementId: 'ko'+outputViewModelName,
+            recoveryDataStorageKey: output && output.outputId ? 'output-'+output.outputId : 'output-'+outputViewModelName
+        };
+
+        config = _.defaults(config, defaults);
+        var viewModel = new config.constructorFunction(output, dataModel, context, config);
+        viewModel.initialise(output.data);
+
+        // dirtyFlag must be defined after data is initialised
+        viewModel.dirtyFlag = config.dirtyFlag(viewModel, false);
+
+        ko.applyBindings(viewModel, document.getElementById(config.viewRootElementId));
+
+        // this resets the baseline for detecting changes to the model
+        // - shouldn't be required if everything behaves itself but acts as a backup for
+        //   any binding side-effects
+        // - note that it is not foolproof as applying the bindings happens asynchronously and there
+        //   is no easy way to detect its completion
+        viewModel.dirtyFlag.reset();
+
+        // Check for locally saved data for this output - this will happen in the event of a session timeout
+        // for example.
+        var savedData = amplify.store(config.recoveryDataStorageKey);
+        var savedOutput = null;
+        if (savedData) {
+            savedData = $.parseJSON(savedData);
+
+            var savedOutput;
+            if (savedData.name && savedData.name == output.name) {
+                savedOutput = savedData.data;
+            }
+            else if (savedData.outputs) {
+                $.each(savedData.outputs, function (i, tmpOutput) {
+                    if (tmpOutput.name === output.name) {
+                        if (tmpOutput.data) {
+                            savedOutput = tmpOutput.data;
+                        }
+                    }
+                });
+            }
+        }
+        if (savedOutput) {
+            viewModel.loadData(savedOutput);
+        }
+
+        return viewModel;
+    };
+
+
     ecodata.forms.orDefault = function (value, defaultValue) {
         return value === undefined ? defaultValue : value;
     };
@@ -386,26 +444,52 @@ function orEmptyArray(v) {
 
     };
 
-
     /**
      * Implements the constraints specified on a single data model item using the "constraints" attribute in the metadata.
      * Also provides access to global configuration and context for components that need it.
      *
      * @param metadata the metadata definition for the data model item.
      * @param parent the container (e.g. OutputModel or NestedModel) in which this data model item is defined.  Used to make
-     * the parent data available for expression evaluation or constraint evaluation.
+     * the parent data available for expression evaluation or constraint evaluation.  Also used for id building.
      * @param context global context in which the form is being rendered.  For MERIT/BioCollect this will include
-     * project/site/activity/survey type information.
+     * project/site/activity/survey type information.  Also contains the parent object and index for nested data items.
      * @param config other configuration items, such as URLs for species searching etc.
      */
-    ecodata.forms.DataModelItem = function (metadata, parent, context, config) {
+    ecodata.forms.DataModelItem = function (metadata, context, config) {
         var self = this;
 
         self.context = context;
         self.config = config;
 
-        self.get = function (name) {
-            return metadata[name];
+        /**
+         * Returns the value of the specified metadata property (e.g. validate, constraints etc)
+         * @param property the name of the proprety to get.
+         * @returns {*}
+         */
+        self.get = function (property) {
+            return metadata[property];
+        };
+
+        self.getName = function() {
+            return metadata.name;
+        };
+
+        var cachedId;
+        /**
+         * Produces a unique id for this item based on the parent, item name and index (for nested items).
+         * @returns {*}
+         */
+        self.getId = function() {
+            // Lazily calculate the id.
+            if (cachedId) {
+                return cachedId;
+            }
+            cachedId = config.outputName +'-'+self.getName();
+            if (!_.isUndefined(context.index)) {
+                cachedId += "-"+context.index;
+            }
+            return cachedId;
+
         };
 
         self.checkWarnings = function () {
@@ -420,7 +504,7 @@ function orEmptyArray(v) {
 
         self.evaluateBehaviour = function (type, defaultValue) {
             var rule = _.find(metadata.behaviour, function (rule) {
-                return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, parent);
+                return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, context.parent);
             });
 
             return rule && rule.value || defaultValue;
@@ -443,7 +527,7 @@ function orEmptyArray(v) {
                 if (metadata.constraints.type == 'computed') {
                     self.constraints = ko.computed(function () {
                         var rule = _.find(metadata.constraints.options, function (option) {
-                            return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, parent);
+                            return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, context.parent);
                         });
                         return rule ? rule.value : metadata.constraints.default;
                     });
@@ -483,7 +567,7 @@ function orEmptyArray(v) {
         }
 
         function getConfig(key, dataModelItem) {
-            var clientConfig = config[key] || {};
+            var clientConfig = config[key] || config;
             return _.defaults(clientConfig, dataModelItem.config);
         };
 
@@ -607,7 +691,7 @@ function orEmptyArray(v) {
         // Expose the context as poperties to make it availble to forumula bindings
         self.$parent = context.parent;
         self.$index = context.index;
-        self.$context = context;
+        self.$context = _.extend({}, context, {parent:self});
         self.dataModel = dataModel;
         if (!data) {
             data = {};
@@ -655,6 +739,7 @@ function orEmptyArray(v) {
 
         var self = this;
         context.outputModel = self;
+
         var dataLoader = ecodata.forms.dataLoader(context, config);
         if (!output) {
             output = {};
@@ -662,7 +747,8 @@ function orEmptyArray(v) {
         self.dataModel = _.indexBy(dataModel, 'name');
 
         // Make this properties available to the binding context for use by components.
-        self.$context = context;
+        self.$context = _.extend({output:output, root:self, parent:self}, context);
+
         self.$config = ecodata.forms.configManager(config, context);
 
         var activityId = output.activityId || config.activityId;

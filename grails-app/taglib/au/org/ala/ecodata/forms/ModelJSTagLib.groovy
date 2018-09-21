@@ -242,7 +242,7 @@ class ModelJSTagLib {
         }
         String defaultValue = getDefaultValueAsString(ctx);
         String value = "ecodata.forms.orDefault(data['${mod.name}'], ${getDefaultValueAsString(ctx)})"
-        if (mod.dataType in ['text', 'stringList', 'time', 'feature']) {
+        if (mod.dataType in ['text', 'stringList', 'time']) {
             if (mod.name == 'recordedBy' && mod.dataType == 'text' && attrs.user?.displayName && !value) {
                 out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'](ecodata.forms.orDefault(data['${mod.name}'], '${attrs.user.displayName}'));\n"
             } else {
@@ -315,6 +315,9 @@ class ModelJSTagLib {
                         }
                     """
             }
+        }
+        else if (mod.dataType == 'feature') {
+            out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'].loadData(${value});\n"
         }
     }
 
@@ -559,7 +562,8 @@ class ModelJSTagLib {
         }
 
         if (requiresMetadataExtender(ctx.dataModel)) {
-            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], parent:self, context:context, config:config}}")
+            // The metadata extender sets up context & configuration information that can be used by subsequent extenders.
+            extenders = ["{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:context, config:config}}"] + extenders
         }
         String extenderJS = ''
         extenders.each {
@@ -569,7 +573,7 @@ class ModelJSTagLib {
     }
 
     private boolean requiresMetadataExtender(Map dataModel) {
-        dataModel.behaviour || dataModel.warning || dataModel.constraints || dataModel.displayOptions
+        dataModel.dataType == 'feature' || dataModel.behaviour || dataModel.warning || dataModel.constraints || dataModel.displayOptions
 
     }
 
@@ -652,7 +656,7 @@ class ModelJSTagLib {
     }
 
     def featureModel(JSModelRenderContext ctx) {
-        observable(ctx, ["{feature:true}"])
+        observable(ctx, ["{feature:config}"])
     }
 
     def audioModel(JSModelRenderContext ctx) {

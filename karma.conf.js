@@ -2,6 +2,13 @@
 // Generated on Thu May 21 2015 09:01:47 GMT+1000 (AEST)
 
 module.exports = function (config) {
+    var sourcePreprocessors = ['coverage'];
+    function isDebug(argument) {
+        return argument === '--debug';
+    }
+    if (process.argv.some(isDebug)) {
+        sourcePreprocessors = [];
+    }
     config.set({
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -29,6 +36,7 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             'grails-app/assets/vendor/knockout/3.4.0/knockout-3.4.0.js',
+            'grails-app/assets/vendor/knockout/3.4.0/knockout.mapping-latest.js',
             'grails-app/assets/vendor/expr-eval/1.2.1/bundle.js',
             'grails-app/assets/vendor/select2/4.0.3/js/select2.full.js',
             'grails-app/assets/vendor/underscorejs/1.8.3/underscore.js',
@@ -48,7 +56,7 @@ module.exports = function (config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'grails-app/assets/javascripts/*.js':['coverage']
+            'grails-app/assets/javascripts/*.js':sourcePreprocessors
         },
 
 

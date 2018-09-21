@@ -15,6 +15,7 @@
 //= require attach-document.js
 //= require jquery.fileDownload/jQuery.fileDownload
 //= require leaflet-manifest.js
+//= require knockout-utils.js
 //= require forms.js
 //= require geojson2svg/1.2.3/geojson2svg
 //= require feature.js

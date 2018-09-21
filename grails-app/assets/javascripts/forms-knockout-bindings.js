@@ -3,15 +3,6 @@
  */
 (function() {
 
-    // Binding to exclude the contained html from the current binding context.
-    // Used when you want to bind a section of html to a different viewModel.
-    ko.bindingHandlers.stopBinding = {
-        init: function() {
-            return { controlsDescendantBindings: true };
-        }
-    };
-    ko.virtualElements.allowedBindings.stopBinding = true;
-
     /**
      * Exposes extra context to child bindings via the binding context.
      * Used as a mechanism to allow clients to pass configuration to
@@ -776,7 +767,8 @@
      * @param context the dataModel metadata as defined for the field in dataModel.json
      */
     ko.extenders.metadata = function(target, options) {
-        ecodata.forms.DataModelItem.apply(target, [options.metadata, options.parent, options.context, options.config]);
+        ecodata.forms.DataModelItem.apply(target, [options.metadata, options.context, options.config]);
+        return target;
     };
 
     ko.extenders.list = function(target, options) {
@@ -789,7 +781,7 @@
      */
     ko.extenders.configurationContainer = function(target, config) {
         target.globalConfig = config;
-    }
+    };
 
 })();
 

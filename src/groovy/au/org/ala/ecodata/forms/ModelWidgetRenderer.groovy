@@ -55,7 +55,7 @@ public class WidgetRenderContext {
 
     def deferredTemplates = []
 
-    public WidgetRenderContext(JSONObject model, String context, String validationAttr, Databindings databindAttrs, AttributeMap attributes, AttributeMap labelAttributes, NamespacedTagDispatcher g, tagAttrs) {
+    public WidgetRenderContext(Map model, String context, String validationAttr, Databindings databindAttrs, AttributeMap attributes, AttributeMap labelAttributes, NamespacedTagDispatcher g, tagAttrs, StringWriter writer = null) {
         this.model = model
         this.context = context
         this.validationAttr = validationAttr
@@ -64,7 +64,12 @@ public class WidgetRenderContext {
         this.labelAttributes = labelAttributes ?: new AttributeMap()
         this.g = g
         this.tagAttrs = tagAttrs
-        writer = new StringWriter()
+
+        if (!writer) {
+            writer = new StringWriter()
+        }
+        this.writer = writer
+
     }
 
     public String getSource() {

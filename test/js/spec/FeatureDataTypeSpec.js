@@ -10,21 +10,53 @@ describe("Feature Data Type Spec", function () {
 
     };
 
+    var polygon = function() {
+        return {
+            "type": "Polygon",
+                "coordinates":
+            [[
+                [100.0, 100.0],
+                [100.1, 100.0],
+                [100.1, 100.1],
+                [100.0, 100.1],
+                [100.0, 100.0]
+            ]]
+        };
+    };
+
+    var polygonFeature = function(id, name) {
+        return {
+            "type":"Feature",
+            "geometry": polygon(),
+            "properties":{
+                id:id,
+                name:name
+            }
+
+        };
+    };
+
+    var featureArray = [
+        polygonFeature('Feature-1', 'polygon 1'),
+        polygonFeature('Feature-2', 'polygon 2'),
+        polygonFeature('Feature-3', 'polygon 3'),
+        polygonFeature('Feature-4', 'polygon 4')
+    ];
+
+
+    var simpleFeatureViewModelMetadata = [
+        {
+            name:'feature',
+            dataType:'feature'
+        }
+    ];
+
     it("Should be able to access nested objects like the species and feature data types", function () {
-        var model = new ecodata.forms.SimpleFeatureViewModel({}, {}, {}, {});
+        var model = new ecodata.forms.SimpleFeatureViewModel({}, ecodata.forms.simpleFeatureViewModelMetadata, context, {});
 
         var data = {
-            feature: {
-                "type": "Polygon",
-                "coordinates":
-                    [[
-                        [100.0, 100.0],
-                        [100.1, 100.0],
-                        [100.1, 100.1],
-                        [100.0, 100.1],
-                        [100.0, 100.0]
-                    ]]
-            }
+            feature: polygon()
+
         };
         model.loadData(data);
 
@@ -32,25 +64,188 @@ describe("Feature Data Type Spec", function () {
         expect(Number(model.data.feature.lengthKm())).toBeCloseTo(1);
     });
 
-    it("The features length and area should be accessible via the expression evaluator", function () {
-        var model = new ecodata.forms.SimpleFeatureViewModel({}, {}, {}, {});
+    it("Something about the dlshith", function() {
 
-        var data = {
-            feature: {
-                "type": "Polygon",
-                "coordinates":
-                    [[
-                        [100.0, 100.0],
-                        [100.1, 100.0],
-                        [100.1, 100.1],
-                        [100.0, 100.1],
-                        [100.0, 100.0]
-                    ]]
+        var callback;
+        var config = {
+            featureCollection:{
+                registerFeature:function(feature) {
+
+                }
             }
         };
-        model.loadData(data);
 
-        expect(Number(model.data.areaHa())).toBeCloseTo(0.1, 1);
-        expect(Number(model.data.lengthKm())).toBeCloseTo(1, 1);
+        // The feature data type relies on having the metadata available.
+        var feature = ko.observable().extend({metadata:{metadata:{name:'feature'}}, config:{}, context:{}}).extend({feature:config});
+
+        var geoJson = {type:'Polygon', coordinates:[[[1,0], [1,1], [0, 1], [0, 0], [1, 0]]]};
+        feature(geoJson);
+
+        //expect(feature()).toBe(geoJson);
+
+    });
+
+
+        var metadata = {
+            name:'feature',
+            dataType:'feature'
+        };
+        var context = {
+            featureCollection: {
+                allFeatures:function() {
+                    return [
+                        {
+                            type: "Feature",
+                            geometry: {
+                                type: "Polygon",
+                                coordinates: [[[]]]
+                            },
+                            properties: {
+                                id: 'Feature-1'
+                            }
+
+
+                        },
+                        {
+                            type: "Feature",
+                            geometry: {
+                                type: "Polygon",
+                                coordinates: [[[]]]
+                            },
+                            properties: {
+                                id: 'Feature-2'
+                            }
+                        },
+                        {
+                            type: "Feature",
+                            geometry: {
+                                type: "Polygon",
+                                coordinates: [[[]]]
+                            },
+                            properties: {
+                                id: 'Feature-3'
+                            }
+                        }]
+                },
+                registerFeature:function(feature) {
+                }
+            }
+        };
+    function makeAFeature(featureCollection) {
+        featureCollection = featureCollection || context.featureCollection;
+
+        var config = {featureCollection:featureCollection, outputName:'Test'};
+
+        // The feature data type relies on having the metadata available.
+        return ko.observable().extend({metadata:{metadata:metadata, config:config, context:context}}).extend({feature:config});
+
+    }
+
+    it("Should return geojson for use by other components (e.g. geojson2svg)", function() {
+
+        var feature = makeAFeature();
+        feature.loadData({featureIds:['Feature-3']});
+
+        expect(feature().type).toEqual("FeatureCollection");
+        expect(feature().features).toBeDefined();
+
+    });
+
+    it("Should find it's data from the supplied context based on ids", function(){
+
+        // Testing
+        var feature = makeAFeature();
+
+        feature.loadData({featureIds:['Feature-1', 'Feature-2']});
+
+        var data = feature();
+
+
+        expect(data.type).toEqual("FeatureCollection");
+        expect(data.features.length).toBe(2);
+
+    });
+
+    it("Should be able to handle no data being passed to the loadData method", function(){
+
+        // Testing
+        var feature = makeAFeature();
+
+        feature.loadData(undefined);
+
+        var data = feature();
+
+        expect(data).toBeNull();
+
+    });
+
+    it("Shouldn't return details of the shapes, just references to the ids", function() {
+        var featureIds = ['Feature-1', 'Feature-2'];
+        var feature = makeAFeature();
+        feature.loadData({featureIds:featureIds});
+
+        var data = feature().toJSON();
+
+        expect(data.featureIds).toEqual(featureIds);
+        expect(data.type).toBeUndefined();
+
+        var model = new ecodata.forms.SimpleFeatureViewModel({}, ecodata.forms.simpleFeatureViewModelMetadata, context, {});
+        model.loadData({feature:{featureIds:featureIds}});
+        var json = model.modelAsJSON();
+
+        var data = JSON.parse(json);
+        expect(data.data.feature.featureIds).toEqual(featureIds);
+
+
+    });
+
+
+    it("The feature extender should return the value written to it", function() {
+        var feature = makeAFeature();
+
+        feature({type:"FeatureCollection", features:[{"type":"Feature", geometry:{}}]});
+
+        expect(feature().type).toBe("FeatureCollection");
+    });
+
+    //============ ecodata.forms.FeatureCollection ===========
+
+    it("A feature collection with no attached feature models should return the original data only", function() {
+
+        var featureCollection = new ecodata.forms.FeatureCollection(featureArray);
+
+        expect(featureCollection.allFeatures()).toEqual(featureArray);
+
+    });
+
+    it("A feature collection should not duplicate features after they are applied to feature models", function() {
+
+        var featureCollection = new ecodata.forms.FeatureCollection(featureArray);
+
+        var featureModel = makeAFeature(featureCollection);
+        featureModel.loadData({featureIds:['Feature-1', 'Feature-2']});
+
+        expect(featureCollection.allFeatures()).toEqual(featureArray);
+
+    });
+
+    it("A feature collection should not duplicate features after they are applied to feature models", function() {
+
+        var featureCollection = new ecodata.forms.FeatureCollection(featureArray);
+
+        var featureModel = makeAFeature(featureCollection);
+        featureModel.loadData({featureIds:['Feature-1', 'Feature-2']});
+
+        console.log(featureModel());
+
+        featureModel({
+           type:"FeatureCollection",
+            features:[]
+        });
+
+        console.log(featureCollection.allFeatures()[0]);
+
+        expect(featureCollection.allFeatures()).toEqual(featureArray);
+
     });
 });
