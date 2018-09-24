@@ -138,8 +138,11 @@ function orEmptyArray(v) {
             return {
                 $geom: {
                     lengthKm: function (geoJSON, linesOnly) {
+                        if (_.isUndefined(linesOnly)) {
+                            linesOnly = true;
+                        }
                         if (linesOnly) {
-                            var linesOnly = _.filter(geoJson.features, function(feature) {
+                            var linesOnly = _.filter(geoJSON.features, function(feature) {
                                 return feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString';
                             });
                             geoJSON = {

@@ -224,55 +224,20 @@ ecodata.forms.featureMap = function (options) {
                 {
                     onEachFeature: function (f, layer) {
                         layer.on('click', function (e) {
-                            console.log("layer");
-                            console.log(e);
+
+
+                            _selectedFeatures.push(f);
                         })
                     }
                 }).addTo(self.getMapImpl());
             geoLayer.bringToFront();
             window.geoLayer = geoLayer;
 
-            // var geoList = new L.Control.GeoJSONSelector(geoLayer, {
-            //     collapsed:true,
-            //     zoomToLayer: true,
-            //     activeListFromLayer: true,
-            //     activeLayerFromList: true,
-            //     listOnlyVisibleLayers: false,
-            //     position:'topleft',
-            //     multiple:true,
-            //     style: {
-            //         color:'#00f',
-            //         fill:false,
-            //         fillColor:'#08f',
-            //         fillOpacity: 0.4,
-            //         opacity: 1,
-            //         weight: 1
-            //     },
-            //     activeStyle: {fill:true},
-            //     selectStyle: {fill:true}
-            // });
-            //
-            // geoList.on('selector:change', function(e) {
-            //     if (e.selected) {
-            //         _selectedFeatures = _.union(_selectedFeatures, e.layers);
-            //     }
-            //     else {
-            //         _selectedFeatures = _.without(_selectedFeatures, e.layers);
-            //     }
-            // });
-            //
-            // self.addControl(geoList);
-
             var getDrawnItems = self.getGeoJSON;
             self.getGeoJSON = function () {
                 var drawnAndSelected = getDrawnItems();
 
-                if (_selectedFeatures) {
-                    _.each(_selectedFeatures, function (layer) {
-                        drawnAndSelected.features.push(layer.toGeoJSON());
-                    });
-                }
-                console.log(drawnAndSelected);
+                drawnAndSelected.features = _selectedFeatures.concat(drawnAndSelected.features || []);
                 return drawnAndSelected;
             };
 

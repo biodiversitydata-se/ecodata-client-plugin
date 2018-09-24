@@ -33,6 +33,10 @@
             searchBieUrl:''
         };
         var output = {};
+
+        // This is required by any models that use the feature dataType
+        config.featureCollection = new ecodata.forms.FeatureCollection([]);;
+
         var model = new ecodata.forms[modelName](output, dataModel, context, config);
 
         ko.applyBindings(model);
