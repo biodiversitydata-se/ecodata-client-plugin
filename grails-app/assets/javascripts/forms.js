@@ -137,8 +137,18 @@ function orEmptyArray(v) {
 
             return {
                 $geom: {
-                    lengthKm: function (geoJSON) {
-                        return turf.length(geoJSON, {units: 'kilometers'})
+                    lengthKm: function (geoJSON, linesOnly) {
+                        if (linesOnly) {
+                            var linesOnly = _.filter(geoJson.features, function(feature) {
+                                return feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString';
+                            });
+                            geoJSON = {
+                                type:'FeatureCollection',
+                                features:linesOnly
+                            };
+                        }
+
+                        return turf.length(geoJSON, {units: 'kilometers'});
                     },
                     areaHa: function (geoJSON) {
                         return m2ToHa(turf.area(geoJSON))
@@ -173,7 +183,9 @@ function orEmptyArray(v) {
                 else {
                     // Try to evaluate against the parent
                     if (context['$parent']) {
-                        result = bindVariable(variable, context['$parent']);
+                        // If the parent is the output model, we want to evaluate against the "data" property
+                        var parentContext = _.isObject(context['$parent'].data) ? context['$parent'].data : context['$parent'];
+                        result = bindVariable(variable, parentContext);
                     }
                 }
 

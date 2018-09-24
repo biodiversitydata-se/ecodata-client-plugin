@@ -508,6 +508,7 @@ class ModelJSTagLib {
         out << INDENT*2 << "var ${makeRowModelName(attrs.model.modelName, model.name)} = function (data, dataModel, context, config) {\n"
         out << INDENT*4 << "var self = this;\n"
         out << INDENT*4 << "ecodata.forms.NestedModel.apply(self, [data, dataModel, context, config]);\n"
+        out << INDENT*4 << "context = _.extend(context, {parent:self});"
 
         JSModelRenderContext childCtx = ctx.createChildContext()
         childCtx.propertyPath = 'self'
