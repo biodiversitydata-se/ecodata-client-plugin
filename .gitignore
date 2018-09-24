@@ -31,3 +31,11 @@
 
 # "temporary" build files
 /target
+
+# IntelliJ IDEA configuration
+/.idea
+/*.iml
+/.classpath
+/.project
+
+
