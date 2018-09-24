@@ -2,6 +2,13 @@
 // Generated on Thu May 21 2015 09:01:47 GMT+1000 (AEST)
 
 module.exports = function (config) {
+    var sourcePreprocessors = ['coverage'];
+    function isDebug(argument) {
+        return argument === '--debug';
+    }
+    if (process.argv.some(isDebug)) {
+        sourcePreprocessors = [];
+    }
     config.set({
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -21,7 +28,7 @@ module.exports = function (config) {
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
         frameworks: [
-            'jquery-1.11.0', // Because we are using a grails plugin for jquery it is not easily available via a project path.
+            'jquery-3.3.1',
             'jasmine-jquery',
             'jasmine'],
 
@@ -29,10 +36,13 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             'grails-app/assets/vendor/knockout/3.4.0/knockout-3.4.0.js',
-            'grails-app/assets/vendor/expr-eval/1.0/parser.js',
+            'grails-app/assets/vendor/knockout/3.4.0/knockout.mapping-latest.js',
+            'grails-app/assets/vendor/expr-eval/1.2.1/bundle.js',
             'grails-app/assets/vendor/select2/4.0.3/js/select2.full.js',
             'grails-app/assets/vendor/underscorejs/1.8.3/underscore.js',
             'grails-app/assets/vendor/typeahead/0.11.1/bloodhound.js',
+            'grails-app/assets/vendor/underscorejs/1.8.3/underscore.js',
+            'grails-app/assets/javascripts/forms.js',
             'grails-app/assets/javascripts/*.js',
             'test/js/util/*.js',
             'test/js/spec/**/*.js'
@@ -45,13 +55,25 @@ module.exports = function (config) {
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {},
+        preprocessors: {
+            'grails-app/assets/javascripts/*.js':sourcePreprocessors
+        },
 
 
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
         reporters: ['progress', 'coverage'],
+
+        coverageReporter: {
+            'dir':'./target',
+            'type':"text",
+            check: {
+                global: {
+                    lines: 25
+                }
+            }
+        },
 
         // web server port
         port: 9876,

@@ -73,7 +73,7 @@ table td .select2.select2-container {
 .trajectory {
     fill:white;
     stroke: #787878;
-    stroke-width: 8;
+    stroke-width: 8px;
 }
 .trajectory-icon path{
     fill: #787878;
@@ -83,4 +83,8 @@ table td .select2.select2-container {
 
 span.preLabel {
     margin:0;
+}
+
+input[type=number] {
+    text-align: center;
 }

@@ -215,4 +215,9 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
         newAttrs.add "text", "name"
         context.writer << context.g.render(template: '/output/speciesSearchWithImagePreviewTemplate', plugin: 'ecodata-client-plugin', model:[source: context.source, databindAttrs: newAttrs.toString(), validationAttrs:context.validationAttr, attrs: context.attributes.toString(), readonly: true])
     }
+
+    @Override
+    void renderFeature(WidgetRenderContext context) {
+
+    }
 }

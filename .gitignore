@@ -38,4 +38,9 @@
 /.classpath
 /.project
 
+# npm installed modules
+/node_modules
+
+# spring loaded cache for debugging
+/.slcache
 

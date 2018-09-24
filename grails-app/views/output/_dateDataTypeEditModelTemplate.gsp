@@ -2,7 +2,7 @@
     <input ${context.attributes.toString()} class="input-small" data-bind="${context.databindAttrs}" type="text" size="12" ${context.validationAttr}/>
     <span class="add-on open-datepicker"><i class="icon-th"></i></span>
 </div>
-<script>
+<asset:script>
     $(function () {
         $(document).on('imagedatetime', function (event, data) {
             var id = "${context.source}Date",
@@ -14,4 +14,4 @@
             }
         });
     });
-</script>
+</asset:script>

@@ -70,7 +70,9 @@ class ModelTagLib {
 
         LayoutRenderContext ctx = new LayoutRenderContext(out:out, parentView:'', dataContext: 'data', span:LAYOUT_COLUMNS, attrs:attrs)
 
+        ctx.out << """<div data-bind="withContext:{\$context:\$context, \$config:\$config}">"""
         viewModelItems(attrs.model?.viewModel, ctx)
+        ctx.out << """</div>"""
 
         renderDeferredTemplates out
     }
@@ -288,6 +290,9 @@ class ModelTagLib {
             case 'geoMap':
                 renderer.renderGeoMap(renderContext)
                 break
+            case 'feature':
+                renderer.renderFeature(renderContext)
+                break
             default:
                 log.warn("Unhandled widget type: ${model.type}")
                 break
@@ -371,7 +376,7 @@ class ModelTagLib {
                 helpText = attr?.description
             }
         }
-        helpText = helpText?fc.iconHelp([title:''], helpText):''
+        helpText = helpText?md.iconHelp([title:''], helpText):''
         return "${label}${helpText}"
 
     }
