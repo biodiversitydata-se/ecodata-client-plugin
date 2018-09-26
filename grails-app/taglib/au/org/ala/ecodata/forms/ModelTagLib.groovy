@@ -919,7 +919,7 @@ class ModelTagLib {
         }
         colCount = (model.columns?.size()?:0) + 1
         if (attrs.edit) {
-            out << g.render(template:"/output/editModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, property:ctx.property, containsSpecies:containsSpecies, disableTableUpload:attrs.disableTableUpload || model.disableTableUpload])
+            out << g.render(template:"/output/editModeTableFooterActions", plugin:'ecodata-client-plugin', model:[addRowText:model.addRowText, uploadText:model.uploadDataText, colCount:colCount, name:model.source, property:ctx.property, containsSpecies:containsSpecies, disableTableUpload:attrs.disableTableUpload || model.disableTableUpload])
         }
         else if (!model.edit && !attrs.printable) {
             out << g.render(template:"/output/viewModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, property:ctx.property])
