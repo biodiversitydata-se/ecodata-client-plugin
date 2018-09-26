@@ -127,7 +127,7 @@ class ModelTagLib {
         ctx.out << """<!-- ko foreach:${ctx.property} -->\n"""
         ctx.out << """<div class="repeating-section">\n"""
         if (model.userAddedRows) {
-            ctx.out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">${model.removeRowText ?: "Remove Section"}/button>\n"""
+            ctx.out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">${model.removeRowText ?: "Remove Section"}</button>\n"""
         }
         viewModelItems(model.items, childContext)
 
