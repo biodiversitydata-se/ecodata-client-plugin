@@ -100,7 +100,7 @@ class ModelTagLib {
                     out << g.render(template:mod.source, plugin:'ecodata-client-plugin')
                     break
                 case 'repeat':
-                    repeatingLayout out, attrs, mod, ctx
+                    repeatingLayout ctx
                     break
                 case 'col':
                     column out, attrs, mod, ctx
@@ -114,24 +114,28 @@ class ModelTagLib {
         }
     }
 
-    def repeatingLayout(out, attrs, model, LayoutRenderContext ctx) {
+    def repeatingLayout(LayoutRenderContext ctx) {
 
-        String sourceType = getType(attrs, model.source, null)
+        Map model = ctx.model
+        String sourceType = getType(ctx.attrs, model.source, null)
         if (sourceType != "list") {
             throw new Exception("Only model elements with a list data type can be the source for a repeating layout")
         }
 
         LayoutRenderContext childContext = ctx.createChildContext(parentView:'', dataContext: '', span:ctx.span)
 
-        out << """<div class="repeating-section" data-bind="foreach:${ctx.property}">"""
+        ctx.out << """<!-- ko foreach:${ctx.property} -->\n"""
+        ctx.out << """<div class="repeating-section">\n"""
         if (model.userAddedRows) {
-            out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">Remove Section</button>"""
+            ctx.out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">${model.removeRowText ?: "Remove Section"}/button>\n"""
         }
         viewModelItems(model.items, childContext)
 
-        out << "</div>"
+        ctx.out << "</div>\n"
+        ctx.out << "<!-- /ko -->\n"
+
         if (model.userAddedRows) {
-            out << """<button type="button" class="btn btn-small" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>"""
+            ctx.out << """<button type="button" class="btn btn-small" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>\n"""
         }
     }
 

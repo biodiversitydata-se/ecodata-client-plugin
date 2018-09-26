@@ -69,5 +69,60 @@ class ModelTagLibSpec extends Specification {
         TestUtils.compareHtml(actualOut, expectedOut)
     }
 
+    def "the repeating section renders a div surrounded by a foreach block"() {
+        setup:
+        Map model = [type:'repeat', source:"test"]
+        ctx.model = model
+        List dataModel = [[name:"test", dataType:"list", columns:[]]]
+        ctx.attrs.model = [dataModel :dataModel]
+
+        when:
+        tagLib.repeatingLayout(ctx)
+
+        then:
+        expectedOut << "<!-- ko foreach:test -->"
+        mb.div(class:"repeating-section") {
+        }
+        expectedOut << "<!-- /ko -->"
+        TestUtils.compareHtml(actualOut, expectedOut)
+    }
+
+    def "the repeating section will throw an error if the source is not a list"() {
+        setup:
+        Map model = [type:'repeat', source:"test"]
+        ctx.model = model
+        List dataModel = [[name:"test", dataType:"text", columns:[]]]
+        ctx.attrs.model = [dataModel :dataModel]
+
+        when:
+        tagLib.repeatingLayout(ctx)
+
+        then:
+        thrown(Exception)
+    }
+
+    def "the repeating section accepts a user added rows configuration item"() {
+
+        setup:
+        Map model = [type:'repeat', source:"test", userAddedRows:true, removeRowText:"Delete row"]
+        ctx.model = model
+        List dataModel = [[name:"test", dataType:"list", columns:[]]]
+        ctx.attrs.model = [dataModel :dataModel]
+
+        when:
+        tagLib.repeatingLayout(ctx)
+
+        then:
+        expectedOut << "<!-- ko foreach:test -->"
+        mb.div(class:"repeating-section") {
+            button(class:"btn btn-warning pull-right", 'data-bind':"click:\$parent.${model.source}.removeRow") {
+                mkp.yield(model.removeRowText)
+            }
+        }
+        expectedOut << "<!-- /ko -->"
+
+        println actualOut
+        TestUtils.compareHtml(actualOut, expectedOut)
+    }
 
 }

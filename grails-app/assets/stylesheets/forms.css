@@ -88,3 +88,9 @@ span.preLabel {
 input[type=number] {
     text-align: center;
 }
+
+.repeating-section + .repeating-section {
+    margin-top: 15px;
+    padding-top: 25px;
+    border-top: 1px solid #999;
+}
