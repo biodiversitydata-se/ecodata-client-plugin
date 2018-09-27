@@ -155,6 +155,16 @@ ecodata.forms.featureMap = function (options) {
     var self = this;
     var _selectedFeatures = [];
 
+    var SELECTED_LAYER_STYLE = {
+        weight: 4,
+        fillOpacity: 0.5,
+        color: "#f00"
+    };
+    var UNSELECTED_LAYER_STYLE = {
+        weight: 4,
+        fillOpacity: 0.3,
+        color: "#33f"
+    };
 
     function initialise(options) {
         var defaults = {
@@ -169,7 +179,8 @@ ecodata.forms.featureMap = function (options) {
             singleMarker: false,
             zoomToObject: true,
             markerZoomToMax: true,
-            singleDraw: false
+            singleDraw: false,
+            selectedStyle:{}
         };
         var config = _.defaults(defaults, options);
         var mapOptions = _.extend(config, {
@@ -215,34 +226,44 @@ ecodata.forms.featureMap = function (options) {
 
         ALA.Map.call(self, mapOptions.mapElementId, mapOptions);
 
-        window.map = self;
-
-        if (options.selectableFeatures) {
+        self.setSelectableFeatures = function(selectableFeatures) {
             // We don't want this added to the "drawnItems" layer in the ALA.map as that layer is managed
             // for individual form sections.
-            var geoLayer = L.geoJson(options.selectableFeatures,
+            if (self.selectionLayer) {
+                self.selectionLayer.clearLayers();
+            }
+            self.selectionLayer = L.geoJson(selectableFeatures,
                 {
+                    style: function () {
+                        return UNSELECTED_LAYER_STYLE;
+                    },
                     onEachFeature: function (f, layer) {
                         layer.on('click', function (e) {
+                            var index = _selectedFeatures.indexOf(f);
+                            if (index >= 0) {
+                                _selectedFeatures.splice(index, 1);
+                                layer.setStyle(UNSELECTED_LAYER_STYLE);
+                            }
+                            else {
+                                _selectedFeatures.push(f);
+                                layer.setStyle(SELECTED_LAYER_STYLE);
+                            }
 
-
-                            _selectedFeatures.push(f);
                         })
                     }
                 }).addTo(self.getMapImpl());
-            geoLayer.bringToFront();
-            window.geoLayer = geoLayer;
-
-            var getDrawnItems = self.getGeoJSON;
-            self.getGeoJSON = function () {
-                var drawnAndSelected = getDrawnItems();
-
-                drawnAndSelected.features = _selectedFeatures.concat(drawnAndSelected.features || []);
-                return drawnAndSelected;
-            };
-
-
+            self.selectionLayer.bringToFront();
+        };
+        if (options.selectableFeatures) {
+            self.setSelectableFeatures(options.selectableFeatures);
         }
+        var getDrawnItems = self.getGeoJSON;
+        self.getGeoJSON = function () {
+            var drawnAndSelected = getDrawnItems();
+
+            drawnAndSelected.features = _selectedFeatures.concat(drawnAndSelected.features || []);
+            return drawnAndSelected;
+        };
 
         return self;
     }
