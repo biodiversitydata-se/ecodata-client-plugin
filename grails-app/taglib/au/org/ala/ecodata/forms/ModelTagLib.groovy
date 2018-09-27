@@ -17,6 +17,8 @@ class ModelTagLib {
 
     private final static int LAYOUT_COLUMNS = 12 // Bootstrap scaffolding uses a 12 column layout.
 
+    private ValidationHelper validationHelper = new ValidationHelper()
+
     /** Context for view layout (rows, columns etc). */
     class LayoutRenderContext {
         String parentView
@@ -152,9 +154,6 @@ class ModelTagLib {
     def dataTag(attrs, model, context, editable, elementAttributes, databindAttrs, labelAttributes) {
         ModelWidgetRenderer renderer
 
-
-        def validate = validationAttribute(attrs, model, editable)
-
         if (attrs.printable) {
             if (attrs.printable == 'pdf') {
                 renderer = new PDFModelWidgetRenderer()
@@ -171,7 +170,8 @@ class ModelTagLib {
             }
         }
 
-        def renderContext = new WidgetRenderContext(model, context, validate, databindAttrs, elementAttributes, labelAttributes, g, attrs)
+        Map dataModel = getAttribute(attrs.model.dataModel, model.source)
+        def renderContext = new WidgetRenderContext(model, dataModel, context, databindAttrs, elementAttributes, labelAttributes, g, attrs, Boolean.valueOf(editable))
 
         // The data model item we are rendering the view for.
         Map source = getAttribute(attrs.model.dataModel, model.source)
@@ -408,80 +408,9 @@ class ModelTagLib {
     }
 
     // -------- validation declarations --------------------
-    def getValidationCriteria(attrs, model, edit) {
-        //log.debug "checking validation for ${model}, edit = ${edit}"
-        if (!edit) { return []}  // don't bother if the user can't change it
-
-        def validationCriteria = model.validate
-        def dataModel = getAttribute(attrs.model.dataModel, model.source)
-
-        if (!validationCriteria) {
-            // Try the data model.
-            validationCriteria = dataModel?.validate
-        } // no criteria
-
-        def criteria = []
-        if (validationCriteria) {
-            criteria = validationCriteria.tokenize(',')
-            criteria = criteria.collect {
-                def rule = it.trim()
-                // Wrap these rules in "custom[]" to keep jquery-validation-engine happy and avoid having to
-                // specify "custom" in the json.
-                if (rule in ['number', 'integer', 'url', 'date', 'phone']) {
-                    rule = "custom[${rule}]"
-                }
-                rule
-            }
-        }
-
-        // Add implied numeric validation to numeric data types
-        if (dataModel?.dataType == 'number') {
-            if (!criteria.contains('custom[number]') && !criteria.contains('custom[integer]')) {
-                criteria << 'custom[number]'
-            }
-            if (!criteria.find{it.startsWith('min')}) {
-                criteria << 'min[0]'
-            }
-        }
-
-
-        return criteria
-    }
-
     def isRequired(attrs, model, edit) {
-        def criteria = getValidationCriteria(attrs, model, edit)
-        return criteria.contains("required")
-    }
-
-    def validationAttribute(attrs, model, edit) {
-        def criteria = getValidationCriteria(attrs, model, edit)
-        if (criteria.isEmpty()) {
-            return ""
-        }
-
-        def values = []
-        criteria.each {
-            switch (it) {
-                case 'required':
-                    if (model.type == 'selectMany') {
-                        values << 'minCheckbox[1]'
-                    }
-                    else {
-                        values << it
-                    }
-                    break
-                case 'number':
-                    values << 'custom[number]'
-                    break
-                case it.startsWith('min:'):
-                    values << it
-                    break
-                default:
-                    values << it
-            }
-        }
-        //log.debug " data-validation-engine='validate[${values.join(',')}]'"
-        return " data-validation-engine='validate[${values.join(',')}]'"
+        def dataModel = getAttribute(attrs.model.dataModel, model.source)
+        return validationHelper.isRequired(dataModel, model, edit)
     }
 
     // form section

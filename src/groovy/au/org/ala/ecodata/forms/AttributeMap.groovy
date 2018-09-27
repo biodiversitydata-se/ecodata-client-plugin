@@ -42,6 +42,10 @@ class AttributeMap {
         return map.containsKey('class') && map.class.tokenize(' ').any {it.startsWith('span')}
     }
 
+    void addMaxLength(int maxLength) {
+        add('maxlength', maxLength)
+    }
+
     String toString() {
         def strs = ['']
         map.each { k, v ->

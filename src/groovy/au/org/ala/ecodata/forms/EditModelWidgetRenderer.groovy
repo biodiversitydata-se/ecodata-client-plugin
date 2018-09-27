@@ -19,6 +19,8 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     void renderText(WidgetRenderContext context) {
         context.attributes.addClass context.getInputWidth()
         context.databindAttrs.add 'value', context.source
+
+        handleMaxSizeAndPlaceholder(context)
         context.writer << "<input ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}' ${context.validationAttr} type='text' class='input-small'/>"
     }
 
@@ -44,7 +46,29 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         if (context.model.cols) {
             context.attributes.add("cols", context.model.cols)
         }
+        handleMaxSizeAndPlaceholder(context)
         context.writer << "<textarea ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></textarea>"
+    }
+
+    /**
+     * Adds a maxlength attribute to the context attributes if a maxSize validation is present.
+     * Also adds any placeholder text, appending a note about the maxSize if it is present.
+     * @param context the current rendering context.
+     */
+    private void handleMaxSizeAndPlaceholder(WidgetRenderContext context) {
+        String placeholder = context.model.placeholder ?: ""
+        Map maxSizeRule = context.getValidationRule(ValidationHelper.MAX_SIZE)
+
+        if (maxSizeRule) {
+            context.attributes.add("maxlength", maxSizeRule.value)
+            if (placeholder) {
+                placeholder += " "
+            }
+            placeholder += "(maximum "+maxSizeRule.value+" characters)"
+        }
+        if (placeholder) {
+            context.attributes.add("placeholder", placeholder)
+        }
     }
 
     @Override

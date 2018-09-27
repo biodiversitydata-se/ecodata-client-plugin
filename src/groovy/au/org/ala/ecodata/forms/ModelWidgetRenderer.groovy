@@ -40,9 +40,16 @@ public interface ModelWidgetRenderer {
 }
 
 
-public class WidgetRenderContext {
+class WidgetRenderContext {
 
+    /** jquery-validation-engine string to limit the maximum length of a string */
+    private static final String MAX_SIZE_VALIDATION = "maxSize"
+
+    private ValidationHelper validationHelper
+    private Map validationRules = null
     JSONObject model
+    Map dataModel
+    boolean editMode
     String context
     String validationAttr
     Databindings databindAttrs
@@ -53,12 +60,16 @@ public class WidgetRenderContext {
 
     NamespacedTagDispatcher g
 
-    def deferredTemplates = []
+    List deferredTemplates = []
 
-    public WidgetRenderContext(Map model, String context, String validationAttr, Databindings databindAttrs, AttributeMap attributes, AttributeMap labelAttributes, NamespacedTagDispatcher g, tagAttrs, StringWriter writer = null) {
-        this.model = model
+    WidgetRenderContext(Map viewModel, Map dataModel, String context, Databindings databindAttrs, AttributeMap attributes, AttributeMap labelAttributes, NamespacedTagDispatcher g, tagAttrs, boolean editMode, StringWriter writer = null) {
+
+        validationHelper = new ValidationHelper()
+        this.model = viewModel
+        this.dataModel = dataModel
+        this.editMode = editMode
         this.context = context
-        this.validationAttr = validationAttr
+        this.validationAttr = validationHelper.validationAttribute(dataModel, viewModel, editMode)
         this.databindAttrs = databindAttrs ?: new Databindings()
         this.attributes = attributes ?: new AttributeMap()
         this.labelAttributes = labelAttributes ?: new AttributeMap()
@@ -69,18 +80,17 @@ public class WidgetRenderContext {
             writer = new StringWriter()
         }
         this.writer = writer
-
     }
 
-    public String getSource() {
+    String getSource() {
         return (context ? context + '.' : '') + model.source
     }
 
-    def getInputWidth() {
+    String getInputWidth() {
         return getInputSize(model.width)
     }
 
-    def getInputSize(width) {
+    String getInputSize(width) {
         if (!width) { return 'input-small' }
         if (width && width[-1] == '%') {
             width = width - '%'
@@ -95,19 +105,35 @@ public class WidgetRenderContext {
         }
     }
 
-    public String specialProperties(properties) {
+    String specialProperties(properties) {
         return properties.collectEntries { entry ->
             switch (entry.getValue()) {
                 case "#siteId":
                     entry.setValue(tagAttrs?.site?.siteId)
-                    break;
+                    break
             }
             return entry
         }
     }
 
-    def addDeferredTemplate(name) {
+    void addDeferredTemplate(name) {
         deferredTemplates.add(name)
+    }
+
+    /**
+     * Returns a Map of the form [rule: <rule>, value:<value>]
+     * If no rule with name ruleName is defined, null is returned.
+     */
+    Map getValidationRule(String ruleName) {
+        if (!validationRules) {
+            validationRules = validationHelper.validationRules(dataModel, model, editMode)
+        }
+
+        Map rule = null
+        if (validationRules.containsKey(ruleName)) {
+            rule = [rule:ruleName, value:validationRules[ruleName]]
+        }
+        rule
     }
 
 }

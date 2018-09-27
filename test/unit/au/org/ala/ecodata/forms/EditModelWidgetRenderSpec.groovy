@@ -50,35 +50,65 @@ class EditModelWidgetRenderSpec extends Specification {
         TestUtils.compareHtml(ctx.writer, """<input type="number" step="any" data-bind="value:myNumber" class="input-small">""")
     }
 
-    WidgetRenderContextBuilder ctxBuilder() {
-        new WidgetRenderContextBuilder()
+    def "the textarea renderer should include the html5 maxlength attribute and a placeholder if a maxSize validation rule is defined"() {
+        setup:
+        ctx = ctxBuilder().model([source:'myText', type:'textarea']).validationString("required,maxSize[300]").build()
+
+        when:
+        editModelWidgetRenderer.renderTextArea(ctx)
+
+        then:
+        TestUtils.compareHtml(ctx.writer, """<textarea data-bind="value:${ctx.model.source}" maxlength="300" placeholder="(maximum 300 characters)" data-validation-engine="validate[${ctx.dataModel.validate}]"></textarea>""")
     }
 
-    class WidgetRenderContextBuilder {
+    def "the textarea renderer will append to the placeholder text if it exists and a maxSize validation attribute is supplied"() {
+        setup:
+        ctx = ctxBuilder().model([source:'myText', type:'textarea', placeholder:'placeholder']).validationString("required,maxSize[300]").build()
 
-        JSONObject model
-        String context = ""
-        String validationAttr = ""
-        Databindings bindings = null
-        AttributeMap attributeMap = null
-        AttributeMap labelAttributes = null
-        def g = null
-        def tagAttrs = null
+        when:
+        editModelWidgetRenderer.renderTextArea(ctx)
+
+        then:
+        TestUtils.compareHtml(ctx.writer, """<textarea data-bind="value:${ctx.model.source}" maxlength="300" placeholder="placeholder (maximum 300 characters)" data-validation-engine="validate[${ctx.dataModel.validate}]"></textarea>""")
+    }
+
+    def "the textarea renderer will include rows and cols attributes if supplied in the model"() {
+        setup:
+        ctx = ctxBuilder().model([source:'myText', type:'textarea', rows:3, cols:100]).build()
+
+        when:
+        editModelWidgetRenderer.renderTextArea(ctx)
+
+        then:
+        TestUtils.compareHtml(ctx.writer, """<textarea data-bind="value:${ctx.model.source}" rows="3" cols="100" "></textarea>""")
+    }
+
+    def "the textarea renderer will include placeholder text if included in the model"() {
+        setup:
+        ctx = ctxBuilder().model([source:'myText', type:'textarea', placeholder:'my placeholder']).build()
+
+        when:
+        editModelWidgetRenderer.renderTextArea(ctx)
+
+        then:
+        TestUtils.compareHtml(ctx.writer, """<textarea data-bind="value:${ctx.model.source}" placeholder="${ctx.model.placeholder}"></textarea>""")
+    }
+
+    def "the input renderer should include the html5 maxlength attribute and a placeholder if a maxSize validation rule is defined"() {
+        setup:
+        ctx = ctxBuilder().model([source:'myText', type:'text']).validationString("required,maxSize[100]").build()
+
+        when:
+        editModelWidgetRenderer.renderText(ctx)
+
+        then:
+
+        TestUtils.compareHtml(ctx.writer, """<input type="text" data-bind="value:${ctx.model.source}" class="input-small" maxlength="100" placeholder="(maximum 100 characters)" data-validation-engine="validate[${ctx.dataModel.validate}]"></textarea>""")
+    }
 
 
-        WidgetRenderContextBuilder model(Map model) {
-            this.model = new JSONObject(model)
-            this
-        }
-        WidgetRenderContextBuilder context(String context) {
-            this.context = context
-            this
-        }
-
-        WidgetRenderContext build() {
-            new WidgetRenderContext(model, context, validationAttr, bindings, attributeMap, labelAttributes, g, tagAttrs)
-        }
-
+    WidgetRenderContextBuilder ctxBuilder() {
+        new WidgetRenderContextBuilder()
     }
 
 }

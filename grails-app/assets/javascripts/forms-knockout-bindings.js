@@ -476,7 +476,7 @@
             $.fn.select2.amd.require(['select2/species'], function(SpeciesAdapter) {
                 $(element).select2({
                     dataAdapter: SpeciesAdapter,
-                    placeholder:{id:-1, text:'Please select...'},
+                    placeholder:{id:-1, text:'Start typing species name to search...'},
                     templateResult: function(data, container) { return self.select2AwareFormatter(data, container, model.formatSearchResult); },
                     templateSelection: function(data, container) { return self.select2AwareFormatter(data, container, model.formatSelectedSpecies); },
                     dropdownAutoWidth: true,
