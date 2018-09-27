@@ -94,3 +94,7 @@ input[type=number] {
     padding-top: 25px;
     border-top: 1px solid #999;
 }
+
+button.add-section {
+    margin-bottom: 20px;
+}
