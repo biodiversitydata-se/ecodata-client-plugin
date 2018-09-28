@@ -1,7 +1,7 @@
 <div id="" class="fileupload-buttonbar">
     <!-- ko foreach: ${name} -->
     <!-- Images -->
-    <div data-bind="visible: $data.status() != 'deleted'" class="margin-bottom-20">
+    <div data-bind="visible: $data.status() != 'deleted'" class="margin-bottom-20" style="display:none;">
         <div class="row-fluid">
             <div class="span4 text-left">
                 <div class="row-fluid">
@@ -99,7 +99,7 @@
 
     <table class="table table-custom-border borderless" data-bind="${databindAttrs}" data-url="<g:createLink controller='image' action='upload'/>">
         <tbody>
-        <tr data-bind="visible:!complete()">
+        <tr data-bind="visible:!complete()" style="display:none;">
             <td class="images-preview-width">
                 <span class="preview"></span>
             </td>
