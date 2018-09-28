@@ -19,15 +19,16 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     void renderText(WidgetRenderContext context) {
         context.attributes.addClass context.getInputWidth()
         context.databindAttrs.add 'value', context.source
+
+        handleMaxSizeAndPlaceholder(context)
         context.writer << "<input ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}' ${context.validationAttr} type='text' class='input-small'/>"
     }
 
     @Override
     void renderNumber(WidgetRenderContext context) {
         context.attributes.addClass context.getInputWidth()
-        context.attributes.add 'style','text-align:center'
         context.databindAttrs.add 'value', context.source
-        context.writer << "<input${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr} type='number' class='input-mini'/>"
+        context.writer << "<input${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr} type='number' step='any'/>"
     }
 
     @Override
@@ -45,7 +46,29 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         if (context.model.cols) {
             context.attributes.add("cols", context.model.cols)
         }
+        handleMaxSizeAndPlaceholder(context)
         context.writer << "<textarea ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></textarea>"
+    }
+
+    /**
+     * Adds a maxlength attribute to the context attributes if a maxSize validation is present.
+     * Also adds any placeholder text, appending a note about the maxSize if it is present.
+     * @param context the current rendering context.
+     */
+    private void handleMaxSizeAndPlaceholder(WidgetRenderContext context) {
+        String placeholder = context.model.placeholder ?: ""
+        Map maxSizeRule = context.getValidationRule(ValidationHelper.MAX_SIZE)
+
+        if (maxSizeRule) {
+            context.attributes.add("maxlength", maxSizeRule.value)
+            if (placeholder) {
+                placeholder += " "
+            }
+            placeholder += "(maximum "+maxSizeRule.value+" characters)"
+        }
+        if (placeholder) {
+            context.attributes.add("placeholder", placeholder)
+        }
     }
 
     @Override
@@ -121,7 +144,6 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderMultiInput(WidgetRenderContext context) {
-
         context.writer << """<multi-input params="values: ${context.model.source}, template:'${context.model.source}InputTemplate'">
                               <input type="text" ${context.attributes.toString()} ${context.validationAttr} data-bind="value:val" class="input-small">
                            </multi-input>"""
@@ -136,11 +158,11 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'value', '\$data'
         context.databindAttrs.add 'checked', "${context.source}"
         context.databindAttrs.add 'attr', "{'name': ${nameBinding}}"
-
+        context.attributes.addClass('checkbox-list')
         context.writer << """
-                <ul class="checkbox-list" data-bind="foreach: ${constraints}">
+                <ul${context.attributes.toString()} data-bind="foreach: ${constraints}">
                     <li>
-                        <label>
+                        <label class="checkbox">
                             <!-- ko with:_.extend({}, \$parent, {\$data:\$data, \$parentContext:\$parentContext}) -->
                             <input type="checkbox" name="${context.source}" data-bind="${context.databindAttrs.toString()}" ${context.validationAttr}/><span data-bind="text:\$data"/></span>
                             <!-- /ko -->
@@ -337,5 +359,11 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         model.readonly = false
         model.validation = context.validationAttr
         context.writer << context.g.render(template: '/output/dataEntryMap', plugin: 'ecodata-client-plugin', model: model)
+    }
+
+    @Override
+    void renderFeature(WidgetRenderContext context) {
+        context.addDeferredTemplate('/output/mapInDialogTemplate')
+        context.writer << """<feature${context.attributes.toString()} params="feature:${context.source}, config:\$config.getConfig('feature', ${context.source})"></feature>"""
     }
 }

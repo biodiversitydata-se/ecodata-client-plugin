@@ -17,6 +17,8 @@ class ModelTagLib {
 
     private final static int LAYOUT_COLUMNS = 12 // Bootstrap scaffolding uses a 12 column layout.
 
+    private ValidationHelper validationHelper = new ValidationHelper()
+
     /** Context for view layout (rows, columns etc). */
     class LayoutRenderContext {
         String parentView
@@ -70,7 +72,9 @@ class ModelTagLib {
 
         LayoutRenderContext ctx = new LayoutRenderContext(out:out, parentView:'', dataContext: 'data', span:LAYOUT_COLUMNS, attrs:attrs)
 
+        ctx.out << """<div data-bind="withContext:{\$context:\$context, \$config:\$config}">"""
         viewModelItems(attrs.model?.viewModel, ctx)
+        ctx.out << """</div>"""
 
         renderDeferredTemplates out
     }
@@ -98,7 +102,7 @@ class ModelTagLib {
                     out << g.render(template:mod.source, plugin:'ecodata-client-plugin')
                     break
                 case 'repeat':
-                    repeatingLayout out, attrs, mod, ctx
+                    repeatingLayout ctx
                     break
                 case 'col':
                     column out, attrs, mod, ctx
@@ -112,24 +116,28 @@ class ModelTagLib {
         }
     }
 
-    def repeatingLayout(out, attrs, model, LayoutRenderContext ctx) {
+    def repeatingLayout(LayoutRenderContext ctx) {
 
-        String sourceType = getType(attrs, model.source, null)
+        Map model = ctx.model
+        String sourceType = getType(ctx.attrs, model.source, null)
         if (sourceType != "list") {
             throw new Exception("Only model elements with a list data type can be the source for a repeating layout")
         }
 
         LayoutRenderContext childContext = ctx.createChildContext(parentView:'', dataContext: '', span:ctx.span)
 
-        out << """<div class="repeating-section" data-bind="foreach:${ctx.property}">"""
+        ctx.out << """<!-- ko foreach:${ctx.property} -->\n"""
+        ctx.out << """<div class="repeating-section">\n"""
         if (model.userAddedRows) {
-            out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">Remove Section</button>"""
+            ctx.out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">${model.removeRowText ?: "Remove Section"}</button>\n"""
         }
         viewModelItems(model.items, childContext)
 
-        out << "</div>"
+        ctx.out << "</div>\n"
+        ctx.out << "<!-- /ko -->\n"
+
         if (model.userAddedRows) {
-            out << """<button type="button" class="btn btn-small" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>"""
+            ctx.out << """<button type="button" class="btn btn-small add-section" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>\n"""
         }
     }
 
@@ -145,9 +153,6 @@ class ModelTagLib {
      */
     def dataTag(attrs, model, context, editable, elementAttributes, databindAttrs, labelAttributes) {
         ModelWidgetRenderer renderer
-
-
-        def validate = validationAttribute(attrs, model, editable)
 
         if (attrs.printable) {
             if (attrs.printable == 'pdf') {
@@ -165,7 +170,8 @@ class ModelTagLib {
             }
         }
 
-        def renderContext = new WidgetRenderContext(model, context, validate, databindAttrs, elementAttributes, labelAttributes, g, attrs)
+        Map dataModel = getAttribute(attrs.model.dataModel, model.source)
+        def renderContext = new WidgetRenderContext(model, dataModel, context, databindAttrs, elementAttributes, labelAttributes, g, attrs, Boolean.valueOf(editable))
 
         // The data model item we are rendering the view for.
         Map source = getAttribute(attrs.model.dataModel, model.source)
@@ -288,6 +294,9 @@ class ModelTagLib {
             case 'geoMap':
                 renderer.renderGeoMap(renderContext)
                 break
+            case 'feature':
+                renderer.renderFeature(renderContext)
+                break
             default:
                 log.warn("Unhandled widget type: ${model.type}")
                 break
@@ -371,7 +380,7 @@ class ModelTagLib {
                 helpText = attr?.description
             }
         }
-        helpText = helpText?fc.iconHelp([title:''], helpText):''
+        helpText = helpText?md.iconHelp([title:''], helpText):''
         return "${label}${helpText}"
 
     }
@@ -399,80 +408,9 @@ class ModelTagLib {
     }
 
     // -------- validation declarations --------------------
-    def getValidationCriteria(attrs, model, edit) {
-        //log.debug "checking validation for ${model}, edit = ${edit}"
-        if (!edit) { return []}  // don't bother if the user can't change it
-
-        def validationCriteria = model.validate
-        def dataModel = getAttribute(attrs.model.dataModel, model.source)
-
-        if (!validationCriteria) {
-            // Try the data model.
-            validationCriteria = dataModel?.validate
-        } // no criteria
-
-        def criteria = []
-        if (validationCriteria) {
-            criteria = validationCriteria.tokenize(',')
-            criteria = criteria.collect {
-                def rule = it.trim()
-                // Wrap these rules in "custom[]" to keep jquery-validation-engine happy and avoid having to
-                // specify "custom" in the json.
-                if (rule in ['number', 'integer', 'url', 'date', 'phone']) {
-                    rule = "custom[${rule}]"
-                }
-                rule
-            }
-        }
-
-        // Add implied numeric validation to numeric data types
-        if (dataModel?.dataType == 'number') {
-            if (!criteria.contains('custom[number]') && !criteria.contains('custom[integer]')) {
-                criteria << 'custom[number]'
-            }
-            if (!criteria.find{it.startsWith('min')}) {
-                criteria << 'min[0]'
-            }
-        }
-
-
-        return criteria
-    }
-
     def isRequired(attrs, model, edit) {
-        def criteria = getValidationCriteria(attrs, model, edit)
-        return criteria.contains("required")
-    }
-
-    def validationAttribute(attrs, model, edit) {
-        def criteria = getValidationCriteria(attrs, model, edit)
-        if (criteria.isEmpty()) {
-            return ""
-        }
-
-        def values = []
-        criteria.each {
-            switch (it) {
-                case 'required':
-                    if (model.type == 'selectMany') {
-                        values << 'minCheckbox[1]'
-                    }
-                    else {
-                        values << it
-                    }
-                    break
-                case 'number':
-                    values << 'custom[number]'
-                    break
-                case it.startsWith('min:'):
-                    values << it
-                    break
-                default:
-                    values << it
-            }
-        }
-        //log.debug " data-validation-engine='validate[${values.join(',')}]'"
-        return " data-validation-engine='validate[${values.join(',')}]'"
+        def dataModel = getAttribute(attrs.model.dataModel, model.source)
+        return validationHelper.isRequired(dataModel, model, edit)
     }
 
     // form section
@@ -914,7 +852,7 @@ class ModelTagLib {
         }
         colCount = (model.columns?.size()?:0) + 1
         if (attrs.edit) {
-            out << g.render(template:"/output/editModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, property:ctx.property, containsSpecies:containsSpecies, disableTableUpload:attrs.disableTableUpload || model.disableTableUpload])
+            out << g.render(template:"/output/editModeTableFooterActions", plugin:'ecodata-client-plugin', model:[addRowText:model.addRowText, uploadText:model.uploadDataText, colCount:colCount, name:model.source, property:ctx.property, containsSpecies:containsSpecies, disableTableUpload:attrs.disableTableUpload || model.disableTableUpload])
         }
         else if (!model.edit && !attrs.printable) {
             out << g.render(template:"/output/viewModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, property:ctx.property])

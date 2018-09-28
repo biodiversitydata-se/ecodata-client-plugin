@@ -26,6 +26,7 @@ class ModelCSSTagLib {
                 case 'section':
                 case 'row':
                 case 'col':
+                case 'repeat':
                     viewModelStyles(attrs, out, mod.items)
                     break
             }
@@ -82,10 +83,12 @@ class ModelCSSTagLib {
     }
 
     def getTextAlign(attrs, col, context) {
-        //println "col=${col}"
-        //println "type=${getType(attrs, col.source, context)}"
-        // check for explicit first
-        if (col.textAlign) return "text-align:${col.textAlign};"
-        return (ModelTagLib.getType(attrs, col.source, context) in ['boolean', 'number']) ? "text-align:center;" : ""
+
+        if (col.textAlign)
+            return "text-align:${col.textAlign};"
+        if (col.type in ['boolean', 'number']) {
+            return "text-align:center"
+        }
+        return ""
     }
 }

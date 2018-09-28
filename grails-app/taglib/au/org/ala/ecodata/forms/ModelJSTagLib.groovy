@@ -58,7 +58,6 @@ class ModelJSTagLib {
     private ComputedValueRenderer computedValueRenderer = new ComputedValueRenderer()
 
     def modelService
-    def authService
 
     /*------------ JAVASCRIPT for dynamic content -------------*/
 
@@ -168,6 +167,9 @@ class ModelJSTagLib {
         else if (mod.dataType == "geoMap") {
             geoMapViewModel(mod, ctx.out, ctx.propertyPath, ctx.attrs.readonly?.toBoolean() ?: false, ctx.attrs.edit?.toBoolean() ?: false)
         }
+        else if (mod.dataType == "feature") {
+            featureModel(ctx)
+        }
     }
 
     /**
@@ -233,6 +235,7 @@ class ModelJSTagLib {
     void renderInitialiser(JSModelRenderContext ctx) {
         Map mod = ctx.dataModel
         def attrs = ctx.attrs
+        def out = ctx.out
 
         if (mod.computed) {
             return
@@ -312,6 +315,9 @@ class ModelJSTagLib {
                         }
                     """
             }
+        }
+        else if (mod.dataType == 'feature') {
+            out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'].loadData(${value});\n"
         }
     }
 
@@ -502,6 +508,7 @@ class ModelJSTagLib {
         out << INDENT*2 << "var ${makeRowModelName(attrs.model.modelName, model.name)} = function (data, dataModel, context, config) {\n"
         out << INDENT*4 << "var self = this;\n"
         out << INDENT*4 << "ecodata.forms.NestedModel.apply(self, [data, dataModel, context, config]);\n"
+        out << INDENT*4 << "context = _.extend(context, {parent:self});"
 
         JSModelRenderContext childCtx = ctx.createChildContext()
         childCtx.propertyPath = 'self'
@@ -555,15 +562,20 @@ class ModelJSTagLib {
             ctx.dataModel.displayOptions = viewModel.displayOptions
         }
 
-        if (ctx.dataModel.behaviour || ctx.dataModel.warning || ctx.dataModel.constraints || ctx.dataModel.displayOptions) {
-            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], parent:self, context:context, config:config}}")
-//            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], parent:self, context:{}, config:{}}}")
+        if (requiresMetadataExtender(ctx.dataModel)) {
+            // The metadata extender sets up context & configuration information that can be used by subsequent extenders.
+            extenders = ["{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:context, config:config}}"] + extenders
         }
         String extenderJS = ''
         extenders.each {
             extenderJS += ".extend(${it})"
         }
         extenderJS
+    }
+
+    private boolean requiresMetadataExtender(Map dataModel) {
+        dataModel.dataType == 'feature' || dataModel.behaviour || dataModel.warning || dataModel.constraints || dataModel.displayOptions
+
     }
 
     void observable(JSModelRenderContext ctx, List extenders = []) {
@@ -642,6 +654,10 @@ class ModelJSTagLib {
                 , context: config
             });
         """
+    }
+
+    def featureModel(JSModelRenderContext ctx) {
+        observable(ctx, ["{feature:config}"])
     }
 
     def audioModel(JSModelRenderContext ctx) {

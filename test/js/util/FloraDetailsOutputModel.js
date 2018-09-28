@@ -12,30 +12,32 @@ function orZero(v) {
 function orEmptyArray(v) {
     return v === undefined ? [] : v;
 }
-speciesLists = [];
-Output_BiologicalSurveyFlora_surveyResultsFloraRow = function (data, parent, index) {
+
+Flora_Survey_Details_ViewModel = function (output, dataModel, context, config) {
     var self = this;
-    self.$parent = parent;
-    self.$index = index;
-    if (!data) data = {};
-    self.transients = {};
-    this.plotId = ko.observable(orBlank(data['plotId']));
-    this.sampleSiteId = ko.observable(orBlank(data['sampleSiteId']));
-    this.species =  new SpeciesViewModel(data['species'], {printable:''});
-    this.numberOfOrganisms = ko.observable(orZero(data['numberOfOrganisms'])).extend({numericString:2});
-    this.stratum = ko.observable(orBlank(data['stratum']));
-    self.transients.stratumConstraints = ["Canopy","Sub-canopy","Mid-stratum","Shrub layer","Ground stratum"];
-    this.aveHeight = ko.observable(orZero(data['aveHeight'])).extend({numericString:2});
-    this.dbh = ko.observable(orZero(data['dbh'])).extend({numericString:2});
-    this.health = ko.observable(orBlank(data['health']));
-    this.biologicalMaterialTaken = ko.observable(orBlank(data['biologicalMaterialTaken']));
-    self.transients.biologicalMaterialTakenConstraints = ["Yes","No"];
-    this.speciesNotes = ko.observable(orBlank(data['speciesNotes']));
-};
-Flora_Survey_Details_ViewModel = function (output, context, config) {
-    var self = this;
-    var parent = new ecodata.forms.OutputModel(output, {}, context, config);
-    _.extend(self, parent);
+
+    var Output_BiologicalSurveyFlora_surveyResultsFloraRow = function (data, parent, index, config) {
+        var self = this;
+        self.$parent = parent;
+        self.$index = index;
+        if (!data) data = {};
+        self.transients = {};
+        this.plotId = ko.observable(orBlank(data['plotId']));
+        this.sampleSiteId = ko.observable(orBlank(data['sampleSiteId']));
+        var speciesConfig = _.extend(config, {printable:'', dataFieldName:'species', output: 'Flora Survey Details', surveyName: '' });
+        this.species =  new SpeciesViewModel(data['species'] || {}, speciesConfig);
+        this.numberOfOrganisms = ko.observable(orZero(data['numberOfOrganisms'])).extend({numericString:2});
+        this.stratum = ko.observable(orBlank(data['stratum']));
+        self.transients.stratumConstraints = ["Canopy","Sub-canopy","Mid-stratum","Shrub layer","Ground stratum"];
+        this.aveHeight = ko.observable(orZero(data['aveHeight'])).extend({numericString:2});
+        this.dbh = ko.observable(orZero(data['dbh'])).extend({numericString:2});
+        this.health = ko.observable(orBlank(data['health']));
+        this.biologicalMaterialTaken = ko.observable(orBlank(data['biologicalMaterialTaken']));
+        self.transients.biologicalMaterialTakenConstraints = ["Yes","No"];
+        this.speciesNotes = ko.observable(orBlank(data['speciesNotes']));
+    };
+
+    ecodata.forms.OutputModel.apply(self, [output, dataModel, context, config]);
 
     // add declarations for dynamic data
 
@@ -51,7 +53,7 @@ Flora_Survey_Details_ViewModel = function (output, context, config) {
             self.addsurveyResultsFloraRow(self, 0);
         } else {
             $.each(data, function (i, obj) {
-                self.data.surveyResultsFlora.push(new Output_BiologicalSurveyFlora_surveyResultsFloraRow(obj, self, i));
+                self.data.surveyResultsFlora.push(new Output_BiologicalSurveyFlora_surveyResultsFloraRow(obj, self, i, config));
             });
         }
     };
@@ -60,7 +62,7 @@ Flora_Survey_Details_ViewModel = function (output, context, config) {
     };
 
     self.addsurveyResultsFloraRow = function () {
-        var newRow = new Output_BiologicalSurveyFlora_surveyResultsFloraRow(undefined, self, self.surveyResultsFlorarowCount());
+        var newRow = new Output_BiologicalSurveyFlora_surveyResultsFloraRow(undefined, self, self.surveyResultsFlorarowCount(), config);
         self.data.surveyResultsFlora.push(newRow);
 
     };
@@ -131,16 +133,12 @@ Flora_Survey_Details_ViewModel = function (output, context, config) {
         return parent.removeBeforeSave(jsData);
     };
 
+    self.loadData = function (data) {
+        self.loadsurveyResultsFlora(data.surveyResultsFlora);
+        self.data['soilSampleCollected'](data['soilSampleCollected']);
+        self.data['notes'](data['notes']);
 
-    self.loadData = function (outputData, documents) {
+        self.transients.dummy.notifySubscribers();
 
-        self.loadOrPrepop(outputData).done(function(data){
-
-            self.loadsurveyResultsFlora(data.surveyResultsFlora);
-            self.data['soilSampleCollected'](data['soilSampleCollected']);
-            self.data['notes'](data['notes']);
-
-            self.transients.dummy.notifySubscribers();
-        });
     };
 };

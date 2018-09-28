@@ -1,0 +1,26 @@
+{
+  "modelName":"Feature Test",
+  "dataModel": [
+    {
+      "dataType": "feature",
+      "name": "feature"
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "type": "feature",
+              "source": "feature",
+              "preLabel":"Press to edit"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

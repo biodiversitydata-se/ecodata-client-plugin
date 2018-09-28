@@ -31,3 +31,16 @@
 
 # "temporary" build files
 /target
+
+# IntelliJ IDEA configuration
+/.idea
+/*.iml
+/.classpath
+/.project
+
+# npm installed modules
+/node_modules
+
+# spring loaded cache for debugging
+/.slcache
+

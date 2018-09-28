@@ -247,7 +247,7 @@ var SpeciesViewModel = function(data, options) {
     self.transients.speciesFieldIsReadOnly = ko.observable(false);
     self.transients.commonName = ko.observable(species.commonName);
     self.transients.image = ko.observable(species.image || '');
-    self.transients.source = ko.observable(fcConfig.speciesSearchUrl +
+    self.transients.source = ko.observable(options.speciesSearchUrl +
         '&output=' + output+ '&dataFieldName=' + dataFieldName + '&surveyName=' + surveyName);
     self.transients.bieUrl = ko.observable();
     self.transients.speciesInformation = ko.observable();
@@ -317,7 +317,7 @@ var SpeciesViewModel = function(data, options) {
         self.transients.textFieldValue(self.name());
         if (self.guid() && !options.printable) {
 
-            var profileUrl = fcConfig.bieUrl + '/species/' + encodeURIComponent(self.guid());
+            var profileUrl = options.bieUrl + '/species/' + encodeURIComponent(self.guid());
             $.ajax({
                 url: options.speciesProfileUrl+'?id=' + encodeURIComponent(self.guid()),
                 dataType: 'json',
@@ -498,7 +498,7 @@ var SpeciesViewModel = function(data, options) {
         self.guid(self.transients.guid());
         self.scientificName(self.transients.scientificName());
         self.commonName(self.transients.commonName());
-        self.transients.bieUrl(fcConfig.bieUrl + '/species/' + self.guid());
+        self.transients.bieUrl(options.bieUrl + '/species/' + self.guid());
     });
 
     self.name.subscribe(function (newName) {
@@ -534,11 +534,11 @@ var SpeciesViewModel = function(data, options) {
         if (species.outputSpeciesId) {
             self.outputSpeciesId(species.outputSpeciesId);
             $.ajax({
-                url: fcConfig.getGuidForOutputSpeciesUrl+ "/" + species.outputSpeciesId,
+                url: options.getGuidForOutputSpeciesUrl+ "/" + species.outputSpeciesId,
                 type: 'GET',
                 contentType: 'application/json',
                 success: function (data) {
-                    self.transients.bieUrl(data.guid ? fcConfig.bieUrl + '/species/' + data.guid : fcConfig.bieUrl);
+                    self.transients.bieUrl(data.guid ? options.bieUrl + '/species/' + data.guid : options.bieUrl);
                 },
                 error: function (data) {
                     bootbox.alert("Error retrieving species data, please try again later.");
@@ -553,11 +553,11 @@ var SpeciesViewModel = function(data, options) {
      * records produced for export to the ALA
      */
     self.assignOutputSpeciesId = function() {
-        var idRequired = fcConfig.getOutputSpeciesIdUrl;
+        var idRequired = options.getOutputSpeciesIdUrl;
         if (idRequired && !self.outputSpeciesId() && self.guid()) {
-            self.transients.bieUrl(fcConfig.bieUrl + '/species/' + self.guid());
+            self.transients.bieUrl(options.bieUrl + '/species/' + self.guid());
             $.ajax({
-                url: fcConfig.getOutputSpeciesIdUrl,
+                url: options.getOutputSpeciesIdUrl,
                 type: 'GET',
                 contentType: 'application/json',
                 success: function (data) {

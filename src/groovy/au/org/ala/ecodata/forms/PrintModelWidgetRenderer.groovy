@@ -181,4 +181,9 @@ class PrintModelWidgetRenderer implements ModelWidgetRenderer {
         context.model.readonly = true
         context.writer << context.g.render(template: '/output/dataEntryMap', plugin: 'ecodata-client-plugin', model: context.model)
     }
+
+    @Override
+    void renderFeature(WidgetRenderContext context) {
+        defaultRender(context)
+    }
 }
