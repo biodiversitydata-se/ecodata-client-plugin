@@ -293,6 +293,11 @@ ko.components.register('feature', {
         }
         self.model = model;
 
+        self.enabled = true;
+        if (_.isFunction(model.enableConstraint)) {
+            self.enabled = model.enableConstraint;
+        }
+
         var defaults = {
             mapPopupSelector: '#map-modal',
             mapElementId: 'map-popup' // Needed to size the map....
@@ -339,7 +344,8 @@ ko.components.register('feature', {
         };
 
     },
-    template: '<button class="btn" data-bind="visible:!model(), click:showMap"><i class="fa fa-edit"></i></button><button class="btn edit-feature" data-bind="visible:model(), click:showMap"><div class="mini-feature" data-bind="if:model(),geojson2svg:model"></div></button>'
+    template: '<button class="btn" data-bind="visible:!model(), click:showMap, enable:enabled"><i class="fa fa-edit"></i></button>' +
+        '<button class="btn edit-feature" data-bind="visible:model(), click:showMap, enable:enabled"><div class="mini-feature" data-bind="if:model(),geojson2svg:model"></div></button>'
 
 
 });
