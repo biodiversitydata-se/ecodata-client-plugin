@@ -5,7 +5,7 @@
 </g:if>
 <md:modelStyles model="${outputModel}" edit="true"/>
 <div class="output-block" id="ko${blockId}">
-    <h3>${outputName}</h3>
+    <h3>${outputModel?.title ?: outputName}</h3>
     <div data-bind="if:outputNotCompleted">
         <label class="checkbox" ><input type="checkbox" disabled="disabled" data-bind="checked:outputNotCompleted"> <span data-bind="text:transients.questionText"></span> </label>
     </div>
