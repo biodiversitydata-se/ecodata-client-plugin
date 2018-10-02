@@ -363,7 +363,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderFeature(WidgetRenderContext context) {
-        context.addDeferredTemplate('/output/mapInDialogTemplate')
+        context.addDeferredTemplate('/output/mapInDialogEditTemplate')
         context.writer << """<feature${context.attributes.toString()} params="feature:${context.source}, config:\$config.getConfig('feature', ${context.source})"></feature>"""
     }
 }

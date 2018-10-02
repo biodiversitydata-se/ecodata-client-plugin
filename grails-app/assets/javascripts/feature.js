@@ -202,7 +202,7 @@ ecodata.forms.featureMap = function (options) {
                 {
                     polyline: !config.selectFromSitesOnly && config.allowPolygons,
                     polygon: !config.selectFromSitesOnly && config.allowPolygons ? {allowIntersection: false} : false,
-                    circle: !config.selectFromSitesOnly && config.allowPolygons,
+                    circle: false,
                     rectangle: !config.selectFromSitesOnly && config.allowPolygons,
                     marker: !config.selectFromSitesOnly && config.allowPoints,
                     edit: !config.selectFromSitesOnly
@@ -303,7 +303,9 @@ ko.components.register('feature', {
             mapElementId: 'map-popup' // Needed to size the map....
         };
 
-        var config = _.defaults(defaults, params.options);
+        var config = _.defaults(defaults, params.config);
+
+        self.readonly = config.readonly;
 
         var $modal = $(config.mapPopupSelector);
         var $mapElement = $('#' + config.mapElementId);
@@ -344,7 +346,7 @@ ko.components.register('feature', {
         };
 
     },
-    template: '<button class="btn" data-bind="visible:!model(), click:showMap, enable:enabled"><i class="fa fa-edit"></i></button>' +
+    template: '<button class="btn" data-bind="visible:!model() && !readonly, click:showMap, enable:enabled"><i class="fa fa-edit"></i></button>' +
         '<button class="btn edit-feature" data-bind="visible:model(), click:showMap, enable:enabled"><div class="mini-feature" data-bind="if:model(),geojson2svg:model"></div></button>'
 
 

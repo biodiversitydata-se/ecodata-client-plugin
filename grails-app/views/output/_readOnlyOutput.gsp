@@ -25,6 +25,7 @@
             config.model = ${fc.modelAsJavascript(model:outputModel)};
             config.excelOutputTemplateUrl = fcConfig.excelOutputTemplateUrl;
             config.disablePrepop = ${disablePrepop != null ? Boolean.valueOf(disablePrepop) : true};
+            config.readonly = true;
 
             var context = {
                 project: fcConfig.project,

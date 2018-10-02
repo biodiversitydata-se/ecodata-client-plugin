@@ -34,6 +34,26 @@ function orEmptyArray(v) {
 
     ecodata.forms.utils = {
 
+        /**
+         * fired when logo image is loaded. fn used to stretch small image to height or width of parent container.
+         * @param imageElement the img element
+         * givenWidth - (optional) width of the bounding box containing the image. If nothing is passed parent width is used.
+         * givenHeight - (optional) height of the bounding box containing the image. If nothing is passed parent height is used.
+         */
+        findLogoScalingClass: function (imageElement, givenWidth, givenHeight) {
+            var $elem = $(imageElement);
+            var parentHeight = givenHeight || $elem.parent().height();
+            var parentWidth = givenWidth || $elem.parent().width();
+            var height = imageElement.height;
+            var width = imageElement.width;
+
+            var ratio = parentWidth/parentHeight;
+            if( ratio * height > width){
+                $elem.addClass('tall')
+            } else {
+                $elem.addClass('wide')
+            }
+        },
         neat_number: function (number, decimals) {
             var str = ecodata.forms.utils.number_format(number, decimals);
             if (str.indexOf('.') === -1) {

@@ -7,7 +7,7 @@
                     <a href=""
                        data-bind="attr:{href:getImageViewerUrl()}, fancybox: {nextEffect:'fade', preload:0, 'prevEffect':'fade', type: 'iframe', width: '80%', title: function(){ return $(this).next().find('.metadata').html()}}"
                        target="fancybox">
-                        <img class="image-logo image-window" data-bind="attr:{title:name, src:thumbnailUrl}" onload="findLogoScalingClass(this, 200, 150)">
+                        <img class="image-logo image-window" data-bind="attr:{title:name, src:thumbnailUrl}" onload="ecodata.forms.utils.findLogoScalingClass(this, 200, 150)">
                     </a>
                     <div class="hide">
                         <div class="metadata">

@@ -218,6 +218,7 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderFeature(WidgetRenderContext context) {
-
+        context.addDeferredTemplate('/output/mapInDialogViewTemplate')
+        context.writer << """<feature${context.attributes.toString()} params="feature:${context.source}, config:\$config.getConfig('feature', ${context.source})"></feature>"""
     }
 }
