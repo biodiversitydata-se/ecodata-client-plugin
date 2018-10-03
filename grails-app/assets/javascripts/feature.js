@@ -16,9 +16,6 @@ import bbox from '@turf/bbox';
  */
 ko.extenders.feature = function (target, options) {
 
-    if (!_.isFunction(target.getId)) {
-        throw "This extender is dependent on correct initialisation of the metadata extender";
-    }
     if (!options.featureCollection) {
         throw "This extender requires a callback that will be used as a mechanism to store features collected by this extender"
     }
@@ -100,17 +97,23 @@ ko.extenders.feature = function (target, options) {
         },
         write: function(geoJson) {
             var features = geoJson && geoJson.features || [];
+            var featureId = options.featureId;
+
+            // Because the metadata extender is applied last, the behaviours will be applied
+            // to the value returned by this extender function, which in this case is this computed observable
+            // (result)
+            if (_.isFunction(result.getId)) {
+                featureId = result.getId();
+            }
             _.each(features || [], function(feature) {
                 if (!feature.properties) {
                     feature.properties = {};
                 }
-                var featureId = target.getId();
                 feature.properties.id = featureId;
                 featureIds.push(featureId);
             });
             target(features);
-        },
-        owner:target
+        }
 
     });
 
@@ -180,7 +183,8 @@ ecodata.forms.featureMap = function (options) {
             zoomToObject: true,
             markerZoomToMax: true,
             singleDraw: false,
-            selectedStyle:{}
+            selectedStyle:{},
+            displayScale:true
         };
         var config = _.defaults(defaults, options);
         var mapOptions = _.extend(config, {
@@ -225,6 +229,10 @@ ecodata.forms.featureMap = function (options) {
 
 
         ALA.Map.call(self, mapOptions.mapElementId, mapOptions);
+
+        if (config.displayScale) {
+            L.control.scale({metric:true, imperial:false}).addTo(self.getMapImpl());
+        }
 
         self.setSelectableFeatures = function(selectableFeatures) {
             // We don't want this added to the "drawnItems" layer in the ALA.map as that layer is managed
