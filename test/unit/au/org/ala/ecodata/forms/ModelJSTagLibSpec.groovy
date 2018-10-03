@@ -29,7 +29,7 @@ class ModelJSTagLibSpec extends Specification {
         tagLib.renderDataModelItem(ctx)
 
         then:
-        actualOut.toString().trim() == 'data.myFeature = ko.observable().extend({metadata:{metadata:self.dataModel[\'myFeature\'], context:context, config:config}}).extend({feature:config});'
+        actualOut.toString().trim() == 'data.myFeature = ko.observable().extend({feature:config}).extend({metadata:{metadata:self.dataModel[\'myFeature\'], context:context, config:config}});'
     }
 
     void "the feature data type doesn't need any special initialisation behaviour"() {
