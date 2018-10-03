@@ -36,7 +36,7 @@ class EditModelWidgetRenderSpec extends Specification {
         editModelWidgetRenderer.renderFeature(ctx)
 
         then:
-        ctx.deferredTemplates.contains('/output/mapInDialogTemplate')
+        ctx.deferredTemplates.contains('/output/mapInDialogEditTemplate')
     }
 
     def "the number data type should include a step attribute to make decimal values valid by default"() {
