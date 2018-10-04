@@ -855,7 +855,8 @@ class ModelTagLib {
             out << g.render(template:"/output/editModeTableFooterActions", plugin:'ecodata-client-plugin', model:[addRowText:model.addRowText, uploadText:model.uploadDataText, colCount:colCount, name:model.source, property:ctx.property, containsSpecies:containsSpecies, disableTableUpload:attrs.disableTableUpload || model.disableTableUpload])
         }
         else if (!model.edit && !attrs.printable) {
-            out << g.render(template:"/output/viewModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, property:ctx.property])
+            boolean disableTableDownload = model.disableTableDownload == null ? (attrs.disableTableUpload || model.disableTableUpload) : model.disableTableDownload
+            out << g.render(template:"/output/viewModeTableFooterActions", plugin:'ecodata-client-plugin', model:[colCount:colCount, name:model.source, property:ctx.property, disableTableDownload:disableTableDownload])
         }
         out << INDENT*4 << "</tfoot>\n"
 
