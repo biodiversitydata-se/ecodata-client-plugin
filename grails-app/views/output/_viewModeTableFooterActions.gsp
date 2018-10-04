@@ -1,3 +1,4 @@
+<g:if test="${!disableTableDownload}">
 <script id="${name}template-download" type="text/x-tmpl">{% %}</script>
 
 <tr>
@@ -7,3 +8,4 @@
         </div>
     </td>
 </tr>
+</g:if>
