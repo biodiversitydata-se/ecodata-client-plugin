@@ -28,17 +28,6 @@ class EditModelWidgetRenderSpec extends Specification {
         ctx.writer.toString() == """<feature params="feature:myFeature, config:\$config.getConfig('feature', myFeature)"></feature>"""
     }
 
-    def "the feature view model has a dependency on a global template, and must specifiy this"() {
-        setup:
-        ctx = ctxBuilder().model([source:'myFeature', type:'feature']).build()
-
-        when:
-        editModelWidgetRenderer.renderFeature(ctx)
-
-        then:
-        ctx.deferredTemplates.contains('/output/mapInDialogEditTemplate')
-    }
-
     def "the number data type should include a step attribute to make decimal values valid by default"() {
         setup:
         ctx = ctxBuilder().model([source:'myNumber', type:'number']).build()
