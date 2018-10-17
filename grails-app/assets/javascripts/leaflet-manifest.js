@@ -31,5 +31,4 @@
 
 //= require turf/turf-packaged.js
 
-// from biocollect
 //= require leaflet-plugins-2.0.0/layer/tile/Google.js
