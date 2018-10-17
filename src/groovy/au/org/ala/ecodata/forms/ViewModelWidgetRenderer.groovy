@@ -111,7 +111,7 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
     void renderImageDialog(WidgetRenderContext context) {
         context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
         context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
-                model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: '$index()'])
+                model: [databindAttrs:context.databindAttrs.toString(), name: context.source])
     }
 
     @Override
