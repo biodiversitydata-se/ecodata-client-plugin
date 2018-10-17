@@ -109,8 +109,9 @@ ko.extenders.feature = function (target, options) {
                 if (!feature.properties) {
                     feature.properties = {};
                 }
-                feature.properties.id = featureId;
-                featureIds.push(featureId);
+                var id = featureId+'-'+featureIds.length;
+                feature.properties.id = id
+                featureIds.push(id);
             });
             target(features);
         }
