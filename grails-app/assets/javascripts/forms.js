@@ -628,6 +628,7 @@ function orEmptyArray(v) {
         var toIgnore = {ignore: ['transients', '$parent', '$index', '$context', 'dataModel']};
         var parent = context.parent;
         var listName = context.listName;
+        var modelName = context.outputModel.name;
 
         self.listName = listName;
         self.addRow = function (data) {
@@ -654,7 +655,7 @@ function orEmptyArray(v) {
         self.downloadTemplate = function () {
             // Download a blank template if we are appending, otherwise download a template containing the existing data.
             if (self.appendTableRows()) {
-                var url = config.excelOutputTemplateUrl + '?listName=' + listName + '&type=' + output.name;
+                var url = config.excelOutputTemplateUrl + '?listName=' + listName + '&type=' + modelName;
                 $.fileDownload(url);
             }
             else {
@@ -665,7 +666,7 @@ function orEmptyArray(v) {
             var data = ko.mapping.toJS(self(), toIgnore);
             var params = {
                 listName: listName,
-                type: context.outputModel.name,
+                type: modelName,
                 editMode: editMode || false,
                 allowExtraRows: userAddedRows || false,
                 data: JSON.stringify(data)
@@ -723,7 +724,7 @@ function orEmptyArray(v) {
     ecodata.forms.NestedModel = function (data, dataModel, context, config) {
         var self = this;
 
-        // Expose the context as poperties to make it availble to forumula bindings
+        // Expose the context as properties to make it available to formula bindings
         self.$parent = context.parent;
         self.$index = context.index;
         self.$context = _.extend({}, context, {parent:self});
