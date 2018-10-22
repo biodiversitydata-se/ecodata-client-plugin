@@ -109,8 +109,9 @@ ko.extenders.feature = function (target, options) {
                 if (!feature.properties) {
                     feature.properties = {};
                 }
-                feature.properties.id = featureId;
-                featureIds.push(featureId);
+                var id = featureId+'-'+featureIds.length;
+                feature.properties.id = id
+                featureIds.push(id);
             });
             target(features);
         }
@@ -186,7 +187,7 @@ ecodata.forms.featureMap = function (options) {
             selectedStyle:{},
             displayScale:true
         };
-        var config = _.defaults(defaults, options);
+        var config = _.defaults(options, defaults);
         var mapOptions = _.extend(config, {
             wmsFeatureUrl: config.proxyFeatureUrl + "?featureId=",
             wmsLayerUrl: config.spatialGeoserverUrl + "/wms/reflect?",
