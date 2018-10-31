@@ -662,6 +662,10 @@ function orEmptyArray(v) {
                 self.downloadTemplateWithData(true, userAddedRows);
             }
         };
+
+        self.downloadTableData = function() {
+            self.downloadTemplateWithData(false, false);
+        };
         self.downloadTemplateWithData = function (editMode, userAddedRows) {
             var data = ko.mapping.toJS(self(), toIgnore);
             var params = {
