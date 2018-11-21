@@ -102,7 +102,7 @@ function enmapify(args) {
             }
 
             if (selectFromSitesOnly){
-                if (siteId && !lat && !lon)
+                if (siteId)
                     return {validation:true};
                 else
                     return {validation:false, message:"You must select a site from the drop down list."};
