@@ -315,6 +315,31 @@ var SpeciesViewModel = function(data, options) {
         speciesConfig.showImage = false;
         self.transients.speciesTitle = speciesFormatters.multiLineSpeciesFormatter(self.toJS(), '', speciesConfig);
         self.transients.textFieldValue(self.name());
+
+        // Supported translation and listsIds.
+        var kvpInfo = "";
+        var languages = ["Waramungu", "Warlpiri name"];
+        var listsIds = ['dr8016'];
+        if(listsIds.indexOf(self.listId()) != -1) {
+            $.ajax({
+                url: options.serverUrl + '/search/getSpeciesTranslation?id='+self.guid()+'&listId=' + self.listId(),
+                dataType: 'json',
+                success: function (data) {
+                    kvpInfo += "<table>";
+                    $.each(data, function( index, value ) {
+                        if( languages.indexOf(value.key) != -1) {
+                            kvpInfo += "<tr><td><b>"+value.key+":</b><br>"+value.value +"</td></tr>";
+                        }
+                    });
+                    kvpInfo += "</table>";
+                },
+                async: false,
+                error: function(request, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
         if (self.guid() && !options.printable) {
 
             var profileUrl = options.bieUrl + '/species/' + encodeURIComponent(self.guid());
@@ -332,6 +357,7 @@ var SpeciesViewModel = function(data, options) {
                         profileInfo += "No profile image available";
                     }
                     profileInfo += "</a>";
+                    profileInfo += kvpInfo;
                     self.transients.speciesInformation(profileInfo);
                 },
                 error: function(request, status, error) {
