@@ -316,13 +316,13 @@ var SpeciesViewModel = function(data, options) {
         self.transients.speciesTitle = speciesFormatters.multiLineSpeciesFormatter(self.toJS(), '', speciesConfig);
         self.transients.textFieldValue(self.name());
 
-        // Supported translation and listsIds.
+        // Species Translation
         var kvpInfo = "";
         var languages = ["Waramungu", "Warlpiri name"];
-        var listsIds = ['dr8016'];
-        if(listsIds.indexOf(self.listId()) != -1) {
+        var listsId = 'dr8016';
+        if(self.listId() == listsId || output == 'CLC 2Ha Track Plot') {
             $.ajax({
-                url: options.serverUrl + '/search/getSpeciesTranslation?id='+self.guid()+'&listId=' + self.listId(),
+                url: options.serverUrl + '/search/getSpeciesTranslation?id='+self.guid()+'&listId='+listsId,
                 dataType: 'json',
                 success: function (data) {
                     kvpInfo += "<table>";
