@@ -236,11 +236,13 @@ ecodata.forms.featureMap = function (options) {
         }
 
         self.setSelectableFeatures = function(selectableFeatures) {
+            self.selectableFeatures = selectableFeatures;
             // We don't want this added to the "drawnItems" layer in the ALA.map as that layer is managed
             // for individual form sections.
             if (self.selectionLayer) {
                 self.selectionLayer.clearLayers();
             }
+            console.log(selectableFeatures);
             self.selectionLayer = L.geoJson(selectableFeatures,
                 {
                     style: function () {
@@ -277,7 +279,7 @@ ecodata.forms.featureMap = function (options) {
         return self;
     }
 
-    var mapKey = 'featureMap'
+    var mapKey = 'featureMap';
     var $mapStorage = $('body');
     var map = $mapStorage.data(mapKey);
 
@@ -301,6 +303,7 @@ ko.components.register('feature', {
             throw "The model attribute is required for this component";
         }
         self.model = model;
+        self.categories = ko.observableArray();
 
         self.enabled = true;
         if (_.isFunction(model.enableConstraint)) {
@@ -321,9 +324,18 @@ ko.components.register('feature', {
 
         var map = ecodata.forms.featureMap(config);
 
+        if (map.selectableFeatures) {
+            _.each(map.selectableFeatures, function(feature) {
+                if (feature.properties && feature.properties.name) {
+                    self.categories.push({category:feature.properties.name, features:feature.features});
+                }
+            });
+        };
+
         self.ok = function () {
             model(map.getGeoJSON());
         };
+
 
         function sizeMap() {
             // Set the map to fit the screen.  The full screen modal plugin will have set the max-height
