@@ -14,24 +14,8 @@ module.exports = function (config) {
         // base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: '',
 
-        plugins: [
-            'karma-jquery',
-            'karma-chrome-launcher',
-            'karma-jasmine',
-            'karma-jasmine-jquery',
-            'karma-coverage',
-            'karma-firefox-launcher',
-            'karma-phantomjs-launcher'
-        ],
-
-
-        // frameworks to use
-        // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: [
-            'jquery-3.3.1',
-            'jasmine-jquery',
-            'jasmine'],
-
+        plugins: ['@metahub/karma-jasmine-jquery', 'karma-*'],
+        frameworks: ['jasmine-jquery'],
 
         // list of files / patterns to load in the browser
         files: [
@@ -94,7 +78,7 @@ module.exports = function (config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['Chrome','Firefox','PhantomJS'],
+        browsers: ['Chrome','PhantomJS'],
 
 
         // Continuous Integration mode
