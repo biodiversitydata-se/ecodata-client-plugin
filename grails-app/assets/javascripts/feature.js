@@ -231,42 +231,21 @@ ecodata.forms.featureMap = function (options) {
 
         ALA.Map.call(self, mapOptions.mapElementId, mapOptions);
 
+        //self.drawnItems = self.getMapImpl().getLayers();
+        self.getMapImpl().eachLayer(function(layer) {
+            if (layer instanceof L.FeatureGroup) {
+                self.drawnItems = layer;
+            }
+        });
+
+
         if (config.displayScale) {
             L.control.scale({metric:true, imperial:false}).addTo(self.getMapImpl());
         }
 
-        self.setSelectableFeatures = function(selectableFeatures) {
-            self.selectableFeatures = selectableFeatures;
-            // We don't want this added to the "drawnItems" layer in the ALA.map as that layer is managed
-            // for individual form sections.
-            if (self.selectionLayer) {
-                self.selectionLayer.clearLayers();
-            }
-            console.log(selectableFeatures);
-            self.selectionLayer = L.geoJson(selectableFeatures,
-                {
-                    style: function () {
-                        return UNSELECTED_LAYER_STYLE;
-                    },
-                    onEachFeature: function (f, layer) {
-                        layer.on('click', function (e) {
-                            var index = _selectedFeatures.indexOf(f);
-                            if (index >= 0) {
-                                _selectedFeatures.splice(index, 1);
-                                layer.setStyle(UNSELECTED_LAYER_STYLE);
-                            }
-                            else {
-                                _selectedFeatures.push(f);
-                                layer.setStyle(SELECTED_LAYER_STYLE);
-                            }
 
-                        })
-                    }
-                }).addTo(self.getMapImpl());
-            self.selectionLayer.bringToFront();
-        };
         if (options.selectableFeatures) {
-            self.setSelectableFeatures(options.selectableFeatures);
+            self.selectableFeatures = options.selectableFeatures;
         }
         var getDrawnItems = self.getGeoJSON;
         self.getGeoJSON = function () {
@@ -275,6 +254,7 @@ ecodata.forms.featureMap = function (options) {
             drawnAndSelected.features = _selectedFeatures.concat(drawnAndSelected.features || []);
             return drawnAndSelected;
         };
+
 
         return self;
     }
@@ -299,11 +279,12 @@ ko.components.register('feature', {
 
         var model = params.feature;
 
+
         if (!model) {
             throw "The model attribute is required for this component";
         }
         self.model = model;
-        self.categories = ko.observableArray();
+
 
         self.enabled = true;
         if (_.isFunction(model.enableConstraint)) {
@@ -316,26 +297,69 @@ ko.components.register('feature', {
         };
 
         var config = _.defaults(defaults, params.config);
-
+        var map = ecodata.forms.featureMap(config);
         self.readonly = config.readonly;
 
         var $modal = $(config.mapPopupSelector);
         var $mapElement = $('#' + config.mapElementId);
 
-        var map = ecodata.forms.featureMap(config);
-
-        if (map.selectableFeatures) {
-            _.each(map.selectableFeatures, function(feature) {
-                if (feature.properties && feature.properties.name) {
-                    self.categories.push({category:feature.properties.name, features:feature.features});
-                }
-            });
+        self.copyFeature = function(feature) {
+            map.setGeoJSON(feature);
         };
 
+        self.unhighlight = function(layer) {
+            if (self.selectableSitesLayer.hasLayer(layer)) {
+                self.selectableSitesLayer.resetStyle(layer);
+            }
+
+        };
+
+        self.highlightFeature = function(feature) {
+            layer.setStyle(SELECTED_LAYER_STYLE);
+            if (feature.layer.bringToFront()) {
+                feature.layer.bringToFront();
+            }
+        };
+        self.unhighlightFeature = function(feature) {
+            map.unhighlight(feature.layer);
+        };
+        self.zoomToFeature = function(feature) {
+            map.getMapImpl().fitBounds(feature.layer.getBounds());
+        };
+        self.deleteFeature = function(feature) {
+            map.drawnItems.removeLayer(feature.layer);
+            self.editableSites.remove(feature);
+
+        };
+
+
+        self.configureSelectionLayer = function() {
+            if (map.selectableFeatures) {
+                self.categories = ko.observableArray();
+                _.each(map.selectableFeatures, function (feature) {
+                    if (feature.properties && feature.properties.name) {
+                        self.categories.push({category: feature.properties.name, features: feature.features});
+                    }
+                });
+                self.selectableSitesLayer = L.geoJson(map.selectableFeatures,
+                    {
+                        style: {
+                            weight: 4,
+                            fillOpacity: 0.3,
+                            color: "#0f0"
+                        },
+                        onEachFeature: function (f, layer) {
+                            f.layer = layer;
+                        }
+                    }
+                );
+                self.selectableSitesLayer.addTo(map.getMapImpl());
+            }
+        };
         self.ok = function () {
             model(map.getGeoJSON());
         };
-
+        self.editableSites = ko.observableArray();
 
         function sizeMap() {
             // Set the map to fit the screen.  The full screen modal plugin will have set the max-height
@@ -355,14 +379,46 @@ ko.components.register('feature', {
                 map.setGeoJSON(model());
             }
 
-            $modal.on('shown', function () {
-                sizeMap();
-                map.redraw();
-                ko.applyBindings(self, $modal[0]);
+            $modal.on('shown', function (e) {
+                self.heading = 'banana';
+                if (e.target == this) {
+                    // This check is necessary because the accordion also fires these events which bubble to the modal.
+                    console.log("Initialising map");
+                    sizeMap();
 
-            }).on('hide', function () {
-                map.resetMap();
-                ko.cleanNode($modal[0]);
+
+                    self.configureSelectionLayer();
+
+                    map.drawnItems.on({'layeradd':function(e) {
+
+                            var layer = e.layer;
+                            var name = 'New works area';
+                            if (layer.feature && layer.feature.properties && layer.feature.properties.name) {
+                                name = layer.feature.properties.name;
+                            }
+                            var feature = {properties:{name:name}, layer:layer};
+                            self.editableSites.push(feature);
+
+                        }});
+
+                    map.redraw();
+                    ko.applyBindings(self, $modal[0]);
+                }
+
+
+            }).on('hide', function (e) {
+                self.heading = 'bananaddd';
+                // This check is necessary because the accordion also fires these events which bubble to the modal.
+                if (e.target == this) {
+                    console.log("Cleaning up");
+                    if (self.selectableSitesLayer) {
+                        map.removeLayer(self.selectableSitesLayer);
+                    }
+                    self.categories().splice(0, self.categories().length);
+                    map.resetMap();
+                    ko.cleanNode($modal[0]);
+                }
+
             }).modal();
         };
 
