@@ -159,17 +159,6 @@ ecodata.forms.featureMap = function (options) {
     var self = this;
     var _selectedFeatures = [];
 
-    var SELECTED_LAYER_STYLE = {
-        weight: 4,
-        fillOpacity: 0.5,
-        color: "#f00"
-    };
-    var UNSELECTED_LAYER_STYLE = {
-        weight: 4,
-        fillOpacity: 0.3,
-        color: "#33f"
-    };
-
     function initialise(options) {
         var defaults = {
             mapElementId: 'map-popup',
@@ -179,13 +168,18 @@ ecodata.forms.featureMap = function (options) {
             markerOrShapeNotBoth: true,
             hideMyLocation: false,
             baseLayersName: 'Open Layers',
-            showReset: false,
+            showReset: true,
             singleMarker: false,
             zoomToObject: true,
             markerZoomToMax: true,
             singleDraw: false,
             selectedStyle:{},
-            displayScale:true
+            displayScale:true,
+            shapeOptions: {
+                color: '#f00',
+                fillOpacity: 0.2,
+                weight: 4
+            }
         };
         var config = _.defaults(options, defaults);
         var mapOptions = _.extend(config, {
@@ -206,7 +200,7 @@ ecodata.forms.featureMap = function (options) {
                 :
                 {
                     polyline: !config.selectFromSitesOnly && config.allowPolygons,
-                    polygon: !config.selectFromSitesOnly && config.allowPolygons ? {allowIntersection: false} : false,
+                    polygon: !config.selectFromSitesOnly && config.allowPolygons ? {allowIntersection: false, shapeOptions:config.shapeOptions} : false,
                     circle: false,
                     rectangle: !config.selectFromSitesOnly && config.allowPolygons,
                     marker: !config.selectFromSitesOnly && config.allowPoints,
@@ -275,6 +269,17 @@ ecodata.forms.featureMap = function (options) {
 ko.components.register('feature', {
 
     viewModel: function (params) {
+
+        var DRAWN_LAYER_STYLE = {
+            weight: 4,
+            fillOpacity: 0.2,
+            color: "#f00"
+        };
+        var PLANNING_LAYER_STYLE = {
+            weight: 4,
+            fillOpacity: 0.2,
+            color: "#0f0"
+        };
         var self = this;
 
         var model = params.feature;
@@ -307,22 +312,37 @@ ko.components.register('feature', {
             map.setGeoJSON(feature);
         };
 
-        self.unhighlight = function(layer) {
+        self.unhighlightFeature = function(feature) {
+            var layer = feature.layer;
             if (self.selectableSitesLayer.hasLayer(layer)) {
                 self.selectableSitesLayer.resetStyle(layer);
+            }
+
+            else {
+                var options = layer.options;
+                var style = {
+                    weight: options.weight,
+                    fillOpacity: 0.2,
+                    color: options.color
+                };
+                layer.setStyle(style);
             }
 
         };
 
         self.highlightFeature = function(feature) {
-            layer.setStyle(SELECTED_LAYER_STYLE);
+            var options = feature.layer.options;
+            var style = {
+                weight: options.weight,
+                fillOpacity: 1,
+                color: options.color
+            };
+            feature.layer.setStyle(style);
             if (feature.layer.bringToFront()) {
                 feature.layer.bringToFront();
             }
         };
-        self.unhighlightFeature = function(feature) {
-            map.unhighlight(feature.layer);
-        };
+
         self.zoomToFeature = function(feature) {
             map.getMapImpl().fitBounds(feature.layer.getBounds());
         };
@@ -332,6 +352,24 @@ ko.components.register('feature', {
 
         };
 
+        self.editSites = function() {
+
+            map.drawnItems.bringToFront();
+            map.drawnItems.eachLayer(function(layer) {
+                layer.bringToFront();
+            });
+            self.selectableSitesLayer.bringToBack();
+
+            // this is gross hack around the map plugin not giving access to the Draw Control
+            var event = document.createEvent('Event');
+            event.initEvent('click', true, true);
+            var cb = document.getElementsByClassName('leaflet-draw-edit-edit');
+            !cb[0].dispatchEvent(event);
+        };
+
+        self.zoomToDrawnSites = function() {
+            map.fitBounds();
+        };
 
         self.configureSelectionLayer = function() {
             if (map.selectableFeatures) {
@@ -343,11 +381,7 @@ ko.components.register('feature', {
                 });
                 self.selectableSitesLayer = L.geoJson(map.selectableFeatures,
                     {
-                        style: {
-                            weight: 4,
-                            fillOpacity: 0.3,
-                            color: "#0f0"
-                        },
+                        style: PLANNING_LAYER_STYLE,
                         onEachFeature: function (f, layer) {
                             f.layer = layer;
                         }
@@ -357,7 +391,14 @@ ko.components.register('feature', {
             }
         };
         self.ok = function () {
-            model(map.getGeoJSON());
+
+            var geoJson = map.getGeoJSON();
+
+            _.each(geoJson.features || [], function(feature) {
+                delete feature.layer;
+            });
+
+            model(geoJson);
         };
         self.editableSites = ko.observableArray();
 
@@ -380,7 +421,7 @@ ko.components.register('feature', {
             }
 
             $modal.on('shown', function (e) {
-                self.heading = 'banana';
+
                 if (e.target == this) {
                     // This check is necessary because the accordion also fires these events which bubble to the modal.
                     console.log("Initialising map");
@@ -392,6 +433,7 @@ ko.components.register('feature', {
                     map.drawnItems.on({'layeradd':function(e) {
 
                             var layer = e.layer;
+                            layer.setStyle(DRAWN_LAYER_STYLE);
                             var name = 'New works area';
                             if (layer.feature && layer.feature.properties && layer.feature.properties.name) {
                                 name = layer.feature.properties.name;
@@ -402,12 +444,19 @@ ko.components.register('feature', {
                         }});
 
                     map.redraw();
+
+                    if (map.drawnItems.getLayers().length > 0) {
+                        map.fitBounds();
+                    }
+                    else {
+                        map.getMapImpl().fitBounds(self.selectableSitesLayer.getBounds());
+                    }
+
                     ko.applyBindings(self, $modal[0]);
                 }
 
 
             }).on('hide', function (e) {
-                self.heading = 'bananaddd';
                 // This check is necessary because the accordion also fires these events which bubble to the modal.
                 if (e.target == this) {
                     console.log("Cleaning up");
