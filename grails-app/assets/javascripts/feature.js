@@ -261,7 +261,7 @@ ecodata.forms.maps.featureMap = function (options) {
             L.control.scale({metric: true, imperial: false}).addTo(self.getMapImpl());
         }
 
-
+        self.categories = ko.observableArray();
         if (options.selectableFeatures) {
             self.selectableFeatures = options.selectableFeatures;
             self.configureSelectionLayer(self.selectableFeatures);
@@ -291,10 +291,9 @@ ecodata.forms.maps.featureMap = function (options) {
 
     self.unhighlightFeature = function (feature) {
         var layer = feature.layer;
-        if (self.selectableSitesLayer.hasLayer(layer)) {
+        if (self.selectableSitesLayer && self.selectableSitesLayer.hasLayer(layer)) {
             self.selectableSitesLayer.resetStyle(layer);
         }
-
         else {
             var options = layer.options;
             var style = {
@@ -309,6 +308,10 @@ ecodata.forms.maps.featureMap = function (options) {
 
     self.highlightFeature = function (feature) {
         var options = feature.layer.options;
+        if (!options) {
+            return;  // TODO Known shapes don't have options
+        }
+
         var style = {
             weight: options.weight,
             fillOpacity: 1,
@@ -353,7 +356,7 @@ ecodata.forms.maps.featureMap = function (options) {
         if (self.drawnItems.getLayers().length > 0) {
             self.fitBounds();
         }
-        else {
+        else if (self.selectableSitesLayer) {
             self.getMapImpl().fitBounds(self.selectableSitesLayer.getBounds());
         }
     };
@@ -364,8 +367,9 @@ ecodata.forms.maps.featureMap = function (options) {
     };
 
     self.configureSelectionLayer = function (selectableFeatures) {
+
         if (selectableFeatures) {
-            self.categories = ko.observableArray();
+
             _.each(selectableFeatures, function (feature) {
                 if (feature.properties && feature.properties.name) {
                     self.categories.push({category: feature.properties.name, features: feature.features});
