@@ -420,6 +420,12 @@ ecodata.forms.maps.showMapInModal = function(options) {
 
     if (!self.featureMapInstance) {
         self.featureMapInstance = ecodata.forms.maps.featureMap(config);
+        $(window).on('hashchange', function () {
+            // This is to have the back button close the modal.
+            if(window.location.hash != mapHash) {
+                $modal.modal('hide');
+            }
+        });
     }
 
     function sizeMap() {
@@ -433,12 +439,11 @@ ecodata.forms.maps.showMapInModal = function(options) {
         }
         $mapElement.height(height - 5);
     }
-
+    var mapHash = '#map';
     $modal.find('.btn-primary').one('click', function() {
         if (options.okCallback) {
             options.okCallback(self.featureMapInstance);
         }
-
         $modal.modal('hide');
     });
 
@@ -449,6 +454,8 @@ ecodata.forms.maps.showMapInModal = function(options) {
         if (e.target == this) {
             sizeMap();
 
+            // This is setting up a history entry so the back button can close the modal.
+            window.location.hash = mapHash;
             self.featureMapInstance.redraw();
             self.featureMapInstance.defaultZoom();
         }
@@ -458,6 +465,10 @@ ecodata.forms.maps.showMapInModal = function(options) {
         // This check is necessary because the accordion also fires these events which bubble to the modal.
         if (e.target == this) {
             self.featureMapInstance.clearDrawnItems();
+        }
+        if (window.location.hash == mapHash) {
+            // If the map was closed with a button (rather than back), clear the map history entry.
+            window.history.back();
         }
 
     }).modal();
