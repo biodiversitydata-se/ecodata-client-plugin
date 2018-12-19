@@ -108,6 +108,7 @@ class ModelTagLibSpec extends Specification {
         ctx.model = model
         List dataModel = [[name:"test", dataType:"list", columns:[]]]
         ctx.attrs.model = [dataModel :dataModel]
+        ctx.attrs.edit = true
 
         when:
         tagLib.repeatingLayout(ctx)
