@@ -25,7 +25,7 @@ environments {
     }
 
     phantomjs {
-        String phantomjsPath = "node_modules/phantomjs/bin/phantomjs"
+        String phantomjsPath = "node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs"
         if (!new File(phantomjsPath).exists()) {
             throw new RuntimeException("Please install node modules before running functional tests")
         }
