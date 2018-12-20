@@ -300,38 +300,56 @@ ecodata.forms.maps.featureMap = function (options) {
     self.unhighlightFeature = function (feature) {
         var layer = feature.layer;
 
-        if (!layer.setStyle) {
-            return;
+        if (layer.setStyle) {
+
+
+            if (self.selectableSitesLayer && self.selectableSitesLayer.hasLayer(layer)) {
+                self.selectableSitesLayer.resetStyle(layer);
+            }
+            else {
+                var options = layer.options;
+                if (options && layer.setStyle) {
+                    var style = {
+                        weight: options.weight / 3,
+                        fillOpacity: 0.2,
+                        color: options.color
+                    };
+                    layer.setStyle(style);
+                }
+
+            }
         }
-        if (self.selectableSitesLayer && self.selectableSitesLayer.hasLayer(layer)) {
-            self.selectableSitesLayer.resetStyle(layer);
-        }
-        else {
-            var options = layer.options;
-            var style = {
-                weight: options.weight,
-                fillOpacity: 0.2,
-                color: options.color
-            };
-            layer.setStyle(style);
+        else if (layer.options && layer.options.icon) {
+            var icon = layer.options.icon;
+            icon.options.iconSize = [icon.options.iconSize[0]/1.5, icon.options.iconSize[1]/1.5];
+            icon.options.iconAnchor = [icon.options.iconAnchor[0]/1.5, icon.options.iconAnchor[1]/1.5];
+            feature.layer.setIcon(icon);
         }
 
     };
 
     self.highlightFeature = function (feature) {
         var options = feature.layer.options;
-        if (!options || !feature.layer.setStyle) {
+        if (!options) {
             return;  // TODO Known shapes don't have options
         }
+        if (feature.layer.setStyle) {
 
-        var style = {
-            weight: options.weight,
-            fillOpacity: 1,
-            color: options.color
-        };
-        feature.layer.setStyle(style);
-        if (feature.layer.bringToFront()) {
-            feature.layer.bringToFront();
+            var style = {
+                weight: options.weight * 3,
+                fillOpacity: 1,
+                color: options.color
+            };
+            feature.layer.setStyle(style);
+            if (feature.layer.bringToFront()) {
+                feature.layer.bringToFront();
+            }
+        }
+        else if (options.icon) {
+            var icon = options.icon;
+            icon.options.iconSize = [icon.options.iconSize[0]*1.5, icon.options.iconSize[1]*1.5];
+            icon.options.iconAnchor = [icon.options.iconAnchor[0]*1.5, icon.options.iconAnchor[1]*1.5];
+            feature.layer.setIcon(icon);
         }
     };
 
