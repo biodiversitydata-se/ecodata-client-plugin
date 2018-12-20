@@ -271,7 +271,10 @@ ecodata.forms.maps.featureMap = function (options) {
             'layeradd': function (e) {
 
                 var layer = e.layer;
-                layer.setStyle(DRAWN_LAYER_STYLE);
+                if (layer.setStyle) {
+                    layer.setStyle(DRAWN_LAYER_STYLE);
+                }
+
                 var name = 'New works area';
                 if (layer.feature && layer.feature.properties && layer.feature.properties.name) {
                     name = layer.feature.properties.name;
@@ -289,8 +292,17 @@ ecodata.forms.maps.featureMap = function (options) {
         self.setGeoJSON(feature);
     };
 
+    self.copyEnabled = function(feature) {
+        var type = feature.type;
+        return type != 'Point' && type != 'MultiPoint';
+    };
+
     self.unhighlightFeature = function (feature) {
         var layer = feature.layer;
+
+        if (!layer.setStyle) {
+            return;
+        }
         if (self.selectableSitesLayer && self.selectableSitesLayer.hasLayer(layer)) {
             self.selectableSitesLayer.resetStyle(layer);
         }
@@ -308,7 +320,7 @@ ecodata.forms.maps.featureMap = function (options) {
 
     self.highlightFeature = function (feature) {
         var options = feature.layer.options;
-        if (!options) {
+        if (!options || !feature.layer.setStyle) {
             return;  // TODO Known shapes don't have options
         }
 
@@ -324,7 +336,13 @@ ecodata.forms.maps.featureMap = function (options) {
     };
 
     self.zoomToFeature = function (feature) {
-        map.getMapImpl().fitBounds(feature.layer.getBounds());
+        var layer = feature.layer;
+        var boundsContainer = layer;
+        if (!layer.getBounds) {
+            boundsContainer = new L.FeatureGroup();
+            boundsContainer.addLayer(layer);
+        }
+        map.getMapImpl().fitBounds(boundsContainer.getBounds());
     };
     self.deleteFeature = function (feature) {
         map.drawnItems.removeLayer(feature.layer);
@@ -336,7 +354,9 @@ ecodata.forms.maps.featureMap = function (options) {
 
         map.drawnItems.bringToFront();
         map.drawnItems.eachLayer(function (layer) {
-            layer.bringToFront();
+            if (layer.bringToFront) {
+                layer.bringToFront();
+            };
         });
         self.selectableSitesLayer.bringToBack();
 
@@ -355,7 +375,7 @@ ecodata.forms.maps.featureMap = function (options) {
 
         var group = new L.featureGroup();
         _.each(category.features || [], function(feature) {
-            if (feature.layer && feature.layer.getBounds) {
+            if (feature.layer) {
                 group.addLayer(feature.layer);
             }
         });

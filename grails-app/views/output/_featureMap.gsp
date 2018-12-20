@@ -52,7 +52,7 @@
                                 data-bind="event:{mouseover:$root.highlightFeature, mouseout:$root.unhighlightFeature}">
                                 <label class="pull-left"><span
                                         data-bind="text:properties.name || 'Unnamed site'"></span></label>
-                                <button class="pull-right btn" data-bind="click:$root.copyFeature"
+                                <button class="pull-right btn" data-bind="click:$root.copyFeature, enable:$root.copyEnabled"
                                         title="Copy (and edit) this site"><i class="fa fa-copy"></i>
                                 </button>
                                 <button class="pull-right btn" data-bind="click:$root.zoomToFeature"
