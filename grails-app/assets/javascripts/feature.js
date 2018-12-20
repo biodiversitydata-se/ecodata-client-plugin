@@ -351,6 +351,16 @@ ecodata.forms.maps.featureMap = function (options) {
         map.fitBounds();
     };
 
+    self.zoomToCategorySites = function(category) {
+
+        var group = new L.featureGroup();
+        _.each(category.features || [], function(feature) {
+            if (feature.layer && feature.layer.getBounds) {
+                group.addLayer(feature.layer);
+            }
+        });
+        self.getMapImpl().fitBounds(group.getBounds());
+    };
 
     self.defaultZoom = function() {
         if (self.drawnItems.getLayers().length > 0) {

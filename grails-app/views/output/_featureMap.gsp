@@ -7,7 +7,7 @@
         <div class="accordion-group">
             <div class="sites-list-heading">
                 <span class="site-category-heading">Site/s for this service</span>
-                <button class="pull-right btn" data-bind="click:$root.zoomToDrawnSites"><i class="fa fa-search"></i>
+                <button class="pull-right btn" data-bind="click:$root.defaultZoom"><i class="fa fa-search"></i>
                 </button>
                 <button class="pull-right btn" data-bind="click:$root.editSites"><i class="fa fa-edit"></i></button>
             </div>
