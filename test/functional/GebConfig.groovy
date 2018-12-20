@@ -25,12 +25,15 @@ environments {
     }
 
     phantomjs {
-        String phantomjsPath = "node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs"
-        if (!new File(phantomjsPath).exists()) {
-            throw new RuntimeException("Please install node modules before running functional tests")
+        if (!System.getProperty("phantomjs.binary.path")) {
+            String phantomjsPath = "node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs"
+            if (!new File(phantomjsPath).exists()) {
+                throw new RuntimeException("Please install node modules before running functional tests")
+            }
+
+            System.setProperty("phantomjs.binary.path", phantomjsPath)
         }
 
-        System.setProperty("phantomjs.binary.path", phantomjsPath)
         driver = { new PhantomJSDriver() }
     }
 }
