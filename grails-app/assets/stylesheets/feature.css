@@ -1,3 +1,7 @@
+#map-modal .modal-body {
+    overflow-y: hidden;
+}
+
 .btn.edit-feature {
     width: 100%;
     height: 100%;
@@ -15,4 +19,68 @@
     stroke:red;
     stroke-width:1px;
     fill: #ff000033;
+}
+
+.sites-list-sidebar {
+    position:absolute;
+    right:10px;
+    top:15px;
+    width: 20em;
+    overflow-y: auto;
+    height:100%;
+}
+
+.site-label {
+    position: relative;
+}
+
+.site-label label {
+    margin-right: 80px;
+
+}
+
+.site-label .btn-container {
+    position: absolute;
+    right: 0;
+    top: 1px;
+}
+
+.site-label .btn-container .btn {
+    margin-right: 0;
+}
+
+.sites-list-heading {
+    padding : 15px;
+}
+
+ul.sites-category {
+    border-top: 1px solid lightgrey;
+}
+
+li.site-label {
+    padding: 5px;
+    border-bottom : 1px solid lightgrey;
+}
+
+li.site-label:hover {
+    background: #d9edf7;
+}
+
+li.site-label button {
+    opacity: 1;
+    color: black;
+    margin-right: 2px;
+}
+
+li.site-label i {
+    opacity: initial;
+
+}
+
+.accordion-heading > .accordion-toggle, .sites-list-heading .site-label {
+    display: inline-block;
+}
+.site-category-heading {
+    font-weight: bold;
+    font-size: larger;
 }

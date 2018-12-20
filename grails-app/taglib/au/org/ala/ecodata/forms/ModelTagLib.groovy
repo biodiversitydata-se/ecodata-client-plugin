@@ -28,7 +28,9 @@ class ModelTagLib {
         Map model
         Map attrs
 
-
+        boolean editMode() {
+            return attrs.edit
+        }
         String getProperty() {
             if (dataContext) {
                 return dataContext+'.'+model.source
@@ -128,7 +130,7 @@ class ModelTagLib {
 
         ctx.out << """<!-- ko foreach:${ctx.property} -->\n"""
         ctx.out << """<div class="repeating-section">\n"""
-        if (model.userAddedRows) {
+        if (model.userAddedRows && ctx.editMode()) {
             ctx.out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">${model.removeRowText ?: "Remove Section"}</button>\n"""
         }
         viewModelItems(model.items, childContext)
@@ -136,7 +138,7 @@ class ModelTagLib {
         ctx.out << "</div>\n"
         ctx.out << "<!-- /ko -->\n"
 
-        if (model.userAddedRows) {
+        if (model.userAddedRows && ctx.editMode()) {
             ctx.out << """<button type="button" class="btn btn-small add-section" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>\n"""
         }
     }
