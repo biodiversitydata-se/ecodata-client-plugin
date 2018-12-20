@@ -30,6 +30,25 @@
     height:100%;
 }
 
+.site-label {
+    position: relative;
+}
+
+.site-label label {
+    margin-right: 80px;
+
+}
+
+.site-label .btn-container {
+    position: absolute;
+    right: 0;
+    top: 1px;
+}
+
+.site-label .btn-container .btn {
+    margin-right: 0;
+}
+
 .sites-list-heading {
     padding : 15px;
 }
@@ -58,7 +77,7 @@ li.site-label i {
 
 }
 
-.accordion-heading > .accordion-toggle {
+.accordion-heading > .accordion-toggle, .sites-list-heading .site-label {
     display: inline-block;
 }
 .site-category-heading {

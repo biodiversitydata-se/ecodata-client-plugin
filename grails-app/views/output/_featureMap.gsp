@@ -6,10 +6,15 @@
     <div class="sites-list-sidebar">
         <div class="accordion-group">
             <div class="sites-list-heading">
-                <span class="site-category-heading">Site/s for this service</span>
-                <button class="pull-right btn" data-bind="click:$root.defaultZoom"><i class="fa fa-search"></i>
-                </button>
-                <button class="pull-right btn" data-bind="click:$root.editSites"><i class="fa fa-edit"></i></button>
+                <div class="site-label">
+                    <label class="site-category-heading">Site/s for this service</label>
+
+                    <div class="btn-container">
+                        <button class="btn" data-bind="click:$root.defaultZoom"><i class="fa fa-search"></i>
+                        </button>
+                        <button class="btn" data-bind="click:$root.editSites"><i class="fa fa-edit"></i></button>
+                    </div>
+                </div>
             </div>
 
 
@@ -18,14 +23,17 @@
                 <!-- ko foreach:editableSites -->
                 <li class="clearfix site-label"
                     data-bind="event:{mouseover:$root.highlightFeature, mouseout:$root.unhighlightFeature}">
-                    <label class="pull-left"><span data-bind="text:properties.name || 'Unnamed site'"></span>
+                    <label><span data-bind="text:properties.name || 'Unnamed site'"></span>
                     </label>
-                    <button class="pull-right btn" data-bind="click:$root.deleteFeature"><i
-                            class="fa fa-remove"></i>
-                    </button>
-                    <button class="pull-right btn" data-bind="click:$root.zoomToFeature"><i
-                            class="fa fa-search"></i>
-                    </button>
+
+                    <div class="btn-container">
+                        <button class="btn" data-bind="click:$root.deleteFeature"><i
+                                class="fa fa-remove"></i>
+                        </button>
+                        <button class="btn" data-bind="click:$root.zoomToFeature"><i
+                                class="fa fa-search"></i>
+                        </button>
+                    </div>
 
                 </li>
                 <!-- /ko -->
@@ -40,9 +48,15 @@
                        data-bind="attr:{href:'#sites-category-'+$index()}">
                         <i class="fa fa-arrows-alt"></i>
                     </a>
-                    <span class="site-category-heading" data-bind="text:category"></span>
-                    <button class="pull-right btn" data-bind="click:$root.zoomToCategorySites"><i
-                            class="fa fa-search"></i></button>
+
+                    <div class="site-label">
+                        <label class="site-category-heading" data-bind="text:category"></label>
+
+                        <div class="btn-container">
+                            <button class="btn" data-bind="click:$root.zoomToCategorySites"><i
+                                    class="fa fa-search"></i></button>
+                        </div>
+                    </div>
                 </div>
 
                 <div data-bind="attr:{id:'sites-category-'+$index()}" class="accordion-body collapse in">
@@ -50,14 +64,17 @@
                         <ul class="sites-category unstyled" data-bind="foreach:features">
                             <li class="clearfix site-label"
                                 data-bind="event:{mouseover:$root.highlightFeature, mouseout:$root.unhighlightFeature}">
-                                <label class="pull-left"><span
+                                <label><span
                                         data-bind="text:properties.name || 'Unnamed site'"></span></label>
-                                <button class="pull-right btn" data-bind="click:$root.copyFeature, enable:$root.copyEnabled"
-                                        title="Copy (and edit) this site"><i class="fa fa-copy"></i>
-                                </button>
-                                <button class="pull-right btn" data-bind="click:$root.zoomToFeature"
-                                        title="Zoom to this site"><i class="fa fa-search"></i>
-                                </button>
+
+                                <div class="btn-container">
+                                    <button class="btn" data-bind="click:$root.copyFeature, enable:$root.copyEnabled"
+                                            title="Copy (and edit) this site"><i class="fa fa-copy"></i>
+                                    </button>
+                                    <button class="btn" data-bind="click:$root.zoomToFeature"
+                                            title="Zoom to this site"><i class="fa fa-search"></i>
+                                    </button>
+                                </div>
 
                             </li>
                         </ul>
