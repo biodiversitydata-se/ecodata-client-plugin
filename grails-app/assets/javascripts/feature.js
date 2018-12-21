@@ -289,7 +289,25 @@ ecodata.forms.maps.featureMap = function (options) {
     }
 
     self.copyFeature = function (feature) {
-        self.setGeoJSON(feature);
+        if (feature.geometry && feature.geometry.coordinates && feature.geometry.type == 'MultiPolygon') {
+            // Split to polygons as the leaflet draw plugin doesn't support MultiPolygons.
+            // This also allows the user to delete each part separately if desired.
+            for (var i=0; i<feature.geometry.coordinates.length; i++) {
+                var polygon = {
+                    type:'Feature',
+                    properties:feature.properties,
+                    geometry: {
+                        type:'Polygon',
+                        coordinates:feature.geometry.coordinates[i]
+                    }
+                };
+                self.setGeoJSON(polygon);
+            }
+        }
+        else {
+            self.setGeoJSON(feature);
+        }
+
     };
 
     self.copyEnabled = function(feature) {
