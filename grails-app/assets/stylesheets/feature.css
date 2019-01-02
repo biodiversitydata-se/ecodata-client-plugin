@@ -23,8 +23,8 @@
 
 .sites-list-sidebar {
     position:absolute;
-    right:10px;
-    top:15px;
+    right:0;
+    top:0;
     width: 20em;
     overflow-y: auto;
     height:100%;
@@ -83,4 +83,12 @@ li.site-label i {
 .site-category-heading {
     font-weight: bold;
     font-size: larger;
+}
+
+.feature-map {
+    position: relative;
+}
+
+.feature-map .map-container {
+    margin-right: 21em;
 }

@@ -5,7 +5,7 @@
         <h3>Mapping Site Activities</h3>
     </div>
     <div class="modal-body">
-        <m:map id="map-popup" width="100%"></m:map>
+        <m:map id="map-holder" width="100%"></m:map>
     </div>
 
     <div class="modal-footer">
