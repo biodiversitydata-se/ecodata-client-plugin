@@ -267,6 +267,7 @@ ecodata.forms.maps.featureMap = function (options) {
             L.control.scale({metric: true, imperial: false}).addTo(self.getMapImpl());
         }
 
+        self.editableSitesHeading = options.editableSitesHeading || 'Site/s for this service';
         self.categories = ko.observableArray();
         if (options.selectableFeatures) {
             self.selectableFeatures = options.selectableFeatures;
