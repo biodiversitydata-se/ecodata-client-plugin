@@ -486,7 +486,7 @@ ecodata.forms.maps.showMapInModal = function(options) {
 
     var defaults = {
         mapPopupSelector: '#map-modal',
-        mapElementId: 'map-popup' // Needed to size the map....
+        mapElementId: 'map-holder' // Needed to size the map....
     };
 
     var config = _.defaults(defaults, options);
