@@ -308,7 +308,7 @@ ecodata.forms.maps.featureMap = function (options) {
                         coordinates:feature.geometry.coordinates[i]
                     }
                 };
-                self.setGeoJSON(turf.simplify(polygon, {tolerance: 0.001}));
+                self.setGeoJSON(polygon);
             }
         }
         else {
