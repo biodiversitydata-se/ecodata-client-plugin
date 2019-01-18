@@ -1,13 +1,13 @@
 <div class="feature-map">
-    <div style="margin-right:20em;">
-        <m:map id="map-popup" width="100%"></m:map>
+    <div class="map-container">
+        <m:map id="map-holder" width="100%"></m:map>
     </div>
 
     <div class="sites-list-sidebar">
         <div class="accordion-group">
             <div class="sites-list-heading">
                 <div class="site-label">
-                    <label class="site-category-heading">Site/s for this service</label>
+                    <label class="site-category-heading" data-bind="text:editableSitesHeading"></label>
 
                     <div class="btn-container">
                         <button class="btn" data-bind="click:$root.defaultZoom"><i class="fa fa-search"></i>

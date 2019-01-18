@@ -6,6 +6,12 @@ import length from '@turf/length';
 import bbox from '@turf/bbox';
 */
 
+if (!window.ecodata) {
+    ecodata = {};
+}
+if (!ecodata.forms) {
+    ecodata.forms = {};
+}
 if (!ecodata.forms.maps) {
     ecodata.forms.maps = {};
 }
@@ -183,7 +189,7 @@ ecodata.forms.maps.featureMap = function (options) {
     function initialise(options) {
         self.editableSites = ko.observableArray();
         var defaults = {
-            mapElementId: 'map-popup',
+            mapElementId: 'map-holder',
             selectFromSitesOnly: false,
             allowPolygons: true,
             allowPoints: false,
@@ -261,6 +267,7 @@ ecodata.forms.maps.featureMap = function (options) {
             L.control.scale({metric: true, imperial: false}).addTo(self.getMapImpl());
         }
 
+        self.editableSitesHeading = options.editableSitesHeading || 'Site/s for this service';
         self.categories = ko.observableArray();
         if (options.selectableFeatures) {
             self.selectableFeatures = options.selectableFeatures;
@@ -479,7 +486,7 @@ ecodata.forms.maps.showMapInModal = function(options) {
 
     var defaults = {
         mapPopupSelector: '#map-modal',
-        mapElementId: 'map-popup' // Needed to size the map....
+        mapElementId: 'map-holder' // Needed to size the map....
     };
 
     var config = _.defaults(defaults, options);
