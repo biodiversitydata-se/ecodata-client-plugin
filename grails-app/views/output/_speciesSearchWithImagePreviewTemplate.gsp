@@ -6,7 +6,7 @@
                     <span data-bind="${databindAttrs}"></span>
                 </g:if>
                 <g:else>
-                    <input class="full-width-input content-box form-control" type="text" placeholder="Start typing a species name" data-bind="${databindAttrs}" ${validationAttrs} ${attrs}/>
+                    <input class="full-width-input content-box form-control" type="text" placeholder="Start typing a species name and choose from the drop down menu" data-bind="${databindAttrs}" ${validationAttrs} ${attrs}/>
                 </g:else>
             </div>
         </div>
