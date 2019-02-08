@@ -112,7 +112,7 @@
                     <span data-bind="text: data.${source}Latitude"></span>
                 </g:if>
                 <g:else>
-                    <input id="${source}Latitude" type="number" min="-90" max="90" data-bind="value: data.${source}Latitude, disable: data.${source}LatLonDisabled"
+                    <input placeholder="Use map tools to get coordinates" id="${source}Latitude" type="number" min="-90" max="90" data-bind="value: data.${source}Latitude, disable: data.${source}LatLonDisabled"
                            ${latValidation} class="form-control full-width-input">
                 </g:else>
             </div>
@@ -131,7 +131,7 @@
                     <span data-bind="text: data.${source}Longitude"></span>
                 </g:if>
                 <g:else>
-                    <input id="${source}Longitude" type="number" min="-180" max="180" data-bind="value: data.${source}Longitude, disable: data.${source}LatLonDisabled"
+                    <input placeholder="Use map tools to get coordinates" id="${source}Longitude" type="number" min="-180" max="180" data-bind="value: data.${source}Longitude, disable: data.${source}LatLonDisabled"
                            ${lngValidation} class="form-control full-width-input">
                 </g:else>
             </div>
