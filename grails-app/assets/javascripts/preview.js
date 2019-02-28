@@ -12,6 +12,7 @@
 //= require fancybox/jquery.fancybox
 //= require select2/4.0.3/js/select2.full
 //= require typeahead/0.11.1/bloodhound
+//= require amplifyjs/1.1.2/amplify.min.js
 //= require attach-document.js
 //= require jquery.fileDownload/jQuery.fileDownload
 //= require leaflet-manifest.js
