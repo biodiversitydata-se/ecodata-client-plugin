@@ -138,6 +138,29 @@ function orEmptyArray(v) {
                 s[1] += new Array(prec - s[1].length + 1).join('0');
             }
             return s.join(dec);
+        },
+        lengthKm: function (geoJSON, linesOnly) {
+            if (_.isUndefined(linesOnly)) {
+                linesOnly = true;
+            }
+            if (linesOnly) {
+                var linesOnly = _.filter(geoJSON.features, function (feature) {
+                    return feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString';
+                });
+                geoJSON = {
+                    type: 'FeatureCollection',
+                    features: linesOnly
+                };
+            }
+
+            return turf.length(geoJSON, {units: 'kilometers'});
+        },
+        areaHa: function (geoJSON) {
+            var SQUARE_METERS_IN_HECTARE = 10000;
+            function m2ToHa(areaM2) {
+                return areaM2 / SQUARE_METERS_IN_HECTARE;
+            }
+            return m2ToHa(turf.area(geoJSON))
         }
     };
 
@@ -150,32 +173,11 @@ function orEmptyArray(v) {
      */
     ecodata.forms.expressionEvaluator = function () {
         var specialBindings = function() {
-            var SQUARE_METERS_IN_HECTARE = 10000;
-            function m2ToHa(areaM2) {
-                return areaM2 / SQUARE_METERS_IN_HECTARE;
-            }
 
             return {
                 $geom: {
-                    lengthKm: function (geoJSON, linesOnly) {
-                        if (_.isUndefined(linesOnly)) {
-                            linesOnly = true;
-                        }
-                        if (linesOnly) {
-                            var linesOnly = _.filter(geoJSON.features, function(feature) {
-                                return feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString';
-                            });
-                            geoJSON = {
-                                type:'FeatureCollection',
-                                features:linesOnly
-                            };
-                        }
-
-                        return turf.length(geoJSON, {units: 'kilometers'});
-                    },
-                    areaHa: function (geoJSON) {
-                        return m2ToHa(turf.area(geoJSON))
-                    }
+                    lengthKm: ecodata.forms.utils.lengthKm,
+                    areaHa: ecodata.forms.utils.areaHa
                 }
 
             };

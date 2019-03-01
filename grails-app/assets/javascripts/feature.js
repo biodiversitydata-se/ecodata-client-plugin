@@ -256,7 +256,6 @@ ecodata.forms.maps.featureMap = function (options) {
 
         ALA.Map.call(self, mapOptions.mapElementId, mapOptions);
 
-        //self.drawnItems = self.getMapImpl().getLayers();
         self.getMapImpl().eachLayer(function (layer) {
             if (layer instanceof L.FeatureGroup) {
                 self.drawnItems = layer;
@@ -291,6 +290,23 @@ ecodata.forms.maps.featureMap = function (options) {
 
             }
         });
+
+        self.areaHa = ko.observable(0).extend({numericString:2});
+        self.lengthKm = ko.observable(0).extend({numericString:2});
+
+        function updateStatistics() {
+            var geoJson = self.drawnItems.toGeoJSON();
+            self.areaHa(ecodata.forms.utils.areaHa(geoJson));
+            self.lengthKm(ecodata.forms.utils.lengthKm(geoJson, true));
+        }
+
+        self.editableSites.subscribe(function() {
+            updateStatistics();
+        });
+
+        self.getMapImpl().on("draw:editstop", updateStatistics);
+        self.getMapImpl().on("draw:deletestop", updateStatistics);
+
 
         return self;
     }
