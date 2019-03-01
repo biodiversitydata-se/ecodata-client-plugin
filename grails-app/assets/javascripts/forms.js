@@ -185,7 +185,7 @@ function orEmptyArray(v) {
             var specialVariables = {
                 'index':'$index',
                 'parent':'$parent'
-            }
+            };
             return specialVariables[variable] ? specialVariables[variable] : variable;
         };
 
@@ -456,8 +456,21 @@ function orEmptyArray(v) {
         self.getPrepopData = function (conf) {
             var source = conf.source;
             if (source.url) {
-                var url = config[source.url];
-                return $.post(url, source.params);
+                var url = (config.prepopUrlPrefix || window.location.href) + source.url;
+                var params = {};
+                _.each(source.params || [], function(param) {
+                    var value;
+                    if (param.type && param.type == 'computed') {
+                        // evaluate the expression against the context.
+                        value = ecodata.forms.expressionEvaluator.evaluateString(param.expression, context);
+                    }
+                    else {
+                        // Treat it as a literal
+                        value = param.value;
+                    }
+                    params[param.name] = value;
+                });
+                return $.ajax(url, {data:params, dataType:source.dataType || 'json'});
             }
             var deferred = $.Deferred();
             var data = null;

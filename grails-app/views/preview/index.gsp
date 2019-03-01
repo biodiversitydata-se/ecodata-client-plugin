@@ -25,21 +25,27 @@
 <asset:deferredScripts/>
 <script>
     $(function() {
-        var modelName = '${md.toSingleWord(name:model.modelName)}ViewModel';
-        var dataModel = JSON.parse('${raw((model as grails.converters.JSON).toString())}').dataModel;
-        var context = {};
+        var modelName = '${md.toSingleWord(name:model.modelName)}';
+        var outputModel = JSON.parse('${raw((model as grails.converters.JSON).toString())}');
+        var dataModel = outputModel.dataModel;
+        var context = {
+            data: {
+                value1: 1,
+                value2: "2"
+            }
+        };
         var config = {
             bieUrl:'',
-            searchBieUrl:''
+            searchBieUrl:'',
+            model: outputModel,
+            prepopUrlPrefix: '${createLink(controller:'preview')}'
         };
         var output = {};
 
         // This is required by any models that use the feature dataType
         config.featureCollection = new ecodata.forms.FeatureCollection([]);;
 
-        var model = new ecodata.forms[modelName](output, dataModel, context, config);
-
-        ko.applyBindings(model);
+        var model = ecodata.forms.initialiseOutputViewModel(modelName, dataModel, output, config, context);
 
         // Expose our model in the global scope to get at it easily with GEB
         window.model = model;

@@ -34,4 +34,11 @@ class PreviewController {
         String path = EXAMPLE_MODELS_PATH + name
         JSON.parse(getClass().getResourceAsStream(path), 'UTF-8')
     }
+
+    /**
+     * Echos the request parameters back to the client.
+     */
+    def prepopulate() {
+        respond params
+    }
 }

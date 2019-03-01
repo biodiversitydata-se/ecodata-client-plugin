@@ -49,4 +49,17 @@ class TestSpec extends GebReportingSpec {
         $(":invalid").size() == 0
     }
 
+    def "prepopulation can be configured as a URL"() {
+        when:
+        to ([name:'prepopFromURLExample'], PreviewPage)
+
+        then:
+        title == "Preview Prepop from URL example"
+
+        and: "the prepopulation has populated the fields on the page"
+        page.findFieldByModelName("item1").getAt(0).value() == "1"
+        page.findFieldByModelName("item2").getAt(0).value() == "2"
+
+    }
+
 }

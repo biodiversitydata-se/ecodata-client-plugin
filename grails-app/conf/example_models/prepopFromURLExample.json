@@ -1,0 +1,65 @@
+{
+  "modelName":"Prepop from URL example",
+  "title": "Pre-pop from URL example",
+  "dataModel": [
+    {
+      "dataType": "text",
+      "name": "item1"
+    },
+    {
+      "dataType": "text",
+      "name": "item2"
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "type": "text",
+              "source": "item1",
+              "preLabel":"Item 1"
+            },
+            {
+              "type": "text",
+              "source": "item2",
+              "preLabel":"Item 2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "pre-populate": [
+    {
+      "source": {
+        "url": "preview/prepopulate",
+        "params" : [
+          {
+            "name":"p1",
+            "value":"1"
+          },
+          {
+            "name": "p2",
+            "type": "computed",
+            "expression": "data.value2"
+          }
+
+        ]
+      },
+      "mapping": [
+        {
+          "source-path": "p2",
+          "target": "item2"
+        },
+        {
+          "source-path": "p1",
+          "target": "item1"
+        }
+      ]
+    }
+  ]
+}
