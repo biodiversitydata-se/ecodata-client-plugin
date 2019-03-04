@@ -1,5 +1,7 @@
 package au.org.ala.ecodata.forms
 
+import org.codehaus.groovy.grails.plugins.codecs.JavaScriptCodec
+
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
@@ -31,17 +33,30 @@ class ModelService {
         return activitiesModel().outputs.find({it.name == outputName})?.template
     }
 
-    def evaluateDefaultDataForDataModel(dm) {
-        def value = dm.defaultValue
-        switch (dm.dataType) {
+    private isNumber(Number value) {
+        return true
+    }
+
+    private isNumber(String value) {
+        return value?.isNumber()
+    }
+
+    def evaluateDefaultDataForDataModel(Map dataModel) {
+        def value = dataModel.defaultValue
+        switch (dataModel.dataType) {
             case 'text':
-                if (dm.constraints && value?.matches(/\d+/)) {
+                if (dataModel.constraints && value && isNumber(value)) {
                     int index = value as Integer
-                    if (index < dm.constraints.size()) {
-                        value = dm.constraints[index]
+                    if (index < dataModel.constraints.size()) {
+                        value = JavaScriptCodec.ENCODER.encode(dataModel.constraints[index])
+                        value = "'${value}'"
                     }
-                } else if(dm.name == 'recordedBy' && !value) {
+                } else if(dataModel.name == 'recordedBy' && !value) {
                     value = "'${authService.userDetails()?.getDisplayName()}'"
+                }
+                else if (value) {
+                    value = JavaScriptCodec.ENCODER.encode(value)
+                    value = "'${value}'"
                 }
                 break
             case 'date':
@@ -49,7 +64,7 @@ class ModelService {
                 while (value?.contains('${now}')) {
                     value = value.replace('${now}', "'${now}'")
                 }
-                break;
+                break
             default:
                 break
         }
