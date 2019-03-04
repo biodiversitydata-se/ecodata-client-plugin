@@ -44,7 +44,7 @@
 
         <div class="accordion">
             <!-- ko foreach: categories -->
-            <div class="accordion-group">
+            <div class="accordion-group" data-bind="if:features && features.length">
                 <div class="sites-list-heading">
                     <a class="accordion-toggle" data-toggle="collapse" href="#collapseOne"
                        data-bind="attr:{href:'#sites-category-'+$index()}">

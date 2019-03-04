@@ -304,6 +304,22 @@ ecodata.forms.maps.featureMap = function (options) {
             updateStatistics();
         });
 
+        var editStartEvents = ["draw:editstart", "draw:drawstart", "draw:deletestart"];
+        var editStopEvents = ["draw:editstop", "draw:deletestop", "draw:drawstop"];
+
+        self.editing = ko.observable(false);
+        _.each(editStartEvents, function (e) {
+            self.getMapImpl().on(e, function() {
+                self.editing(true);
+            });
+        });
+        _.each(editStopEvents, function (e) {
+            self.getMapImpl().on(e, function() {
+                self.editing(false);
+            });
+        });
+
+
         self.getMapImpl().on("draw:editstop", updateStatistics);
         self.getMapImpl().on("draw:deletestop", updateStatistics);
 
@@ -446,7 +462,11 @@ ecodata.forms.maps.featureMap = function (options) {
             self.fitBounds();
         }
         else if (self.selectableSitesLayer) {
-            self.getMapImpl().fitBounds(self.selectableSitesLayer.getBounds());
+            var bounds = self.selectableSitesLayer.getBounds();
+            if (bounds && bounds.isValid()) {
+                self.getMapImpl().fitBounds(bounds);
+            }
+
         }
     };
 
@@ -533,7 +553,16 @@ ecodata.forms.maps.showMapInModal = function(options) {
         $mapElement.height(height - 5);
     }
     var mapHash = '#map';
-    $modal.find('.btn-primary').one('click', function() {
+    var $ok = $modal.find('.btn-primary');
+    self.featureMapInstance.editing.subscribe(function(editing) {
+        if (editing) {
+            $ok.attr("disabled", "disabled");
+        }
+        else {
+            $ok.removeAttr("disabled");
+        }
+    });
+    $ok.one('click', function() {
         if (options.okCallback) {
             options.okCallback(self.featureMapInstance);
         }
