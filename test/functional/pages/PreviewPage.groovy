@@ -8,6 +8,10 @@ class PreviewPage extends Page {
 
     static at = { title.startsWith("Preview") }
 
+    static content = {
+        featureMapDialog { module FeatureMapDialog }
+    }
+
     Map getModel() {
         waitFor{js.modelReady == true}
         String json = js.exec("return model.modelAsJSON();")
@@ -19,9 +23,13 @@ class PreviewPage extends Page {
         $("[data-bind*="+name+"]")
     }
 
+    Navigator findFeatureMapButtonByModelName(String name) {
+        $("[params*="+name+"]").find("button")
+    }
+
     void commitEdits() {
         // Tab out of current edit so the model updates.
-        $("h3").click()
+        $("h3").first().click()
     }
 
 }

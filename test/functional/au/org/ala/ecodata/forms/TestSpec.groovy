@@ -62,4 +62,19 @@ class TestSpec extends GebReportingSpec {
 
     }
 
+    def "feature map smoke test"() {
+        when:
+        to ([name:'featureModel'], PreviewPage)
+
+        then:
+        title == "Preview Feature Test"
+
+        when:
+        page.findFeatureMapButtonByModelName("feature").first().click()
+
+        then:
+        page.featureMapDialog.displayed == true
+
+    }
+
 }
