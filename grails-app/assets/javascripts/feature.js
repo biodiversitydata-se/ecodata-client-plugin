@@ -701,7 +701,7 @@ ecodata.forms.FeatureCollection = function (features) {
             extent = turf.bbox(featureGeoJson);
         }
 
-        return _.extend(site, {
+        return _.extend(site || {}, {
             type: 'compound',
             extent: {geometry: extent.geometry, source: 'drawn'},
             features: featureGeoJson.features

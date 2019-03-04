@@ -1,14 +1,23 @@
 describe("Feature Data Type Spec", function () {
+    var turf ;
 
-    turf = {
-       area:function(geoJSON) {
-           return 1000;
-       },
-       length: function(geoJSON, units) {
-           return 1;
-       }
+    beforeEach(function() {
+        turf = window.turf;
+        window.turf = {
+            area:function(geoJSON) {
+                return 1000;
+            },
+            length: function(geoJSON, units) {
+                return 1;
+            }
 
-    };
+        };
+    });
+
+    afterEach(function() {
+        window.turf = turf;
+    });
+
 
     var polygon = function() {
         return {
