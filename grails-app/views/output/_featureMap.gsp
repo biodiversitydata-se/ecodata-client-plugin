@@ -8,14 +8,16 @@
             <div class="sites-list-heading">
                 <div class="site-label">
                     <label class="site-category-heading" data-bind="text:editableSitesHeading"></label>
-                    <label>Total area (ha): <span data-bind="text:areaHa"></span></label>
-                    <label>Total length (km): <span data-bind="text:lengthKm"></span></label>
 
                     <div class="btn-container">
                         <button class="btn" data-bind="click:$root.defaultZoom"><i class="fa fa-search"></i>
                         </button>
                         <button class="btn" data-bind="click:$root.editSites"><i class="fa fa-edit"></i></button>
                     </div>
+                </div>
+                <div class="site-information">
+                <label class="site-area">Total area (ha): <span data-bind="text:areaHa"></span></label>
+                <label class="site-length">Total length (km): <span data-bind="text:lengthKm"></span></label>
                 </div>
             </div>
 
