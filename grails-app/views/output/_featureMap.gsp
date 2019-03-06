@@ -89,4 +89,21 @@
 
         </div>
     </div>
+
+    <script type="text/html" id="editing-in-progress-reminder">
+    <div>
+        <p><b>Reminder</b></p>
+        <p>
+        This screen is currently in an Edit or Delete mode.
+        </p>
+        <p>
+        Please inactivate the relevant mode, prior to leaving this page, by returning to either icon and selecting one of the highlighted options on the toolbar on the left of the map.
+        </p>
+
+        <div class="actions-holder"></div>
+
+
+    </div>
+    </script>
+
 </div>

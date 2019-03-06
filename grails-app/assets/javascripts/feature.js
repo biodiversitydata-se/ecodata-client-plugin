@@ -522,6 +522,7 @@ ecodata.forms.maps.showMapInModal = function(options) {
 
     var defaults = {
         mapPopupSelector: '#map-modal',
+        editingMessageSelector: '#editing-in-progress-reminder', // shown when the user tries to press OK in the middle of an edit/delete operation
         mapElementId: 'map-holder' // Needed to size the map....
     };
 
@@ -554,21 +555,30 @@ ecodata.forms.maps.showMapInModal = function(options) {
     }
     var mapHash = '#map';
     var $ok = $modal.find('.btn-primary');
-    self.featureMapInstance.editing.subscribe(function(editing) {
-        if (editing) {
-            $ok.attr("disabled", "disabled");
+
+    function okPressed() {
+        if (self.featureMapInstance.editing()) {
+            var message = $(config.editingMessageSelector).html();
+
+            var $leafletDrawActions = $('.leaflet-draw-actions');
+
+            var oldborder = $leafletDrawActions.css('border');
+            $leafletDrawActions.css('border', '4px red solid');
+
+            bootbox.alert(message, function() {
+                $leafletDrawActions.css('border', oldborder);
+            });
+            // re-add the event listener as we didn't close the dialog.
+            $ok.one('click', okPressed);
         }
         else {
-            $ok.removeAttr("disabled");
+            if (options.okCallback) {
+                options.okCallback(self.featureMapInstance);
+            }
+            $modal.modal('hide');
         }
-    });
-    $ok.one('click', function() {
-        if (options.okCallback) {
-            options.okCallback(self.featureMapInstance);
-        }
-        $modal.modal('hide');
-    });
-
+    }
+    $ok.one('click', okPressed);
 
     $modal.one('shown', function (e) {
 
@@ -579,6 +589,10 @@ ecodata.forms.maps.showMapInModal = function(options) {
             // This is setting up a history entry so the back button can close the modal.
             window.location.hash = mapHash;
             self.featureMapInstance.redraw();
+
+            if (_.isFunction(options.shownCallback)) {
+                options.shownCallback(self.featureMapInstance);
+            }
             self.featureMapInstance.defaultZoom();
         }
 
@@ -630,10 +644,14 @@ ko.components.register('feature', {
         };
 
         self.showMap = function() {
-            var map = ecodata.forms.maps.showMapInModal({okCallback:self.ok});
 
+            var options = {
+                okCallback:self.ok
+            };
+
+            var map = ecodata.forms.maps.showMapInModal(options);
             if (self.model()) {
-                map.setGeoJSON(self.model());
+                map.setGeoJSON(self.model(), {zoomToObject:false});
             }
         }
 
