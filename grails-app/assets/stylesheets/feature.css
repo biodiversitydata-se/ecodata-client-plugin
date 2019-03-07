@@ -99,6 +99,10 @@ li.site-label i {
     border: 1px solid grey;
 }
 
+.feature-map .leaflet-draw-actions {
+    margin-left: 1px;
+}
+
 .feature-map .leaflet-draw-actions a {
     color: black !important;
     background-color: white;
