@@ -104,7 +104,6 @@ li.site-label i {
 }
 
 .feature-map .leaflet-draw-actions a {
-    color: black !important;
-    background-color: white;
-    border: 1px solid gray;
+    color: white !important;
+    background-color: #555;
 }
