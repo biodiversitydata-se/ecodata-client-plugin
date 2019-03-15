@@ -316,13 +316,22 @@ ecodata.forms.maps.featureMap = function (options) {
         _.each(editStopEvents, function (e) {
             self.getMapImpl().on(e, function() {
                 self.editing(false);
+                updateStatistics();
             });
         });
 
-
-        self.getMapImpl().on("draw:editstop", updateStatistics);
-        self.getMapImpl().on("draw:deletestop", updateStatistics);
-
+        self.getMapImpl().on("draw:deleted", function(e) {
+            var layer = e.layers;
+            var toDelete = [];
+            _.each(self.editableSites(), function(site) {
+                if (layer._layers[site.layer._leaflet_id]) {
+                    toDelete.push(site);
+                }
+            });
+            if (toDelete.length > 0) {
+                self.editableSites.removeAll(toDelete);
+            }
+        });
 
         return self;
     }

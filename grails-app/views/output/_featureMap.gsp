@@ -4,7 +4,7 @@
     </div>
 
     <div class="sites-list-sidebar">
-        <div class="accordion-group">
+        <div class="editable-sites accordion-group">
             <div class="sites-list-heading">
                 <div class="site-label">
                     <label class="site-category-heading" data-bind="text:editableSitesHeading"></label>
@@ -48,13 +48,13 @@
             <!-- ko foreach: categories -->
             <div class="accordion-group" data-bind="if:features && features.length">
                 <div class="sites-list-heading">
-                    <a class="accordion-toggle" data-toggle="collapse" href="#collapseOne"
-                       data-bind="attr:{href:'#sites-category-'+$index()}">
-                        <i class="fa fa-arrows-alt"></i>
+                    <a class="accordion-toggle"
+                       data-bind="toggleVisibility:'#sites-category-'+$index()">
+
                     </a>
 
                     <div class="site-label">
-                        <label class="site-category-heading" data-bind="text:category"></label>
+                        <label class="site-category-heading collapsable" data-bind="text:category"></label>
 
                         <div class="btn-container">
                             <button class="btn" data-bind="click:$root.zoomToCategorySites"><i
