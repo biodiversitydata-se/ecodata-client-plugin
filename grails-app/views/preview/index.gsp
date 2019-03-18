@@ -11,7 +11,7 @@
     <md:modelView model="${model}" edit="true" printable="${false}"/>
 
 </div>
-
+<g:render template="/output/mapInDialogEditTemplate"/>
 </body>
 <asset:javascript src="preview.js"/>
 
@@ -43,7 +43,7 @@
         var output = {};
 
         // This is required by any models that use the feature dataType
-        config.featureCollection = new ecodata.forms.FeatureCollection([]);;
+        context.featureCollection = config.featureCollection = new ecodata.forms.FeatureCollection([]);
 
         var model = ecodata.forms.initialiseOutputViewModel(modelName, dataModel, output, config, context);
 

@@ -256,7 +256,6 @@ ecodata.forms.maps.featureMap = function (options) {
 
         ALA.Map.call(self, mapOptions.mapElementId, mapOptions);
 
-        //self.drawnItems = self.getMapImpl().getLayers();
         self.getMapImpl().eachLayer(function (layer) {
             if (layer instanceof L.FeatureGroup) {
                 self.drawnItems = layer;
@@ -289,6 +288,48 @@ ecodata.forms.maps.featureMap = function (options) {
                 var feature = {properties: {name: name}, layer: layer};
                 self.editableSites.push(feature);
 
+            }
+        });
+
+        self.areaHa = ko.observable(0).extend({numericString:2});
+        self.lengthKm = ko.observable(0).extend({numericString:2});
+
+        function updateStatistics() {
+            var geoJson = self.drawnItems.toGeoJSON();
+            self.areaHa(ecodata.forms.utils.areaHa(geoJson));
+            self.lengthKm(ecodata.forms.utils.lengthKm(geoJson, true));
+        }
+
+        self.editableSites.subscribe(function() {
+            updateStatistics();
+        });
+
+        var editStartEvents = ["draw:editstart", "draw:drawstart", "draw:deletestart"];
+        var editStopEvents = ["draw:editstop", "draw:deletestop", "draw:drawstop"];
+
+        self.editing = ko.observable(false);
+        _.each(editStartEvents, function (e) {
+            self.getMapImpl().on(e, function() {
+                self.editing(true);
+            });
+        });
+        _.each(editStopEvents, function (e) {
+            self.getMapImpl().on(e, function() {
+                self.editing(false);
+                updateStatistics();
+            });
+        });
+
+        self.getMapImpl().on("draw:deleted", function(e) {
+            var layer = e.layers;
+            var toDelete = [];
+            _.each(self.editableSites(), function(site) {
+                if (layer._layers[site.layer._leaflet_id]) {
+                    toDelete.push(site);
+                }
+            });
+            if (toDelete.length > 0) {
+                self.editableSites.removeAll(toDelete);
             }
         });
 
@@ -430,7 +471,11 @@ ecodata.forms.maps.featureMap = function (options) {
             self.fitBounds();
         }
         else if (self.selectableSitesLayer) {
-            self.getMapImpl().fitBounds(self.selectableSitesLayer.getBounds());
+            var bounds = self.selectableSitesLayer.getBounds();
+            if (bounds && bounds.isValid()) {
+                self.getMapImpl().fitBounds(bounds);
+            }
+
         }
     };
 
@@ -486,6 +531,7 @@ ecodata.forms.maps.showMapInModal = function(options) {
 
     var defaults = {
         mapPopupSelector: '#map-modal',
+        editingMessageSelector: '#editing-in-progress-reminder', // shown when the user tries to press OK in the middle of an edit/delete operation
         mapElementId: 'map-holder' // Needed to size the map....
     };
 
@@ -517,13 +563,31 @@ ecodata.forms.maps.showMapInModal = function(options) {
         $mapElement.height(height - 5);
     }
     var mapHash = '#map';
-    $modal.find('.btn-primary').one('click', function() {
-        if (options.okCallback) {
-            options.okCallback(self.featureMapInstance);
-        }
-        $modal.modal('hide');
-    });
+    var $ok = $modal.find('.btn-primary');
 
+    function okPressed() {
+        if (self.featureMapInstance.editing()) {
+            var message = $(config.editingMessageSelector).html();
+
+            var $leafletDrawActions = $('.leaflet-draw-actions');
+
+            var oldborder = $leafletDrawActions.css('border');
+            $leafletDrawActions.css('border', '4px red solid');
+
+            bootbox.alert(message, function() {
+                $leafletDrawActions.css('border', oldborder);
+            });
+            // re-add the event listener as we didn't close the dialog.
+            $ok.one('click', okPressed);
+        }
+        else {
+            if (options.okCallback) {
+                options.okCallback(self.featureMapInstance);
+            }
+            $modal.modal('hide');
+        }
+    }
+    $ok.one('click', okPressed);
 
     $modal.one('shown', function (e) {
 
@@ -534,6 +598,10 @@ ecodata.forms.maps.showMapInModal = function(options) {
             // This is setting up a history entry so the back button can close the modal.
             window.location.hash = mapHash;
             self.featureMapInstance.redraw();
+
+            if (_.isFunction(options.shownCallback)) {
+                options.shownCallback(self.featureMapInstance);
+            }
             self.featureMapInstance.defaultZoom();
         }
 
@@ -585,10 +653,14 @@ ko.components.register('feature', {
         };
 
         self.showMap = function() {
-            var map = ecodata.forms.maps.showMapInModal({okCallback:self.ok});
 
+            var options = {
+                okCallback:self.ok
+            };
+
+            var map = ecodata.forms.maps.showMapInModal(options);
             if (self.model()) {
-                map.setGeoJSON(self.model());
+                map.setGeoJSON(self.model(), {zoomToObject:false});
             }
         }
 
@@ -656,7 +728,7 @@ ecodata.forms.FeatureCollection = function (features) {
             extent = turf.bbox(featureGeoJson);
         }
 
-        return _.extend(site, {
+        return _.extend(site || {}, {
             type: 'compound',
             extent: {geometry: extent.geometry, source: 'drawn'},
             features: featureGeoJson.features

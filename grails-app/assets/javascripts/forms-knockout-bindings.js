@@ -732,6 +732,40 @@
         }
     };
 
+    /**
+     * A very simple binding to allow an element to toggle the visibility of another element.
+     * Created for the featureMap because using bootstrap collapse was causing side effects with the modal.
+     *
+     * @type {{init: ko.bindingHandlers.toggleVisibility.init}}
+     */
+    ko.bindingHandlers.toggleVisibility = {
+        init: function (element, valueAccessor) {
+
+            var visibleClass = 'fa-angle-down';
+            var hiddenClass = 'fa-angle-up';
+
+            var $element = $(element);
+            var $i = $('<i></i>').addClass('fa').addClass(visibleClass);
+            $element.append($i);
+
+            $element.click(function() {
+               var selector = valueAccessor();
+               var $section = $(selector);
+               if ($section.is(':visible')) {
+                   $section.hide();
+                   $i.removeClass(visibleClass);
+                   $i.addClass(hiddenClass);
+               }
+               else {
+                   $section.show();
+                   $i.removeClass(hiddenClass);
+                   $i.addClass(visibleClass);
+               }
+               return false;
+            });
+
+        }
+    };
 
     ko.components.register('multi-input', {
         viewModel: function(params) {

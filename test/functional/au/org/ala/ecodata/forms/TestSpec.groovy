@@ -62,4 +62,32 @@ class TestSpec extends GebReportingSpec {
 
     }
 
+    def "feature map smoke test"() {
+        when:
+        to ([name:'featureModel'], PreviewPage)
+
+        then:
+        title == "Preview Feature Test"
+
+        when:
+        page.findFeatureMapButtonByModelName("feature").first().click()
+
+        then:
+        page.featureMapDialog.displayed == true
+
+    }
+
+    def "default values smoke test"() {
+        when:
+        to ([name:'defaultValues'], PreviewPage)
+
+        then:
+        title == "Preview Default values"
+
+        and:
+        page.findFieldByModelName("textField").getAt(0).value() == "Text Field"
+        page.findFieldByModelName("textFieldWithConstraints").getAt(0).value() == "value2"
+        page.findFieldByModelName("numberField").getAt(0).value() == "10"
+    }
+
 }

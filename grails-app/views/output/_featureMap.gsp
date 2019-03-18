@@ -4,7 +4,7 @@
     </div>
 
     <div class="sites-list-sidebar">
-        <div class="accordion-group">
+        <div class="editable-sites accordion-group">
             <div class="sites-list-heading">
                 <div class="site-label">
                     <label class="site-category-heading" data-bind="text:editableSitesHeading"></label>
@@ -14,6 +14,10 @@
                         </button>
                         <button class="btn" data-bind="click:$root.editSites"><i class="fa fa-edit"></i></button>
                     </div>
+                </div>
+                <div class="site-information">
+                <label class="site-area">Total area (ha): <span data-bind="text:areaHa"></span></label>
+                <label class="site-length">Total length (km): <span data-bind="text:lengthKm"></span></label>
                 </div>
             </div>
 
@@ -42,15 +46,15 @@
 
         <div class="accordion">
             <!-- ko foreach: categories -->
-            <div class="accordion-group">
+            <div class="accordion-group" data-bind="if:features && features.length">
                 <div class="sites-list-heading">
-                    <a class="accordion-toggle" data-toggle="collapse" href="#collapseOne"
-                       data-bind="attr:{href:'#sites-category-'+$index()}">
-                        <i class="fa fa-arrows-alt"></i>
+                    <a class="accordion-toggle"
+                       data-bind="toggleVisibility:'#sites-category-'+$index()">
+
                     </a>
 
                     <div class="site-label">
-                        <label class="site-category-heading" data-bind="text:category"></label>
+                        <label class="site-category-heading collapsable" data-bind="text:category"></label>
 
                         <div class="btn-container">
                             <button class="btn" data-bind="click:$root.zoomToCategorySites"><i
@@ -85,4 +89,21 @@
 
         </div>
     </div>
+
+    <script type="text/html" id="editing-in-progress-reminder">
+    <div>
+        <p><b>Reminder</b></p>
+        <p>
+        This screen is currently in an Edit or Delete mode.
+        </p>
+        <p>
+        Please inactivate the relevant mode, prior to leaving this page, by returning to either icon and selecting one of the highlighted options on the toolbar on the left of the map.
+        </p>
+
+        <div class="actions-holder"></div>
+
+
+    </div>
+    </script>
+
 </div>

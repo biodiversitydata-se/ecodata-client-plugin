@@ -1,0 +1,239 @@
+{
+  "modelName": "Default values",
+  "dataModel": [
+    {
+      "name": "textField",
+      "dataType": "text",
+      "description": "Description for textField",
+      "defaultValue": "Text Field"
+    },
+    {
+      "name": "textFieldWithConstraints",
+      "dataType": "text",
+      "description": "Description for textFieldWithConstraints",
+      "constraints": [
+        "value1",
+        "value2",
+        "value3"
+      ],
+      "defaultValue": 1
+    },
+    {
+      "name": "numberField",
+      "dataType": "number",
+      "description": "Description for numberField",
+      "defaultValue": 10
+    },
+    {
+      "name": "stringListField",
+      "dataType": "stringList",
+      "description": "Description for stringListField",
+      "constraints": [
+        "value1",
+        "value2",
+        "value3"
+      ]
+    },
+    {
+      "name": "dateField",
+      "dataType": "date",
+      "description": "Description for dateField"
+    },
+    {
+      "name": "speciesField",
+      "dataType": "species",
+      "description": "Description for speciesField"
+    },
+    {
+      "name": "documentField",
+      "dataType": "document",
+      "description": "Description for documentField"
+    },
+    {
+      "name": "booleanField",
+      "dataType": "boolean",
+      "description": "Description for booleanField"
+    },
+    {
+      "name": "imageField",
+      "dataType": "image",
+      "description": "Description for imageField"
+    },
+    {
+      "name":"list",
+      "dataType":"list",
+      "columns":[
+        {
+          "name": "textField",
+          "dataType": "text",
+          "description": "Description for textField"
+        },
+        {
+          "name": "textFieldWithConstraints",
+          "dataType": "text",
+          "description": "Description for textFieldWithConstraints",
+          "constraints": [
+            "value1",
+            "value2",
+            "value3"
+          ]
+        },
+        {
+          "name": "numberField",
+          "dataType": "number",
+          "description": "Description for numberField"
+        },
+        {
+          "name": "stringListField",
+          "dataType": "stringList",
+          "description": "Description for stringListField",
+          "constraints": [
+            "value1",
+            "value2",
+            "value3"
+          ]
+        },
+        {
+          "name": "dateField",
+          "dataType": "date",
+          "description": "Description for dateField"
+        },
+        {
+          "name": "speciesField",
+          "dataType": "species",
+          "description": "Description for speciesField"
+        },
+        {
+          "name": "documentField",
+          "dataType": "document",
+          "description": "Description for documentField"
+        },
+        {
+          "name": "booleanField",
+          "dataType": "boolean",
+          "description": "Description for booleanField"
+        },
+        {
+          "name": "imageField",
+          "dataType": "image",
+          "description": "Description for imageField"
+        }
+      ]
+    }
+
+
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "source": "textField",
+              "type": "text",
+              "preLabel": "Description for textField"
+            },
+            {
+              "source": "textFieldWithConstraints",
+              "type": "selectOne",
+              "preLabel": "Description for textFieldWithConstraints"
+            },
+            {
+              "source": "numberField",
+              "type": "number",
+              "preLabel": "Description for numberField"
+            },
+
+            {
+              "source": "stringListField",
+              "type": "selectMany",
+              "preLabel": "Description for stringListField"
+            },
+            {
+              "source": "dateField",
+              "type": "date",
+              "preLabel": "Description for dateField"
+            },
+            {
+              "source": "speciesField",
+              "type": "speciesSelect",
+              "preLabel": "Description for speciesField"
+            },
+
+            {
+              "source": "documentField",
+              "type": "document",
+              "preLabel": "Description for documentField"
+            },
+            {
+              "source": "booleanField",
+              "type": "boolean",
+              "preLabel": "Description for booleanField"
+            },
+            {
+              "source": "imageField",
+              "type": "image",
+              "preLabel": "Description for imageField"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type":"table",
+      "source":"list",
+      "userAddedRows": true,
+      "columns":[
+        {
+          "source": "textField",
+          "type": "text",
+          "title": "Description for textField"
+        },
+        {
+          "source": "textFieldWithConstraints",
+          "type": "selectOne",
+          "title": "Description for textFieldWithConstraints"
+        },
+        {
+          "source": "numberField",
+          "type": "number",
+          "title": "Description for numberField"
+        },
+
+        {
+          "source": "stringListField",
+          "type": "selectMany",
+          "title": "Description for stringListField"
+        },
+        {
+          "source": "dateField",
+          "type": "date",
+          "title": "Description for dateField"
+        },
+        {
+          "source": "speciesField",
+          "type": "autocomplete",
+          "title": "Description for speciesField"
+        },
+
+        {
+          "source": "documentField",
+          "type": "document",
+          "title": "Description for documentField"
+        },
+        {
+          "source": "booleanField",
+          "type": "boolean",
+          "title": "Description for booleanField"
+        },
+        {
+          "source": "imageField",
+          "type": "image",
+          "title": "Description for imageField"
+        }
+      ]
+    }
+  ]
+}
