@@ -14,7 +14,7 @@
 
 /* global define */
 
-;(function ($) {
+(function ($) {
   'use strict'
   var tmpl = function (str, data) {
     var f = !/[^\w\-.:]/.test(str)
