@@ -92,4 +92,4 @@
   } else {
     $.tmpl = tmpl
   }
-})(this)
+})(this);
