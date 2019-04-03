@@ -46,6 +46,10 @@
             _isInitiallyDirty(false);
         };
 
+        result.setDirty = function() {
+            _isInitiallyDirty(true);
+        };
+
         return result;
     };
 
