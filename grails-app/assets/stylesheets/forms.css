@@ -98,3 +98,31 @@ input[type=number] {
 button.add-section {
     margin-bottom: 20px;
 }
+
+.species-select2 .select2 {
+    width:90% !important; min-width:200px; box-sizing:border-box;
+}
+
+table .select2-container .select2-selection--single {
+    height:initial;
+}
+
+/** Emulate bootstrap styling for input fields for the select 2 */
+div.species-select2[class*="span"] {
+    display:inline-block;
+    float:none;
+    margin-left:0;
+    position: relative;
+}
+div.species-select2 > span.input-append {
+    width: 100%;
+}
+
+table textarea, table .select {
+    width:100%; box-sizing:border-box;
+}
+
+table .select2 {
+    width:100% !important; box-sizing:border-box;
+}
+
