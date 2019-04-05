@@ -343,7 +343,7 @@ ecodata.forms.maps.featureMap = function (options) {
             for (var i=0; i<feature.geometry.coordinates.length; i++) {
                 var polygon = {
                     type:'Feature',
-                    properties:feature.properties,
+                    properties:_.clone(feature.properties),
                     geometry: {
                         type:'Polygon',
                         coordinates:feature.geometry.coordinates[i]
@@ -689,6 +689,7 @@ ecodata.forms.FeatureCollection = function (features) {
             }), function (feature) {
                 return feature;
             });
+
         // We are using indexBy to remove duplicate features.
         return _.values(_.indexBy(_.flatten(unwrappedFeatures), function (feature) {
             return feature.properties && feature.properties.id;

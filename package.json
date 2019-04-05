@@ -33,6 +33,7 @@
   },
   "scripts": {
     "test": "karma start karma.conf.js",
+    "debug": "karma start --debug --browsers=Chrome --single-run=false",
     "package-turf": "browserify -s turf turf-package-instructions.js -o ./grails-app/assets/vendor/turf/turf-packaged.js"
   },
   "author": "",
