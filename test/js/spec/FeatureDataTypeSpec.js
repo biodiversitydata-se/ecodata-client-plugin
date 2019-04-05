@@ -143,7 +143,7 @@ describe("Feature Data Type Spec", function () {
     function makeAFeature(featureCollection) {
         featureCollection = featureCollection || context.featureCollection;
 
-        var config = {featureCollection:featureCollection, outputName:'Test'};
+        var config = {featureCollection:featureCollection, outputName:'Test', featureId:'Feature'};
 
         // The feature data type relies on having the metadata available.
         return ko.observable().extend({metadata:{metadata:metadata, config:config, context:context}}).extend({feature:config});
@@ -234,7 +234,11 @@ describe("Feature Data Type Spec", function () {
         var featureModel = makeAFeature(featureCollection);
         featureModel.loadData({featureIds:['Feature-1', 'Feature-2']});
 
-        expect(featureCollection.allFeatures()).toEqual(featureArray);
+        var allFeatures = _.sortBy(featureCollection.allFeatures(), function(feature) {
+            return feature.properties.id;
+        });
+
+        expect(allFeatures).toEqual(featureArray);
 
     });
 
@@ -245,16 +249,33 @@ describe("Feature Data Type Spec", function () {
         var featureModel = makeAFeature(featureCollection);
         featureModel.loadData({featureIds:['Feature-1', 'Feature-2']});
 
-        console.log(featureModel());
-
         featureModel({
            type:"FeatureCollection",
             features:[]
         });
 
-        console.log(featureCollection.allFeatures()[0]);
-
         expect(featureCollection.allFeatures()).toEqual(featureArray);
+
+    });
+
+    it("can create unique ids for features as required", function() {
+        var featureCollection = new ecodata.forms.FeatureCollection(featureArray);
+        var config = {featureCollection:featureCollection, outputName:'Test', featureId:'Feature'};
+
+        // The feature data type relies on having the metadata available.
+        var featureModel = ko.observable().extend({metadata:{metadata:metadata, config:config, context:context}}).extend({feature:config});
+
+        featureModel({
+            type:'FeatureCollection',
+            features:featureArray
+        });
+
+
+        var result = featureModel();
+        var ids = _.map(result.features, function(feature) {return feature.properties.id;});
+        expect(ids).toEqual(['Feature-0', 'Feature-1', 'Feature-2', 'Feature-3']);
+        var names = _.map(result.features, function(feature) {return feature.properties.name;});
+        expect(names).toEqual(['polygon 1', 'polygon 2', 'polygon 3', 'polygon 4']);
 
     });
 });
