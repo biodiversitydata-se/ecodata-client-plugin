@@ -854,12 +854,35 @@
         ecodata.forms.OutputListSupport.apply(target, [options.metadata, options.constructorFunction, options.context, options.userAddedRows, options.config]);
     };
 
-
     /**
      * This is kind of a hack to make the closure config object available to the any components that use the model.
      */
     ko.extenders.configurationContainer = function(target, config) {
         target.globalConfig = config;
+    };
+
+    /**
+     * The writableComputed extender will continuously update the value of an observable from a supplied expression
+     * until such time as the value is explicitly set (for example by the user typing something into the field).
+     * @param target
+     * @param options {expression: , context:} expression is the expression to be evaluated, context is the context
+     * in which the expression will be evaluated. (normally the parent model object of the target).
+     * @returns {*}
+     */
+    ko.extenders.writableComputed = function(target, options) {
+
+        var value = ko.observable();
+        var ev = ecodata.forms.expressionEvaluator;
+        var valueHolder = ko.pureComputed({
+            read: function() {
+                var val = value();
+                return val ? val : ev.evaluateString(options.expression, options.context);
+            },
+            write:function(newValue) {
+                value(newValue);
+            }
+        });
+        return valueHolder;
     };
 
 })();
