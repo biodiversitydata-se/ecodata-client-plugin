@@ -1,0 +1,74 @@
+{
+  "modelName": "Computed value example",
+  "dataModel": [
+    {
+      "dataType": "number",
+      "name": "item1"
+    },
+    {
+      "computed": {
+        "expression": "item1 + 2",
+        "dependents": []
+      },
+      "dataType": "number",
+      "name": "item2"
+    },
+    {
+      "dataType": "list",
+      "name": "nested",
+      "columns": [
+        {
+          "dataType":"number",
+          "name": "item3"
+        },
+        {
+          "dataType": "number",
+          "name": "item4",
+          "computed": {
+            "expression": "item3*item2"
+          }
+        }
+      ]
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "preLabel": "Item 1",
+              "source": "item1",
+              "type": "number"
+            },
+            {
+              "preLabel": "Item 2",
+              "source": "item2",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "source": "nested",
+      "columns": [
+        {
+          "type": "number",
+          "source": "item3",
+          "title": "Item 3"
+        },
+        {
+          "type": "number",
+          "source": "item4",
+          "title": "Item 4"
+        }
+      ]
+
+    }
+  ],
+  "title": "Computed value example"
+}
