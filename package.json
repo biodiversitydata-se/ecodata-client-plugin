@@ -9,8 +9,8 @@
   },
   "devDependencies": {
     "@metahub/karma-jasmine-jquery": "^2.0.1",
-    "@turf/area": "^6.0.2",
-    "@turf/bbox": "^6.0.2",
+    "@turf/area": "^6.0.1",
+    "@turf/bbox": "^6.0.1",
     "@turf/convex": "^6.0.2",
     "@turf/length": "^6.0.2",
     "@turf/simplify": "^5.1.5",
