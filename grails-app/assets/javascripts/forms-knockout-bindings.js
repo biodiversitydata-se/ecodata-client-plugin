@@ -650,42 +650,47 @@
     };
 
     ko.bindingHandlers.conditionalValidation = {
-        update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        init: function(element, valueAccessor) {
             var target = valueAccessor();
             if (typeof target.evaluateBehaviour !== 'function') {
                 throw "This binding requires the target observable to have used the \"metadata\" extender"
             }
-
-            ko.computed(function() {
-                var result = target.evaluateBehaviour("conditional_validation", target.get('validate') || '');
-
-                var $element = $(element);
-                if (result.validate) {
-
-                    $element.attr('data-validation-engine', 'validate['+result.validate+']');
-                    if (result.message) {
-                        $element.attr('data-errormessage', result.message)
-                    }
-                }
-                else {
-                    if (result.message) {
-                        $element.attr('data-errormessage', result.message)
-                    }
-                    else {
-                        $element.removeAttr('data-errormessage');
-                    }
-                    $element.attr('data-validation-engine', 'validate['+result+']');
-                }
-
-                // Trigger the validation after the knockout processing is complete - this prevents the validation
-                // from firing before the page has been initialised on load.
-                setTimeout(function() {
-                    $(element).validationEngine('validate');
-                }, 100);
-
+            var defaults = {
+                validate:target.get('validate'),
+                message:null
+            };
+            var validationAttributes = ko.computed(function() {
+                return target.evaluateBehaviour("conditional_validation", defaults);
             });
-        }
+            validationAttributes.subscribe(function(value) {
+                updateJQueryValidationEngineAttributes(element, value.validate, value.message);
+            });
+        },
+        update: function() {}
     };
+
+    function updateJQueryValidationEngineAttributes(element, validationString, messageString) {
+        var $element = $(element);
+        if (validationString) {
+            $element.attr('data-validation-engine', 'validate['+validationString+']');
+        }
+        else {
+            $element.removeAttr('data-validation-engine');
+        }
+
+        if (messageString) {
+            $element.attr('data-errormessage', messageString)
+        }
+        else {
+            $element.removeAttr('data-errormessage');
+        }
+
+        // Trigger the validation after the knockout processing is complete - this prevents the validation
+        // from firing before the page has been initialised on load.
+        setTimeout(function() {
+            $element.validationEngine('validate');
+        }, 100);
+    }
 
     /**
      * custom handler for fancybox plugin.
