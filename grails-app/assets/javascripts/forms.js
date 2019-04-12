@@ -288,6 +288,31 @@ function orEmptyArray(v) {
 
     }();
 
+    /**
+     * evaluates a string literal value or computed expression and returns the results.
+     *
+     * @param value the item to evaluate.  If thing is a string it will be returned directly, otherwise it
+     * is expected to be of the form:
+     * {
+     *     type:"computed",
+     *     expression:"expressionToEvalulate"
+     * }
+     * @param context the context to evaluate the expression against if required.
+     * @returns {*}
+     */
+    ecodata.forms.evaluate = function(value, context) {
+        if (_.isObject(value)) {
+            if (value.type == 'literal') {
+                return value.value;
+            }
+            else if (value.expression) {
+                return ecodata.forms.expressionEvaluator.evaluateString(value.expression, context);
+            }
+        }
+        else {
+            return value;
+        }
+    };
 
     /**
      * Creates an instance of the view model identified by the supplied name.

@@ -23,16 +23,15 @@ class WidgetRenderContextBuilder {
         this.dataModel.name = model.source
         this
     }
-    WidgetRenderContextBuilder context(String context) {
-        this.context = context
-        this
-    }
     WidgetRenderContextBuilder validationString(String validationString) {
-        this.context = context
         this.dataModel.validate = validationString
         this
     }
 
+    WidgetRenderContextBuilder validationConfig(List validationConfig) {
+        this.dataModel.validate = validationConfig
+        this
+    }
 
     WidgetRenderContext build() {
         new WidgetRenderContext(model, dataModel, context, bindings, attributeMap, labelAttributes, g, tagAttrs, true)

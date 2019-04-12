@@ -175,6 +175,7 @@ class ModelTagLib {
         Map dataModel = getAttribute(attrs.model.dataModel, model.source)
         def renderContext = new WidgetRenderContext(model, dataModel, context, databindAttrs, elementAttributes, labelAttributes, g, attrs, Boolean.valueOf(editable))
 
+        renderContext.databindAttrs
         // The data model item we are rendering the view for.
         Map source = getAttribute(attrs.model.dataModel, model.source)
 

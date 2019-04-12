@@ -6,6 +6,7 @@ import spock.lang.Specification
 class ValidationHelperSpec extends Specification {
 
     ValidationHelper validationHelper = new ValidationHelper()
+    WidgetRenderContextBuilder ctxBuilder = new WidgetRenderContextBuilder()
 
     private Map model(String validationString) {
 
@@ -40,7 +41,7 @@ class ValidationHelperSpec extends Specification {
 
         then:
         parsedRule.rule == rule
-        parsedRule.value == value
+        parsedRule.param == value
 
         where:
         validationRule   | rule       | value
@@ -57,15 +58,48 @@ class ValidationHelperSpec extends Specification {
         Map model = model("min[0],required,max[100]")
 
         when:
-        Map rules = validationHelper.validationRules(model.dataModel, model.viewModel, true)
+        List rules = validationHelper.getValidationCriteria(model.dataModel, model.viewModel, true)
 
         then:
         rules.size() == 3
-        rules.containsKey("required") == true
-        rules['min'] == '0'
-        rules['max'] == '100'
+        rules.find{it.rule == "required"} != null
+        rules.find{it.rule == 'min' && it.param == '0'} != null
+        rules.find{it.rule == 'max' && it.param == '100'} != null
 
+    }
 
+    def "the validation helper will apply an html attribute when the validation is a string"() {
+        setup:
+        String validate = "min[1]"
+        WidgetRenderContext ctx = ctxBuilder.model([source:"item1", type:"number"]).validationString(validate).build()
+
+        when:
+        validationHelper.addValidationAttributes(ctx)
+
+        then:
+        ctx.validationAttr == ' data-validation-engine=\'validate['+validate+']\''
+        ctx.databindAttrs.map.size() == 0
+    }
+
+    def "the validation helper will apply a knockout binding when the validation is an array"() {
+        setup:
+        List validationConfig = [
+                [
+                        rule:"min",
+                        params: [
+                                "type":"computed",
+                                "expresssion":"item2*3"
+                        ]
+                ]
+        ]
+
+        when: "The context calls validationHelper.addValidationAttributes at the end of it's constructor"
+        WidgetRenderContext ctx = ctxBuilder.model([source:"item1", type:"number"]).validationConfig(validationConfig).build()
+
+        then:
+        ctx.validationAttr == ''
+        ctx.databindAttrs.map.size() == 1
+        ctx.databindAttrs.map.get("computedValidation") == "item1.get('validate')"
     }
 
 }

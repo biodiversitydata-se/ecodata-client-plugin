@@ -59,12 +59,14 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         String placeholder = context.model.placeholder ?: ""
         Map maxSizeRule = context.getValidationRule(ValidationHelper.MAX_SIZE)
 
+
         if (maxSizeRule) {
-            context.attributes.add("maxlength", maxSizeRule.value)
+            String maxSize = maxSizeRule.param
+            context.attributes.add("maxlength", maxSize)
             if (placeholder) {
                 placeholder += " "
             }
-            placeholder += "(maximum "+maxSizeRule.value+" characters)"
+            placeholder += "(maximum "+maxSize+" characters)"
         }
         if (placeholder) {
             context.attributes.add("placeholder", placeholder)

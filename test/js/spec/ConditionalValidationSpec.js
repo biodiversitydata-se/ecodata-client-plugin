@@ -1,4 +1,4 @@
-describe("Validation Spec", function () {
+describe("Conditional Validation Spec", function () {
 
     var vm = null;
     var mockElement = null;
