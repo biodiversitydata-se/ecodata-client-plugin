@@ -23,7 +23,7 @@ describe("Conditional Validation Spec", function () {
         vm = {
             item2: ko.observable('0')
         };
-        vm.item1 = ko.observable().extend({metadata:{metadata:metadata, context:{parent:vm}, config:{}}});
+        vm.item1 = ko.observable().extend({metadata:{metadata:metadata, context:{$parent:vm}, config:{}}});
         mockElement = document.createElement('input');
     });
 
