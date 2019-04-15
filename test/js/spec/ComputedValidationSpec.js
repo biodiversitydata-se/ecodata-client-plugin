@@ -11,27 +11,25 @@ describe("Computed Validation Spec", function () {
             validate:[
                 {
                     rule:"min",
-                    params: [
-                        {
-                            "type":"computed",
-                            "expression":"item2*0.01"
-                        }
-                    ]
+                    param: {
+                        "type":"computed",
+                        "expression":"item2*0.01"
+                    }
                 }
-
             ]
         };
         vm = {
             item2: ko.observable('0'),
             item1: ko.observable('0')
         };
+        vm.$context = vm; // This is how the context is accessed by some bindings.
 
         mockElement = document.createElement('input');
     });
 
     it("will attach validation based on the result of evaluating the conditional_validation behaviour", function() {
 
-        ko.bindingHandlers.computedValidation.init(mockElement, function() { return metadata.validate; }, [], vm, vm);
+        ko.bindingHandlers.computedValidation.init(mockElement, function() { return metadata.validate; }, [], vm, vm, vm);
 
         vm.item2('200');
         expect(mockElement.getAttribute('data-validation-engine')).toEqual('validate[min[2]]');

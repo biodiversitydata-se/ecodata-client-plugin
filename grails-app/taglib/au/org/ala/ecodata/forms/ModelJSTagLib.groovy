@@ -569,7 +569,7 @@ class ModelJSTagLib {
         }
 
         if (requiresMetadataExtender(ctx.dataModel)) {
-            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:context, config:config}}")
+            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:self.\$context, config:config}}")
         }
         String extenderJS = ''
         extenders.each {

@@ -99,7 +99,7 @@ class ValidationHelperSpec extends Specification {
         then:
         ctx.validationAttr == ''
         ctx.databindAttrs.map.size() == 1
-        ctx.databindAttrs.map.get("computedValidation") == "item1.get('validate')"
+        ctx.databindAttrs.map.get("computedValidation") == "item1.get(\"validate\")"
     }
 
 }

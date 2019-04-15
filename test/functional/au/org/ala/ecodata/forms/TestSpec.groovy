@@ -57,8 +57,11 @@ class TestSpec extends GebReportingSpec {
         title == "Preview Prepop from URL example"
 
         and: "the prepopulation has populated the fields on the page"
-        page.findFieldByModelName("item1").getAt(0).value() == "1"
-        page.findFieldByModelName("item2").getAt(0).value() == "2"
+        waitFor {
+            page.findFieldByModelName("item1").getAt(0).value() == "1"
+            page.findFieldByModelName("item2").getAt(0).value() == "2"
+
+        }
 
     }
 

@@ -693,15 +693,8 @@
         var validationString = '';
         _.each(config || [], function(ruleConfig) {
             validationString += ruleConfig.rule;
-            var paramString = '';
-            _.each(ruleConfig.params || [], function(param) {
-                if (paramString) {
-                    paramString += ',';
-                }
-                paramString += ecodata.forms.evaluate(param, expressionContext);
-
-            });
-            if (paramString) {
+            if (ruleConfig.param) {
+                var paramString = ecodata.forms.evaluate(ruleConfig.param, expressionContext);
                 validationString += '['+paramString+']';
             }
         });
@@ -747,10 +740,10 @@
      */
     ko.bindingHandlers.computedValidation = {
         init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-            var validationConfig = valueAccessor();
+            var modelItem = valueAccessor();
 
             var validationAttributes = ko.computed(function() {
-                return createValidationString(validationConfig, bindingContext);
+                return createValidationString(modelItem, bindingContext.$context);
             });
             validationAttributes.subscribe(function(value) {
                 updateJQueryValidationEngineAttributes(element, value);

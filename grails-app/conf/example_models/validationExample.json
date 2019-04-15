@@ -9,13 +9,10 @@
     {
       "validate": [{
         "rule":"max",
-        "params": [
-          {
+        "param": {
             "type": "computed",
             "expression": "item1*3"
-          }],
-
-        "dependents": []
+          }
       }],
       "dataType": "number",
       "name": "item2"

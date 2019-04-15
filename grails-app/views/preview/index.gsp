@@ -6,7 +6,7 @@
     <md:modelStyles model="${model}" edit="true"/>
 </head>
 <body>
-<div class="container-fluid">
+<div class="container-fluid validationEngineContainer">
     <h3>Preview of ${model.modelName}</h3>
     <md:modelView model="${model}" edit="true" printable="${false}"/>
 
@@ -51,7 +51,9 @@
 
         // Expose our model in the global scope to get at it easily with GEB
         window.model = model;
-        window.modelReady = true
+        window.modelReady = true;
+
+        $('.validationEngineContainer').validationEngine();
     });
 
 </script>
