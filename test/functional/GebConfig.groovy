@@ -16,7 +16,9 @@ environments {
     baseUrl = 'http://localhost:8080/ecodata-client-plugin/'
 
     chrome {
-        System.setProperty("webdriver.chrome.driver", "/Users/god08d/Downloads/chromedriver")
+        if (!System.getProperty("webdriver.chrome.driver")) {
+            System.setProperty("webdriver.chrome.driver", "/Users/god08d/Downloads/chromedriver")
+        }
         driver = { new ChromeDriver() }
     }
 

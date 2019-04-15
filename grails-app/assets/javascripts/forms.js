@@ -577,31 +577,9 @@ function orEmptyArray(v) {
             return validate({val: self()}, constraints, {fullMessages: false});
         };
 
-        /**
-         * Evaluates a string literal value or computed expression and returns the results.
-         *
-         * @param value the item to evaluate.  If thing is a string it will be returned directly, otherwise it
-         * is expected to be of the form:
-         * {
-         *     type:"computed",
-         *     expression:"expressionToEvalulate"
-         * }
-         * @param context the context to evaluate the expression against if required. By the default the
-         * parent view model of this DataModelItem is used.
-         * @returns {*}
-         */
-        self.evaluate = function(value, context) {
-            if (!context) {
-                // We normally want to evaluate expressions in the context of the view model that
-                // this
-                context = self.context.parent;
-            }
-            return ecodata.forms.evaluate(value, context);
-        };
-
         self.evaluateBehaviour = function (type, defaultValue) {
             var rule = _.find(metadata.behaviour, function (rule) {
-                return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, context.parent);
+                return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, context);
             });
 
             return rule && rule.value || defaultValue;
@@ -624,7 +602,7 @@ function orEmptyArray(v) {
                 if (metadata.constraints.type == 'computed') {
                     self.constraints = ko.computed(function () {
                         var rule = _.find(metadata.constraints.options, function (option) {
-                            return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, context.parent);
+                            return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, context);
                         });
                         return rule ? rule.value : metadata.constraints.default;
                     });
