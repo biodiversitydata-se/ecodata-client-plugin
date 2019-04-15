@@ -90,4 +90,70 @@ class TestSpec extends GebReportingSpec {
         page.findFieldByModelName("numberField").getAt(0).value() == "10"
     }
 
+    def "computed values are evaluated correctly"() {
+        when:
+        to ([name:'computedValueExample'], PreviewPage)
+
+        then:
+        title == "Preview Computed value example"
+
+        and:
+        page.findFieldByModelName("item2").getAt(0).text() == "2.00"
+        page.findFieldByModelName("item4").getAt(0).value() == "0.00"
+
+        when:
+        page.findFieldByModelName("item1").getAt(0).value("10")
+        page.commitEdits()
+
+        then:
+        page.findFieldByModelName("item2").getAt(0).text() == "12.00"
+        page.findFieldByModelName("item4").getAt(0).value() == "0.00"
+
+        when:
+        page.findFieldByModelName("item3").getAt(0).value("3")
+        page.commitEdits()
+
+        then:
+        page.findFieldByModelName("item4").getAt(0).value() == "36.00"
+
+    }
+
+    def "default values can be specified as an expression"() {
+        when:
+        to ([name:'defaultValueExpression'], PreviewPage)
+
+        then:
+        title == "Preview Default value expression example"
+
+        and: "the default value for item 2 has been evaluated at 2 * item1"
+        page.findFieldByModelName("item2").getAt(0).value() == "2"
+        and: "the default value for item 4 has been evaluated at item2 * item3"
+        page.findFieldByModelName("item4").getAt(0).value() == "4"
+
+        when: "item 1 is changed"
+        page.findFieldByModelName("item1").getAt(0).value("3")
+        page.commitEdits()
+
+        then: "the default values for item2 and item4 are updated"
+        page.findFieldByModelName("item2").getAt(0).value() == "6"
+        page.findFieldByModelName("item4").getAt(0).value() == "12"
+
+
+        when: "The value for item2 is manually overwritten"
+        page.findFieldByModelName("item2").getAt(0).value("1")
+        page.findFieldByModelName("item1").getAt(0).value("4")
+        page.commitEdits()
+
+        then: "it won't update after item1 changes"
+        page.findFieldByModelName("item2").getAt(0).value() == "1"
+
+        when: "The value for item4 is manually overwritten"
+        page.findFieldByModelName("item4").getAt(0).value("1")
+        page.findFieldByModelName("item3").getAt(0).value("4")
+        page.commitEdits()
+
+        then: "it won't update after item3 changes"
+        page.findFieldByModelName("item4").getAt(0).value() == "1"
+    }
+
 }

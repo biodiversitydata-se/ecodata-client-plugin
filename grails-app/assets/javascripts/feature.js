@@ -119,8 +119,12 @@ ko.extenders.feature = function (target, options) {
                 if (!feature.properties) {
                     feature.properties = {};
                 }
+                // Track if this was a copy of a planning site.
+                if (feature.properties.id) {
+                    feature.properties.originalId = feature.properties.id;
+                }
                 var id = featureId + '-' + featureIds.length;
-                feature.properties.id = id
+                feature.properties.id = id;
                 featureIds.push(id);
             });
             target(features);
@@ -337,6 +341,7 @@ ecodata.forms.maps.featureMap = function (options) {
     }
 
     self.copyFeature = function (feature) {
+        feature = turf.clone(feature);
         if (feature.geometry && feature.geometry.coordinates && feature.geometry.type == 'MultiPolygon') {
             // Split to polygons as the leaflet draw plugin doesn't support MultiPolygons.
             // This also allows the user to delete each part separately if desired.

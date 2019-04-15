@@ -26,7 +26,9 @@
 <script>
     $(function() {
         var modelName = '${md.toSingleWord(name:model.modelName)}';
-        var outputModel = JSON.parse('${raw((model as grails.converters.JSON).toString())}');
+
+        var outputModel = JSON.parse('${model.encodeAsJavaScript()}');
+
         var dataModel = outputModel.dataModel;
         var context = {
             data: {

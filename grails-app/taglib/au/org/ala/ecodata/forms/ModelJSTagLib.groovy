@@ -210,6 +210,12 @@ class ModelJSTagLib {
 
     String getDefaultValueAsString(JSModelRenderContext ctx) {
         Map model = ctx.dataModel
+        // Default values can be literals or a map of the form: [ expression:'' ]
+        // If the default value is an expression, we want to return undefined here to avoid setting a
+        // value to the observable which will prevent the default value expression from being evaluated.
+        if (model.defaultValue instanceof Map && model.defaultValue.expression) {
+            return 'undefined'
+        }
         def defaultValue = modelService.evaluateDefaultDataForDataModel(model)
         if (defaultValue != null) {
             // An empty string will be rendered as nothing in JS which will cause script errors.
@@ -240,7 +246,7 @@ class ModelJSTagLib {
         if (mod.computed) {
             return
         }
-        String defaultValue = getDefaultValueAsString(ctx);
+        String defaultValue = getDefaultValueAsString(ctx)
         String value = "ecodata.forms.orDefault(data['${mod.name}'], ${getDefaultValueAsString(ctx)})"
         if (mod.dataType in ['text', 'stringList', 'time']) {
             if (mod.name == 'recordedBy' && mod.dataType == 'text' && attrs.user?.displayName && !value) {
@@ -569,12 +575,22 @@ class ModelJSTagLib {
         extenders.each {
             extenderJS += ".extend(${it})"
         }
+        if (requiresWritableComputed(ctx.dataModel)) {
+            String expression = ctx.dataModel.defaultValue.expression
+            extenderJS += ".extend({writableComputed:{expression:'${expression}', context:${ctx.propertyPath}}})"
+
+        }
         extenderJS
     }
 
     private boolean requiresMetadataExtender(Map dataModel) {
         dataModel.dataType == 'feature' || dataModel.behaviour || dataModel.warning || dataModel.constraints || dataModel.displayOptions
 
+    }
+
+    private boolean requiresWritableComputed(Map dataModel) {
+        def defaultValue = dataModel.defaultValue
+        defaultValue instanceof Map && defaultValue.expression != null
     }
 
     void observable(JSModelRenderContext ctx, List extenders = []) {
