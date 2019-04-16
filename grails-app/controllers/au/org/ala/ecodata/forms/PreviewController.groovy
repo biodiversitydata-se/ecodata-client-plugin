@@ -35,7 +35,7 @@ class PreviewController {
             for (File file : path.listFiles()) {
                 Map model = getExample(file.name)
 
-                examples << [name:file.name, title:model.title]
+                examples << [name:file.name, title:model.title ?: model.modelName]
             }
         }
         examples
