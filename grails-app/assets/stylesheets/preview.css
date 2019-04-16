@@ -35,3 +35,8 @@
 .key {
     color: red;
 }
+
+.list {
+    border-right: 1px solid grey;
+    height:100%;
+}

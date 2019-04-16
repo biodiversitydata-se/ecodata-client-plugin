@@ -7,22 +7,25 @@
 </head>
 <body>
 <div class="container-fluid validationEngineContainer">
-    <h3>Preview of ${model.modelName}</h3>
+
     <div class="row-fluid">
-        <div class="span12">
+        <div class="span2 list">
+            <h3>All examples</h3>
+            <ul class="unstyled">
+                <g:each in="${examples}" var="example">
+                    <li><a href="${g.createLink(action:'index', params:[name:example.name])}">${example.title}</a></li>
+                </g:each>
+            </ul>
+        </div>
+        <div class="span10 example">
+            <h3>${model.title ?: model.modelName}</h3>
             <md:modelView model="${model}" edit="true" printable="${false}"/>
 
+            <hr/>
+            <h3>Model JSON</h3>
+            <pre id="model-display"></pre>
         </div>
 
-    </div>
-    <div>
-        <div class="row-fluid">
-            <div class="span12">
-                <h3>Model JSON</h3>
-                <pre id="model-display"></pre>
-            </div>
-
-        </div>
     </div>
 
 </div>
