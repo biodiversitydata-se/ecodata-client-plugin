@@ -8,7 +8,22 @@
 <body>
 <div class="container-fluid validationEngineContainer">
     <h3>Preview of ${model.modelName}</h3>
-    <md:modelView model="${model}" edit="true" printable="${false}"/>
+    <div class="row-fluid">
+        <div class="span12">
+            <md:modelView model="${model}" edit="true" printable="${false}"/>
+
+        </div>
+
+    </div>
+    <div>
+        <div class="row-fluid">
+            <div class="span12">
+                <h3>Model JSON</h3>
+                <pre id="model-display"></pre>
+            </div>
+
+        </div>
+    </div>
 
 </div>
 <g:render template="/output/mapInDialogEditTemplate"/>
@@ -54,6 +69,30 @@
         window.modelReady = true;
 
         $('.validationEngineContainer').validationEngine();
+
+        $('#model-display').html(syntaxHighlight(JSON.stringify(outputModel, undefined, 2)));
+        // @see https://stackoverflow.com/questions/4810841/how-can-i-pretty-print-json-using-javascript
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
     });
 
 </script>
