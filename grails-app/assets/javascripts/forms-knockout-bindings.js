@@ -739,15 +739,17 @@
      * @type {{init: ko.bindingHandlers.computedValidation.init, update: ko.bindingHandlers.computedValidation.update}}
      */
     ko.bindingHandlers.computedValidation = {
-        init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        init: function(element, valueAccessor, allBindings, viewModel) {
             var modelItem = valueAccessor();
 
-            var validationAttributes = ko.computed(function() {
-                return createValidationString(modelItem, bindingContext.$context);
+            var validationAttributes = ko.pureComputed(function() {
+                return createValidationString(modelItem, viewModel);
             });
             validationAttributes.subscribe(function(value) {
                 updateJQueryValidationEngineAttributes(element, value);
             });
+            updateJQueryValidationEngineAttributes(element, validationAttributes());
+
         },
         update: function() {}
     };
@@ -941,7 +943,7 @@
         var valueHolder = ko.pureComputed({
             read: function() {
                 var val = value();
-                return val ? val : ev.evaluateString(options.expression, options.context);
+                return val ? val : ev.evaluate(options.expression, options.context);
             },
             write:function(newValue) {
                 value(newValue);

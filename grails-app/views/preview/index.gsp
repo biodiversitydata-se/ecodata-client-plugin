@@ -30,12 +30,6 @@
         var outputModel = JSON.parse('${model.encodeAsJavaScript()}');
 
         var dataModel = outputModel.dataModel;
-        var context = {
-            data: {
-                value1: 1,
-                value2: "2"
-            }
-        };
         var config = {
             bieUrl:'',
             searchBieUrl:'',
@@ -43,6 +37,12 @@
             prepopUrlPrefix: '${createLink(controller:'preview')}'
         };
         var output = {};
+        var context = {
+            activityData: {
+                value1: 1,
+                value2: "2"
+            }
+        };
 
         // This is required by any models that use the feature dataType
         context.featureCollection = config.featureCollection = new ecodata.forms.FeatureCollection([]);

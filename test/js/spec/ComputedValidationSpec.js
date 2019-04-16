@@ -32,10 +32,10 @@ describe("Computed Validation Spec", function () {
         ko.bindingHandlers.computedValidation.init(mockElement, function() { return metadata.validate; }, [], vm, vm, vm);
 
         vm.item2('200');
-        expect(mockElement.getAttribute('data-validation-engine')).toEqual('validate[min[2]]');
+        expect(mockElement.getAttribute('data-validation-engine')).toEqual('validate[min[2.00]]');
 
         vm.item2('0');
-        expect(mockElement.getAttribute('data-validation-engine')).toEqual('validate[min[0]]');
+        expect(mockElement.getAttribute('data-validation-engine')).toEqual('validate[min[0.00]]');
 
     });
 

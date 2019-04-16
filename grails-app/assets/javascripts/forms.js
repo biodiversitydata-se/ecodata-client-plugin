@@ -206,8 +206,12 @@ function orEmptyArray(v) {
                     result = ko.utils.unwrapObservable(context[contextVariable]);
                 }
                 else {
+                    // The root view model is constructed with fields inside a nested "data" object.
+                    if (_.isObject(context['data'])) {
+                        result = bindVariable(variable, context['data']);
+                    }
                     // Try to evaluate against the parent
-                    if (context['$parent']) {
+                    else if (context['$parent']) {
                         // If the parent is the output model, we want to evaluate against the "data" property
                         var parentContext = _.isObject(context['$parent'].data) ? context['$parent'].data : context['$parent'];
                         result = bindVariable(variable, parentContext);
@@ -306,7 +310,7 @@ function orEmptyArray(v) {
                 return value.value;
             }
             else if (value.expression) {
-                return ecodata.forms.expressionEvaluator.evaluateString(value.expression, context);
+                return ecodata.forms.expressionEvaluator.evaluate(value.expression, context);
             }
         }
         else {

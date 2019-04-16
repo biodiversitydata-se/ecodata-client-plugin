@@ -129,17 +129,17 @@ class TestSpec extends GebReportingSpec {
         title == "Preview Default value expression example"
 
         and: "the default value for item 2 has been evaluated at 2 * item1"
-        page.findFieldByModelName("item2").getAt(0).value() == "2"
+        page.findFieldByModelName("item2").getAt(0).value() == "2.00"
         and: "the default value for item 4 has been evaluated at item2 * item3"
-        page.findFieldByModelName("item4").getAt(0).value() == "4"
+        page.findFieldByModelName("item4").getAt(0).value() == "4.00"
 
         when: "item 1 is changed"
         page.findFieldByModelName("item1").getAt(0).value("3")
         page.commitEdits()
 
         then: "the default values for item2 and item4 are updated"
-        page.findFieldByModelName("item2").getAt(0).value() == "6"
-        page.findFieldByModelName("item4").getAt(0).value() == "12"
+        page.findFieldByModelName("item2").getAt(0).value() == "6.00"
+        page.findFieldByModelName("item4").getAt(0).value() == "12.00"
 
 
         when: "The value for item2 is manually overwritten"
@@ -171,14 +171,14 @@ class TestSpec extends GebReportingSpec {
         page.findFieldByModelName("item1").getAttribute("data-validation-engine") == "validate[min[0]]"
 
         and: "Item 2 has a validation expression computed from item1"
-        page.findFieldByModelName("item2").getAttribute("data-validation-engine") == "validate[max[0]]"
+        page.findFieldByModelName("item2").getAttribute("data-validation-engine") == "validate[max[0.00]]"
 
         when:
         page.findFieldByModelName("item1").getAt(0).value("1")
         page.commitEdits()
 
         then:
-        page.findFieldByModelName("item2").getAttribute("data-validation-engine") == "validate[max[3]]"
+        page.findFieldByModelName("item2").getAttribute("data-validation-engine") == "validate[max[3.00]]"
 
         when:
         page.findFieldByModelName("item2").getAt(0).value("1")
