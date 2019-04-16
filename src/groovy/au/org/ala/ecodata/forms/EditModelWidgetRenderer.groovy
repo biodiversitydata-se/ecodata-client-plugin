@@ -119,7 +119,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
 
         context.databindAttrs.add 'select2', context.source + '.displayOptions'
-        context.writer <<  "<select${context.attributes.toString()} class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
+        context.writer <<  "<div${context.attributes.toString()}><select class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select></div>"
     }
 
     @Override
@@ -140,8 +140,12 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
 
         context.databindAttrs.add 'optionsCaption', '"Please select"'
-        context.databindAttrs.add 'multiSelect2', "{value: ${context.source}, tags:true, allowClear:false}"
-        context.writer <<  "<select${context.attributes.toString()} multiple=\"multiple\" class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
+        String options = "{value: ${context.source}, tags:true, allowClear:false}"
+        if (context.model.displayOptions) {
+            options = "_.extend({value:${context.source}}, ${context.source}.displayOptions)"
+        }
+        context.databindAttrs.add 'multiSelect2', options
+        context.writer <<  "<div${context.attributes.toString()}><select multiple=\"multiple\" class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select></div>"
     }
 
     @Override

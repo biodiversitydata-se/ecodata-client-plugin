@@ -1,6 +1,7 @@
 package au.org.ala.ecodata.forms
 
 import grails.converters.JSON
+import grails.util.Environment
 
 class PreviewController {
 
@@ -32,7 +33,16 @@ class PreviewController {
         }
 
         String path = EXAMPLE_MODELS_PATH + name
-        JSON.parse(getClass().getResourceAsStream(path), 'UTF-8')
+
+        InputStream modelIn
+        if (Environment.current == Environment.DEVELOPMENT) {
+            File model = new File("./grails-app/conf"+path)
+            modelIn = new FileInputStream(model)
+        }
+        else {
+            modelIn = getClass().getResourceAsStream(path)
+        }
+        JSON.parse(modelIn, 'UTF-8')
     }
 
     /**
