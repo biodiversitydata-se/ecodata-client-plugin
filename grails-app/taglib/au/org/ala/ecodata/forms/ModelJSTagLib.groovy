@@ -567,24 +567,24 @@ class ModelJSTagLib {
         if (viewModel?.displayOptions) {
             ctx.dataModel.displayOptions = viewModel.displayOptions
         }
-
-        if (requiresMetadataExtender(ctx.dataModel)) {
-            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:context, config:config}}")
-        }
         String extenderJS = ''
-        extenders.each {
-            extenderJS += ".extend(${it})"
-        }
         if (requiresWritableComputed(ctx.dataModel)) {
             String expression = ctx.dataModel.defaultValue.expression
             extenderJS += ".extend({writableComputed:{expression:'${expression}', context:${ctx.propertyPath}}})"
-
         }
+        if (requiresMetadataExtender(ctx.dataModel)) {
+            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:self.\$context, config:config}}")
+        }
+
+        extenders.each {
+            extenderJS += ".extend(${it})"
+        }
+
         extenderJS
     }
 
     private boolean requiresMetadataExtender(Map dataModel) {
-        dataModel.dataType == 'feature' || dataModel.behaviour || dataModel.warning || dataModel.constraints || dataModel.displayOptions
+        dataModel.dataType == 'feature' || dataModel.behaviour || dataModel.warning || dataModel.constraints || dataModel.displayOptions || (dataModel.validate instanceof List)
 
     }
 

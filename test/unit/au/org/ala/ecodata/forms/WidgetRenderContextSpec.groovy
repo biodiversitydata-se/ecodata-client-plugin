@@ -17,7 +17,7 @@ class WidgetRenderContextSpec extends Specification {
 
         then:
         result.rule == ValidationHelper.MAX_SIZE
-        result.value == "300"
+        result.param == "300"
 
         when:
         result = widgetRenderContext.getValidationRule("required")

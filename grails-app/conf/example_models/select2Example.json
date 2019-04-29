@@ -1,0 +1,133 @@
+{
+  "modelName": "Select2 example",
+  "dataModel": [
+    {
+      "dataType": "text",
+      "name": "item1",
+      "constraints": [
+        "value 1",
+        "value 2",
+        "value 3"
+      ]
+    },
+    {
+      "dataType": "text",
+      "name": "item2",
+      "constraints": [
+        "value 1",
+        "value 2",
+        "value 3"
+      ]
+    },
+    {
+      "dataType": "stringList",
+      "name": "item3",
+      "constraints": [
+        "value 1",
+        "value 2",
+        "value 3"
+      ]
+    },
+    {
+      "dataType": "list",
+      "name": "nested",
+      "columns": [
+        {
+          "dataType":"text",
+          "name": "item4",
+          "constraints": [
+            "value 1",
+            "value 2",
+            "value 3",
+            "this is a much longer value"
+          ]
+        },
+        {
+          "dataType": "text",
+          "name": "item5",
+          "constraints": [
+            "value 1",
+            "value 2",
+            "value 3",
+            "this is a much longer value"
+          ]
+        },{
+          "dataType": "stringList",
+          "name": "item6",
+          "constraints": [
+            "value 1",
+            "value 2",
+            "value 3",
+            "this is a much longer value"
+          ]
+        }
+
+      ]
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "preLabel": "Item 1 - select2 with defaults",
+              "source": "item1",
+              "type": "select2"
+            },
+            {
+              "preLabel": "Item 2 - select2 with display options",
+              "source": "item2",
+              "type": "select2",
+              "displayOptions": {
+                "tags": true,
+                "placeholder": "Custom placeholder"
+              }
+            },
+            {
+              "preLabel": "Item 3 - select2Many",
+              "source": "item3",
+              "type": "select2Many",
+              "displayOptions": {
+                "tags": false,
+                "placeholder": "Custom placeholder"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "source": "nested",
+      "columns": [
+        {
+          "type": "select2",
+          "source": "item4",
+          "title": "Item 4",
+          "width": "30%"
+        },
+        {
+          "type": "select2",
+          "source": "item5",
+          "title": "Item 5",
+          "displayOptions": {
+            "tags": true,
+            "placeholder": "Custom placeholder"
+          },
+          "width": "30%"
+        },
+        {
+          "type": "select2Many",
+          "source": "item6",
+          "title": "Item 6",
+          "width": "40%"
+        }
+      ]
+
+    }
+  ],
+  "title": "Select2 example"
+}

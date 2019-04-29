@@ -1,0 +1,103 @@
+{
+  "modelName": "Validation example",
+  "dataModel": [
+    {
+      "dataType": "number",
+      "name": "item1",
+      "validate" : "min[0]",
+      "behaviour": [
+        {
+          "condition": "item2 == '1'",
+          "type": "conditional_validation",
+          "value": {
+            "validate":"required,custom[integer],min[1]",
+            "message":"test message"
+          }
+        }
+      ]
+    },
+    {
+      "validate": [{
+        "rule":"max",
+        "param": {
+            "type": "computed",
+            "expression": "item1*3"
+          }
+      }],
+      "dataType": "number",
+      "name": "item2"
+    },
+    {
+      "dataType": "list",
+      "name": "nested",
+      "columns": [
+        {
+          "dataType":"number",
+          "name": "item3",
+          "validate" : "min[0]",
+          "behaviour": [
+            {
+              "condition": "item4 == '1'",
+              "type": "conditional_validation",
+              "value": {
+                "validate":"required,custom[integer],min[1]",
+                "message":"test message"
+              }
+            }
+          ]
+        },
+        {
+          "dataType": "number",
+          "name": "item4",
+          "validate": [{
+            "rule":"max",
+            "param": {
+              "type": "computed",
+              "expression": "item3*item1"
+            }
+          }]
+        }
+      ]
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "preLabel": "Item 1",
+              "source": "item1",
+              "type": "number"
+            },
+            {
+              "preLabel": "Item 2",
+              "source": "item2",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "source": "nested",
+      "columns": [
+        {
+          "type": "number",
+          "source": "item3",
+          "title": "Item 3"
+        },
+        {
+          "type": "number",
+          "source": "item4",
+          "title": "Item 4"
+        }
+      ]
+
+    }
+  ],
+  "title": "Validation example"
+}

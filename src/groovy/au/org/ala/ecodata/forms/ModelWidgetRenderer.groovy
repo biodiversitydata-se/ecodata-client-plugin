@@ -46,7 +46,7 @@ class WidgetRenderContext {
     private static final String MAX_SIZE_VALIDATION = "maxSize"
 
     private ValidationHelper validationHelper
-    private Map validationRules = null
+    private List validationRules = null
     JSONObject model
     Map dataModel
     boolean editMode
@@ -69,7 +69,7 @@ class WidgetRenderContext {
         this.dataModel = dataModel
         this.editMode = editMode
         this.context = context
-        this.validationAttr = validationHelper.validationAttribute(dataModel, viewModel, editMode)
+        this.validationAttr = ''
         this.databindAttrs = databindAttrs ?: new Databindings()
         this.attributes = attributes ?: new AttributeMap()
         this.labelAttributes = labelAttributes ?: new AttributeMap()
@@ -80,6 +80,8 @@ class WidgetRenderContext {
             writer = new StringWriter()
         }
         this.writer = writer
+
+        validationHelper.addValidationAttributes(this)
     }
 
     String getSource() {
@@ -121,19 +123,14 @@ class WidgetRenderContext {
     }
 
     /**
-     * Returns a Map of the form [rule: <rule>, value:<value>]
+     * Returns a Map of the form [rule: <rule>, param:<value>]
      * If no rule with name ruleName is defined, null is returned.
      */
     Map getValidationRule(String ruleName) {
         if (!validationRules) {
-            validationRules = validationHelper.validationRules(dataModel, model, editMode)
+            validationRules = validationHelper.getValidationCriteria(dataModel, model, editMode)
         }
-
-        Map rule = null
-        if (validationRules.containsKey(ruleName)) {
-            rule = [rule:ruleName, value:validationRules[ruleName]]
-        }
-        rule
+        validationRules.find{it.rule == ruleName}
     }
 
 }

@@ -669,6 +669,46 @@
         update: function() {}
     };
 
+    /**
+     * Creates a validation string compatible with the jQueryValidationEngine plugin from data item validation
+     * configuration.
+     *
+     * @param config an array containing an object describing each validation rule e.g
+     * [
+     *    {
+     *        rule:"min",
+     *        params: [
+     *            {
+     *                "type":"computed",
+     *                "expression":"item2*0.01"
+     *            }
+     *        ]
+     *    }
+     * ]
+     * @param expressionContext the context which any expressions should be evaluated against (normally the view model
+     * or binding context)
+     * @returns {string}
+     */
+    function createValidationString(config, expressionContext) {
+        var validationString = '';
+        _.each(config || [], function(ruleConfig) {
+            validationString += ruleConfig.rule;
+            if (ruleConfig.param) {
+                var paramString = ecodata.forms.evaluate(ruleConfig.param, expressionContext);
+                validationString += '['+paramString+']';
+            }
+        });
+
+        return validationString;
+    };
+
+    /**
+     * Adds or removes the jqueryValidationEngine validation attributes 'data-validation-engine' and 'data-errormessage'
+     * to/from the supplied element.
+     * @param element the HTML element to modify.
+     * @param validationString the validation string to use (minus the validate[])
+     * @param messageString a string to use for data-errormessage
+     */
     function updateJQueryValidationEngineAttributes(element, validationString, messageString) {
         var $element = $(element);
         if (validationString) {
@@ -691,6 +731,28 @@
             $element.validationEngine('validate');
         }, 100);
     }
+
+    /**
+     * Evaluates a validation configuration and populates the bound element with attributes used by the
+     * jQueryValidationEngine.
+     * @see createValidationString for the format of the configuration.
+     * @type {{init: ko.bindingHandlers.computedValidation.init, update: ko.bindingHandlers.computedValidation.update}}
+     */
+    ko.bindingHandlers.computedValidation = {
+        init: function(element, valueAccessor, allBindings, viewModel) {
+            var modelItem = valueAccessor();
+
+            var validationAttributes = ko.pureComputed(function() {
+                return createValidationString(modelItem, viewModel);
+            });
+            validationAttributes.subscribe(function(value) {
+                updateJQueryValidationEngineAttributes(element, value);
+            });
+            updateJQueryValidationEngineAttributes(element, validationAttributes());
+
+        },
+        update: function() {}
+    };
 
     /**
      * custom handler for fancybox plugin.
@@ -881,7 +943,7 @@
         var valueHolder = ko.pureComputed({
             read: function() {
                 var val = value();
-                return val ? val : ev.evaluateString(options.expression, options.context);
+                return val ? val : ev.evaluate(options.expression, options.context);
             },
             write:function(newValue) {
                 value(newValue);

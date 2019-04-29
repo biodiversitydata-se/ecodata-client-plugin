@@ -206,8 +206,12 @@ function orEmptyArray(v) {
                     result = ko.utils.unwrapObservable(context[contextVariable]);
                 }
                 else {
+                    // The root view model is constructed with fields inside a nested "data" object.
+                    if (_.isObject(context['data'])) {
+                        result = bindVariable(variable, context['data']);
+                    }
                     // Try to evaluate against the parent
-                    if (context['$parent']) {
+                    else if (context['$parent']) {
                         // If the parent is the output model, we want to evaluate against the "data" property
                         var parentContext = _.isObject(context['$parent'].data) ? context['$parent'].data : context['$parent'];
                         result = bindVariable(variable, parentContext);
@@ -288,6 +292,31 @@ function orEmptyArray(v) {
 
     }();
 
+    /**
+     * evaluates a string literal value or computed expression and returns the results.
+     *
+     * @param value the item to evaluate.  If thing is a string it will be returned directly, otherwise it
+     * is expected to be of the form:
+     * {
+     *     type:"computed",
+     *     expression:"expressionToEvalulate"
+     * }
+     * @param context the context to evaluate the expression against if required.
+     * @returns {*}
+     */
+    ecodata.forms.evaluate = function(value, context) {
+        if (_.isObject(value)) {
+            if (value.type == 'literal') {
+                return value.value;
+            }
+            else if (value.expression) {
+                return ecodata.forms.expressionEvaluator.evaluate(value.expression, context);
+            }
+        }
+        else {
+            return value;
+        }
+    };
 
     /**
      * Creates an instance of the view model identified by the supplied name.
@@ -554,7 +583,7 @@ function orEmptyArray(v) {
 
         self.evaluateBehaviour = function (type, defaultValue) {
             var rule = _.find(metadata.behaviour, function (rule) {
-                return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, context.parent);
+                return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, context);
             });
 
             return rule && rule.value || defaultValue;
@@ -577,7 +606,7 @@ function orEmptyArray(v) {
                 if (metadata.constraints.type == 'computed') {
                     self.constraints = ko.computed(function () {
                         var rule = _.find(metadata.constraints.options, function (option) {
-                            return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, context.parent);
+                            return ecodata.forms.expressionEvaluator.evaluateBoolean(option.condition, context);
                         });
                         return rule ? rule.value : metadata.constraints.default;
                     });
@@ -746,7 +775,7 @@ function orEmptyArray(v) {
         // Expose the context as properties to make it available to formula bindings
         self.$parent = context.parent;
         self.$index = context.index;
-        self.$context = _.extend({}, context, {parent:self});
+        self.$context = _.extend({}, context, {$parent:self});
         self.dataModel = dataModel;
         if (!data) {
             data = {};
@@ -802,7 +831,7 @@ function orEmptyArray(v) {
         self.dataModel = _.indexBy(dataModel, 'name');
 
         // Make this properties available to the binding context for use by components.
-        self.$context = _.extend({output:output, root:self, parent:self}, context);
+        self.$context = _.extend({output:output, root:self, $parent:self}, context);
 
         self.$config = ecodata.forms.configManager(config, context);
 

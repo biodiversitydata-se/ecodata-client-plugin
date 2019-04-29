@@ -45,7 +45,7 @@
           {
             "name": "p2",
             "type": "computed",
-            "expression": "data.value2"
+            "expression": "activityData.value2"
           }
 
         ]

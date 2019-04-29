@@ -6,9 +6,27 @@
     <md:modelStyles model="${model}" edit="true"/>
 </head>
 <body>
-<div class="container-fluid">
-    <h3>Preview of ${model.modelName}</h3>
-    <md:modelView model="${model}" edit="true" printable="${false}"/>
+<div class="container-fluid validationEngineContainer">
+
+    <div class="row-fluid">
+        <div class="span2 list">
+            <h3>All examples</h3>
+            <ul class="unstyled">
+                <g:each in="${examples}" var="example">
+                    <li><a href="${g.createLink(action:'index', params:[name:example.name])}">${example.title}</a></li>
+                </g:each>
+            </ul>
+        </div>
+        <div class="span10 example">
+            <h3>${model.title ?: model.modelName}</h3>
+            <md:modelView model="${model}" edit="true" printable="${false}"/>
+
+            <hr/>
+            <h3>Model JSON</h3>
+            <pre id="model-display"></pre>
+        </div>
+
+    </div>
 
 </div>
 <g:render template="/output/mapInDialogEditTemplate"/>
@@ -30,12 +48,6 @@
         var outputModel = JSON.parse('${model.encodeAsJavaScript()}');
 
         var dataModel = outputModel.dataModel;
-        var context = {
-            data: {
-                value1: 1,
-                value2: "2"
-            }
-        };
         var config = {
             bieUrl:'',
             searchBieUrl:'',
@@ -43,6 +55,12 @@
             prepopUrlPrefix: '${createLink(controller:'preview')}'
         };
         var output = {};
+        var context = {
+            activityData: {
+                value1: 1,
+                value2: "2"
+            }
+        };
 
         // This is required by any models that use the feature dataType
         context.featureCollection = config.featureCollection = new ecodata.forms.FeatureCollection([]);
@@ -51,7 +69,33 @@
 
         // Expose our model in the global scope to get at it easily with GEB
         window.model = model;
-        window.modelReady = true
+        window.modelReady = true;
+
+        $('.validationEngineContainer').validationEngine();
+
+        $('#model-display').html(syntaxHighlight(JSON.stringify(outputModel, undefined, 2)));
+        // @see https://stackoverflow.com/questions/4810841/how-can-i-pretty-print-json-using-javascript
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
     });
 
 </script>
