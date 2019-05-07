@@ -96,7 +96,9 @@
             "type": "row"
         },
         {
-            "footer": {"rows": [{"columns": [
+            "footer":
+            {"rows":
+            [{"columns": [
                 {
                     "colspan": 2,
                     "source": "",
