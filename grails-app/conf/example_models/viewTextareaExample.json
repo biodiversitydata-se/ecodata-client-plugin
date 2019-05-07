@@ -1,0 +1,18 @@
+{
+    "dataModel": [
+                {
+            "dataType": "text",
+            "description": "",
+            "name": "notes"
+        }
+    ],
+    "modelName": "Textarea View Type Example",
+    "viewModel": [
+         {
+                "title": "Notes:",
+                "source": "notes",
+                "rows": "5",
+                "cols": "100",
+                "type": "textarea"
+            }]
+}

@@ -1,0 +1,18 @@
+{
+    "dataModel": [
+                {
+            "dataType": "text",
+            "description": "",
+            "name": "notes",
+            "defaultValue": "Default Value"
+        }
+    ],
+    "modelName": "Readonly View Type Example",
+    "viewModel": [
+         {
+            "title": "Notes:",
+            "source": "notes",
+            "type": "readonlyText"
+         }
+    ]
+}
