@@ -1,0 +1,23 @@
+{
+    "dataModel": [
+      {
+        "name": "textFieldWithConstraints",
+        "dataType": "text",
+        "description": "Description for textFieldWithConstraints",
+        "constraints": [
+          "value1",
+          "value2",
+          "value3"
+        ],
+        "defaultValue": 1
+      }
+    ],
+    "modelName": "SelectOne View Type Example",
+    "viewModel": [
+      {
+        "source": "textFieldWithConstraints",
+        "type": "selectOne",
+        "preLabel": "selectOne control"
+      }
+    ]
+}
