@@ -17,7 +17,7 @@ environments {
 
     chrome {
         if (!System.getProperty("webdriver.chrome.driver")) {
-            System.setProperty("webdriver.chrome.driver", "/Users/god08d/Downloads/chromedriver")
+            System.setProperty("webdriver.chrome.driver", "node_modules/chromedriver/bin/chromedriver")
         }
         driver = { new ChromeDriver() }
     }
