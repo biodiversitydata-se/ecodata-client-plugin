@@ -1,0 +1,23 @@
+{
+    "dataModel": [
+      {
+        "dataType": "stringList",
+        "name": "stringListField",
+        "description": "Description for stringListField",
+        "constraints": [
+          "value1",
+          "value2",
+          "value3"
+        ]
+      }
+    ],
+    "modelName": "SelectMany View Type and stringList Data Type Example",
+    "viewModel": [
+      {
+        "preLabel": "Description for stringListField",
+        "computed": null,
+        "source": "stringListField",
+        "type": "selectMany"
+      }
+    ]
+}
