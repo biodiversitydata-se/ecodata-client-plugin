@@ -30,6 +30,7 @@ module.exports = function (config) {
             'grails-app/assets/vendor/underscorejs/1.8.3/underscore.js',
             'grails-app/assets/vendor/typeahead/0.11.1/bloodhound.js',
             'grails-app/assets/vendor/underscorejs/1.8.3/underscore.js',
+            "grails-app/assets/vendor/expr-eval/1.2.1/bundle.js",
             'grails-app/assets/javascripts/forms.js',
             'grails-app/assets/javascripts/*.js',
             'test/js/util/*.js',

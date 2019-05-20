@@ -172,6 +172,41 @@ function orEmptyArray(v) {
      * @type {{evaluate, evaluateBoolean, evaluateString}}
      */
     ecodata.forms.expressionEvaluator = function () {
+
+        var parser = new exprEval.Parser();
+        function any(val1, val2) {
+            return val1 || val2;
+        }
+        parser.functions.sum = function(list, expression) {
+            function add(val1, val2) {
+                return val1+val2;
+            }
+            return arrayFunction(list, expression, add, 0);
+        };
+
+        parser.functions.count = function(list, expression) {
+            function count(val1, val2) {
+                return val1+1;
+            }
+            return arrayFunction(list, expression, count, 0);
+        };
+
+        parser.functions.any = function(list, expression) {
+
+            return arrayFunction(list, expression, any, false);
+        };
+
+        parser.functions.all = function(list, expression) {
+            function all(val1, val2) {
+                return val1 && val2;
+            }
+            return arrayFunction(list, expression, all, true);
+        };
+
+        parser.functions.none = function(list, expression) {
+            return !arrayFunction(list, expression, any, false);
+        };
+
         var specialBindings = function() {
 
             return {
@@ -182,6 +217,21 @@ function orEmptyArray(v) {
 
             };
         }();
+
+
+
+        function arrayFunction(array, expression, reducer, memo) {
+            var parsedExpression = exprEval.Parser.parse(expression);
+            var variables = parsedExpression.variables();
+
+            return _.reduce(array, function(memo, val) {
+                var result = bindVariables(variables, val);
+                var value = parsedExpression.evaluate(result);
+                return reducer(memo, value);
+            }, memo);
+
+        }
+
 
         var preprocessBindings = function(variable) {
             var specialVariables = {
@@ -237,7 +287,7 @@ function orEmptyArray(v) {
         function evaluateInternal(expression, context) {
             var parsedExpression = expressionCache[expression];
             if (!parsedExpression) {
-                parsedExpression = exprEval.Parser.parse(expression);
+                parsedExpression = parser.parse(expression);
                 expressionCache[expression] = parsedExpression;
             }
 
