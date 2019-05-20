@@ -491,27 +491,34 @@ class ModelTagLib {
         // model definition from needing to do so.
         def labelAttributes = new AttributeMap()
         def elementAttributes = new AttributeMap()
-        if (layoutContext.parentView == 'col') {
-            out << "<div class=\"row-fluid\">"
-            labelAttributes.addClass 'span4'
-            if (model.type != "number") {
-                elementAttributes.addClass 'span8'
-            }
-        } else {
-            at.addSpan("span${layoutContext.span}")
-            out << "<span${at.toString()}>"
-            if (model.type != "number" && attrs.edit) {
-                elementAttributes.addClass 'span12'
-            }
+
+        switch (layoutContext.parentView) {
+            case 'col':
+                out << "<div class=\"row-fluid\">"
+                labelAttributes.addSpan 'span4'
+                if (model.type != "number") {
+                    elementAttributes.addSpan 'span8'
+                }
+                break
+            case 'table':
+                break
+            default:
+                at.addSpan("span${layoutContext.span}")
+                out << "<div${at.toString()}>"
+                if (model.type != "number" && attrs.edit) {
+                    elementAttributes.addClass 'span12'
+                }
         }
 
         out << INDENT << dataTag(attrs, model, layoutContext.dataContext, attrs.edit, elementAttributes, null, labelAttributes)
 
-        if (layoutContext.parentView == 'col') {
-            out << "</div>"
-        }
-        else {
-            out << "</span>"
+        switch (layoutContext.parentView) {
+            case 'table':
+                break
+            case 'col':
+            default:
+                out << "</div>"
+                break
         }
     }
 
@@ -761,16 +768,20 @@ class ModelTagLib {
         def allowRowDelete = getAllowRowDelete(attrs, model.source, null)
         out << INDENT*4 << "<script id=\"${templateName}\" type=\"text/html\"><tr>\n"
         model.columns.eachWithIndex { col, i ->
-            col.type = col.type ?: getType(attrs, col.source, model.source)
-            def colEdit = edit && !col.readOnly
-            String data = dataTag(attrs, col, '', colEdit)
+
+            LayoutRenderContext rowCtx = ctx.createChildContext([dataContext: '', parentView: 'table'])
             out << INDENT*5 << "<td>"
-            if (col.type == 'boolean') {
-                out << "<label style=\"table-checkbox-label\">" << data << "</label>"
-            }
-            else {
-                out << data
-            }
+            viewModelItems([col], rowCtx)
+//            col.type = col.type ?: getType(attrs, col.source, model.source)
+//            def colEdit = edit && !col.readOnly
+//            String data = dataTag(attrs, col, '', colEdit)
+//
+//            if (col.type == 'boolean') {
+//                out << "<label style=\"table-checkbox-label\">" << data << "</label>"
+//            }
+//            else {
+//                out << data
+//            }
             out << "</td>" << "\n"
         }
         if (model.editableRows) {
