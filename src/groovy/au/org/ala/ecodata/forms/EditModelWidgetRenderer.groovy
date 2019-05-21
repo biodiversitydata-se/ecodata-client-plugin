@@ -28,7 +28,21 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     void renderNumber(WidgetRenderContext context) {
         context.attributes.addClass context.getInputWidth()
         context.databindAttrs.add 'value', context.source
-        context.writer << "<input${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr} type='number' step='any'/>"
+        String modelElementText = "<input${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr} type='number' step='any'/>"
+        String units = context.unitsToRender()
+        if (units) {
+            renderWithAddon(units, modelElementText, context.writer)
+        }
+        else {
+            context.writer << modelElementText
+        }
+    }
+
+    private void renderWithAddon(String addOnText, String modelElementText, writer) {
+        writer << "<div class=\"input-append\">"
+        writer << modelElementText
+        writer << "<span class=\"add-on\">${addOnText}</span>"
+        writer << "</div>"
     }
 
     @Override
