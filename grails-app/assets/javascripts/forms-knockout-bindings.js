@@ -728,7 +728,12 @@
         // Trigger the validation after the knockout processing is complete - this prevents the validation
         // from firing before the page has been initialised on load.
         setTimeout(function() {
-            $element.validationEngine('validate');
+            if (messageString) {
+                $element.validationEngine('validate');
+            }
+            else {
+                $element.validationEngine('hide');
+            }
         }, 100);
     }
 
