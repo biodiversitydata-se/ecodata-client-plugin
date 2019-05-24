@@ -21,6 +21,9 @@ describe("ecodata.forms.expressionEvaluator Spec", function () {
     });
 
     it ("Can evaluate polygon length", function() {
+        var data = {list:['1', '2', '3']};
+        expect(ecodata.forms.expressionEvaluator.evaluateBoolean("'1' in list", data)).toBeTruthy();
+        expect(ecodata.forms.expressionEvaluator.evaluateBoolean("'d' in list", data)).toBeFalsy();
 
     });
 

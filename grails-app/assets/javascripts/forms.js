@@ -173,7 +173,13 @@ function orEmptyArray(v) {
      */
     ecodata.forms.expressionEvaluator = function () {
 
-        var parser = new exprEval.Parser();
+        var parser = new exprEval.Parser(
+            {
+                operators: {
+                    'in': true
+                }
+            }
+        );
         function any(val1, val2) {
             return val1 || val2;
         }
