@@ -31,6 +31,7 @@ module.exports = function (config) {
             'grails-app/assets/vendor/typeahead/0.11.1/bloodhound.js',
             "grails-app/assets/vendor/expr-eval/1.2.1/bundle.js",
             'grails-app/assets/vendor/jquery.validationEngine/jquery.validationEngine.js',
+            'grails-app/assets/vendor/jquery.validationEngine/jquery.validationEngine-en.js',
             'grails-app/assets/javascripts/forms.js',
             'grails-app/assets/javascripts/*.js',
             'test/js/util/*.js',
