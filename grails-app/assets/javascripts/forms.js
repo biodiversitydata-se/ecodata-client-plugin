@@ -314,15 +314,17 @@ function orEmptyArray(v) {
         function evaluateNumber(expression, context, numberOfDecimalPlaces) {
 
             var result = evaluateInternal(expression, context);
-            if (!isNaN(result)) {
+            var numericResult = Number(result);
+            if (!isNaN(numericResult)) {
                 if (numberOfDecimalPlaces == undefined) {
                     numberOfDecimalPlaces = 2;
                 }
-                if (_.isFunction(result.toFixed)) {
-                    result = result.toFixed(numberOfDecimalPlaces);
+
+                if (_.isFunction(numericResult.toFixed)) {
+                    result = numericResult.toFixed(numberOfDecimalPlaces);
                 }
                 else {
-                    result = ecodata.forms.utils.neat_number(result, numberOfDecimalPlaces);
+                    result = ecodata.forms.utils.neat_number(numericResult, numberOfDecimalPlaces);
                 }
 
             }

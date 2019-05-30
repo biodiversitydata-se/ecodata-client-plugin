@@ -66,4 +66,17 @@ describe("Expression Spec", function () {
         expect(result).toBeFalsy();
     });
 
+    it("should be able to manage type conversion of data items", function() {
+
+        var data = {
+            item1:"2200",
+            item2:"2100"
+        };
+        var result = ecodata.forms.expressionEvaluator.evaluate("item1*item2", data);
+        expect(result).toEqual("4620000.00");
+
+        result = ecodata.forms.expressionEvaluator.evaluateBoolean("item1 > item2", data);
+        expect(result).toBeTruthy();
+    });
+
 });
