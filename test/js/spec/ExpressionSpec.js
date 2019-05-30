@@ -77,6 +77,9 @@ describe("Expression Spec", function () {
 
         result = ecodata.forms.expressionEvaluator.evaluateBoolean("item1 > item2", data);
         expect(result).toBeTruthy();
+
+        // This is the fallback for browsers that don't support Number.toFixed
+        expect(ecodata.forms.utils.neat_number(2000.23, 2)).toEqual("2,000.23");
     });
 
 });
