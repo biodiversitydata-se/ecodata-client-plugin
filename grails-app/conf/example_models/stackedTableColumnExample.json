@@ -1,0 +1,60 @@
+{
+  "dataModel": [
+    {
+      "dataType": "list",
+      "name": "exampleList",
+      "columns": [
+        {
+          "dataType": "text",
+          "name": "value1"
+        },
+        {
+          "dataType": "text",
+          "name": "value2"
+        },
+        {
+          "dataType": "number",
+          "name": "value3"
+        }
+      ]
+    }
+  ],
+  "modelName": "Stacked table columns example",
+  "title": "Stacked table columns example",
+  "viewModel": [
+    {
+      "source": "exampleList",
+      "columns": [
+        {
+          "title": "Value1 and Value2",
+          "width": "50%",
+          "type": "col",
+          "helpText": "Both item 1 and item 2 values can be entered into this column",
+          "items": [
+            {
+              "type": "text",
+              "source": "value1",
+              "css": "span12",
+              "preLabel": "Value1"
+            },
+            {
+              "type": "text",
+              "source": "value2",
+              "css": "span12",
+              "preLabel": "Value2"
+            }
+          ]
+        },
+        {
+          "title": "Value3",
+          "source": "value3",
+          "width": "50%",
+          "type": "number"
+        }
+      ],
+      "userAddedRows": true,
+      "class": "output-section",
+      "type": "table"
+    }
+  ]
+}

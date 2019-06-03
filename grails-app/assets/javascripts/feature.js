@@ -670,7 +670,7 @@ ko.components.register('feature', {
         }
 
     },
-    template: '<button class="btn" data-bind="visible:!model() && !readonly, click:showMap, enable:enabled"><i class="fa fa-edit"></i></button>' +
+    template: '<button class="btn edit-feature" data-bind="visible:!model() && !readonly, click:showMap, enable:enabled"><i class="fa fa-edit"></i></button>' +
         '<button class="btn edit-feature" data-bind="visible:model(), click:showMap, enable:enabled"><div class="mini-feature" data-bind="if:model(),geojson2svg:model"></div></button>'
 
 

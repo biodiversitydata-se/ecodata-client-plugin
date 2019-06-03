@@ -34,7 +34,12 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderNumber(WidgetRenderContext context) {
         context.databindAttrs.add 'text', context.source
+
         context.writer << "<span ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>"
+        String units = context.unitsToRender()
+        if (units) {
+            context.writer << " <span>${units}</span>"
+        }
     }
 
     @Override

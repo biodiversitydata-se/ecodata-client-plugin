@@ -188,4 +188,22 @@ class TestSpec extends GebReportingSpec {
         page.findFieldByModelName("item1").getAttribute("data-validation-engine") == "validate[required,custom[integer],min[1]]"
 
     }
+
+    def "table columns support nested layouts"() {
+        when:
+        to ([name:'stackedTableColumnExample'], PreviewPage)
+
+        then:
+        title == "Preview Stacked table columns example"
+
+        when:
+        page.findFieldByModelName("value1").value("test 1")
+        page.findFieldByModelName("value2").value("test 2")
+        page.commitEdits()
+
+        then:
+        page.model.data.exampleList[0].value1 == "test 1"
+        page.model.data.exampleList[0].value2 == "test 2"
+
+    }
 }

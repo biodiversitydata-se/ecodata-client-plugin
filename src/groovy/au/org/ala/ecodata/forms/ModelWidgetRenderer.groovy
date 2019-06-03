@@ -133,4 +133,15 @@ class WidgetRenderContext {
         validationRules.find{it.rule == ruleName}
     }
 
+    /**
+     * If the view model is configured to render units, this method will return the units property of the data model.
+     */
+    String unitsToRender() {
+        String units = null
+        if (model.displayOptions?.displayUnits) {
+            units = dataModel.units
+        }
+        units
+    }
+
 }
