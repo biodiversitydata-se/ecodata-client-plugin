@@ -1,0 +1,30 @@
+{
+  "modelName":"Units example",
+  "dataModel": [
+    {
+      "dataType": "number",
+      "name": "example",
+      "units": "mm"
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "type": "number",
+              "source": "example",
+              "preLabel":"A measurement in mm",
+              "displayOptions": {
+                "displayUnits": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
