@@ -213,6 +213,24 @@ function orEmptyArray(v) {
             return !arrayFunction(list, expression, any, false);
         };
 
+        /**
+         * Returns true if the number value1 is within tolerance*value2 of value2.
+         */
+        parser.functions.within = function(value1, value2, tolerance) {
+
+            var val1 = Number(value1);
+            var val2 = Number(value2);
+            if (isNaN(val1) || isNaN(val2)) {
+                return false;
+            }
+            if (val1 == 0 && val2 == 0) {
+                return true;
+            }
+            var result = (val1 * (1-tolerance) < val2) && (val1 * (1+tolerance) > val2);
+
+            return result;
+        };
+
         var specialBindings = function() {
 
             return {

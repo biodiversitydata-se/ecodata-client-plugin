@@ -179,11 +179,19 @@ class ModelTagLib {
         // The data model item we are rendering the view for.
         Map source = getAttribute(attrs.model.dataModel, model.source)
 
+        String visibleBinding = null
         if (source?.behaviour) {
             source.behaviour.each { constraint ->
                 ConstraintType type = ConstraintType.valueOf(constraint.type.toUpperCase())
                 String bindingValue = type.isBoolean ? "${renderContext.source}.${constraint.type}Constraint" : renderContext.source
-                renderContext.databindAttrs.add type.binding, bindingValue
+                if (type != ConstraintType.VISIBLE) {
+                    renderContext.databindAttrs.add type.binding, bindingValue
+                }
+                else {
+                    // Visibility bindings have to be applied not on the input field but around the label and
+                    // input field
+                    visibleBinding = bindingValue
+                }
             }
         }
         if (source?.warning) {
@@ -313,6 +321,12 @@ class ModelTagLib {
         }
 
         result = renderWithLabel(model, labelAttributes, attrs, editable, result)
+
+        if (visibleBinding) {
+            result = """
+                <div data-bind="visible:$visibleBinding">${result}</div>
+            """
+        }
         return result
     }
 
@@ -326,25 +340,13 @@ class ModelTagLib {
                 labelAttributes.addClass 'required'
             }
 
-            String labelPlainText
-            if (model.preLabel instanceof Map) {
-                labelPlainText = "<span data-bind=\"expression:'${model.preLabel.computed}'\"></span>"
-            }
-            else {
-                labelPlainText = model.preLabel
-            }
+            String labelPlainText = labelContent(model.preLabel)
             result = "<span ${labelAttributes.toString()}><label>${labelText(attrs, model, labelPlainText)}</label></span>" + dataTag
         }
 
         if (model.postLabel) {
-            String postLabel
             labelAttributes.addClass 'postLabel'
-            if (model.postLabel instanceof Map) {
-                postLabel = "<span data-bind=\"expression:'\"${model.preLabel.computed}\"'\"></span>"
-            }
-            else {
-                postLabel = model.postLabel
-            }
+            String postLabel = postLabel = labelContent(model.postLabel)
             result = dataTag + "<span ${labelAttributes.toString()}>${postLabel}</span>"
         }
 
@@ -353,6 +355,14 @@ class ModelTagLib {
     }
 
 
+    private String labelContent(Map labelModel) {
+        String expression = labelModel.computed
+        "<span data-bind=\"expression:'\"${expression}\"'\"></span>"
+    }
+
+    private String labelContent(String labelModel) {
+        labelModel
+    }
 
 
     /**
