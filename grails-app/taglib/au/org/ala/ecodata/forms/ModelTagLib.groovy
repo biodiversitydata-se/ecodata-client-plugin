@@ -393,8 +393,11 @@ class ModelTagLib {
                 helpText = attr?.description
             }
         }
-        helpText = helpText?md.iconHelp([title:''], helpText):''
-        return "${label}${helpText}"
+        if (helpText) {
+            helpText = " "+md.iconHelp([useBinding:true], helpText.encodeAsJavaScript())
+        }
+
+        return "${label}${helpText?:''}"
 
     }
 
