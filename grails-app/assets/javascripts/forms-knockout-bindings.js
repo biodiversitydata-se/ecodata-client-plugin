@@ -692,6 +692,9 @@
     function createValidationString(config, expressionContext) {
         var validationString = '';
         _.each(config || [], function(ruleConfig) {
+            if (validationString) {
+                validationString += ',';
+            }
             validationString += ruleConfig.rule;
             if (ruleConfig.param) {
                 var paramString = ecodata.forms.evaluate(ruleConfig.param, expressionContext);

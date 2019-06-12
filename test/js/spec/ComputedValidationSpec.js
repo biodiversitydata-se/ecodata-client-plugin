@@ -39,4 +39,12 @@ describe("Computed Validation Spec", function () {
 
     });
 
+    it("will correctly attach more than one validation rule", function() {
+        metadata.validate.push({rule:"required"});
+
+        ko.bindingHandlers.computedValidation.init(mockElement, function() { return metadata.validate; }, [], vm, vm, vm);
+        vm.item2('200');
+        expect(mockElement.getAttribute('data-validation-engine')).toEqual('validate[min[2.00],required]')
+    });
+
 });
