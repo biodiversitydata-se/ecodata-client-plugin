@@ -20,7 +20,15 @@ class PreviewPage extends Page {
     }
 
     Navigator findFieldByModelName(String name) {
-        $("[data-bind*="+name+"]")
+        Navigator fields = $("input[data-bind*="+name+"]")
+        if (fields.size() == 0) {
+            fields = $("select[data-bind*="+name+"]")
+        }
+        if (fields.size() == 0) {
+            fields = $("[data-bind*="+name+"]")
+        }
+        fields
+
     }
 
     Navigator findFeatureMapButtonByModelName(String name) {
