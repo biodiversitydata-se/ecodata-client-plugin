@@ -63,49 +63,6 @@
         }
     };
 
-
-    ko.bindingHandlers.tooltip = {
-        init: function(element, valueAccessor) {
-            var local = ko.utils.unwrapObservable(valueAccessor()),
-                options = {};
-
-            ko.utils.extend(options, ko.bindingHandlers.tooltip.options);
-            ko.utils.extend(options, local);
-
-            $(element).tooltip(options);
-
-            ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-                $(element).tooltip("destroy");
-            });
-        },
-        update: function (element, valueAccessor) {
-
-            var $element = $(element);
-            $element.tooltip('destroy');
-
-            var local = ko.utils.unwrapObservable(valueAccessor()),
-                options = {};
-
-            ko.utils.extend(options, ko.bindingHandlers.tooltip.options);
-            ko.utils.extend(options, local);
-
-            $(element).tooltip(options);
-
-            ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-                $(element).tooltip("destroy");
-            });
-
-        },
-        options: {
-            placement: "right",
-            trigger: "hover",
-            html: true,
-            delay: {
-                show: 250
-            }
-        }
-    };
-
     // Binding to exclude the contained html from the current binding context.
     // Used when you want to bind a section of html to a different viewModel.
     ko.bindingHandlers.stopBinding = {
