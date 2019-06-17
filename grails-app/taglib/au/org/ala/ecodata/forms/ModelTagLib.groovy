@@ -328,7 +328,7 @@ class ModelTagLib {
 
         if (labelBindingType) {
             result = """
-                <div data-bind="{$labelBindingType:$labelBindingValue">${result}</div>
+                <div data-bind="$labelBindingType:$labelBindingValue">${result}</div>
             """
         }
         return result
