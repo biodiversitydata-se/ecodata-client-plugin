@@ -180,7 +180,8 @@ class ModelTagLib {
         Map source = getAttribute(attrs.model.dataModel, model.source)
 
         // The Knockout binding to apply around the label and input field, if required.
-        String labelBinding = null
+        String labelBindingValue = null
+        String labelBindingType = null
         if (source?.behaviour) {
             source.behaviour.each { constraint ->
                 ConstraintType type = ConstraintType.valueOf(constraint.type.toUpperCase())
@@ -191,7 +192,8 @@ class ModelTagLib {
                 else {
                     // Visibility bindings have to be applied not on the input field but around the label and
                     // input field
-                    labelBinding = bindingValue
+                    labelBindingType = type.binding
+                    labelBindingValue = bindingValue
                 }
             }
         }
@@ -324,9 +326,9 @@ class ModelTagLib {
 
         result = renderWithLabel(model, labelAttributes, attrs, editable, result)
 
-        if (labelBinding) {
+        if (labelBindingType) {
             result = """
-                <div data-bind="visible:$labelBinding">${result}</div>
+                <div data-bind="{$labelBindingType:$labelBindingValue">${result}</div>
             """
         }
         return result
