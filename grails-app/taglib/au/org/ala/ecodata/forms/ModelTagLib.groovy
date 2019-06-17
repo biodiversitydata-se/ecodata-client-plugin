@@ -179,21 +179,23 @@ class ModelTagLib {
         // The data model item we are rendering the view for.
         Map source = getAttribute(attrs.model.dataModel, model.source)
 
-        String visibleBinding = null
+        // The Knockout binding to apply around the label and input field, if required.
+        String labelBinding = null
         if (source?.behaviour) {
             source.behaviour.each { constraint ->
                 ConstraintType type = ConstraintType.valueOf(constraint.type.toUpperCase())
                 String bindingValue = type.isBoolean ? "${renderContext.source}.${constraint.type}Constraint" : renderContext.source
-                if (type != ConstraintType.VISIBLE) {
+                if (!type.appliesToLabel) {
                     renderContext.databindAttrs.add type.binding, bindingValue
                 }
                 else {
                     // Visibility bindings have to be applied not on the input field but around the label and
                     // input field
-                    visibleBinding = bindingValue
+                    labelBinding = bindingValue
                 }
             }
         }
+
         if (source?.warning) {
             renderContext.databindAttrs.add 'warning', model.source
         }
@@ -322,9 +324,9 @@ class ModelTagLib {
 
         result = renderWithLabel(model, labelAttributes, attrs, editable, result)
 
-        if (visibleBinding) {
+        if (labelBinding) {
             result = """
-                <div data-bind="visible:$visibleBinding">${result}</div>
+                <div data-bind="visible:$labelBinding">${result}</div>
             """
         }
         return result
@@ -346,7 +348,7 @@ class ModelTagLib {
 
         if (model.postLabel) {
             labelAttributes.addClass 'postLabel'
-            String postLabel = postLabel = labelContent(model.postLabel)
+            String postLabel = labelContent(model.postLabel)
             result = dataTag + "<span ${labelAttributes.toString()}>${postLabel}</span>"
         }
 
@@ -357,7 +359,7 @@ class ModelTagLib {
 
     private String labelContent(Map labelModel) {
         String expression = labelModel.computed
-        "<span data-bind=\"expression:'\"${expression}\"'\"></span>"
+        "<span data-bind=\"expression:'${expression}'\"></span>"
     }
 
     private String labelContent(String labelModel) {
@@ -487,7 +489,17 @@ class ModelTagLib {
 
         LayoutRenderContext childCtx = ctx.createChildContext(parentView: 'col', dataContext: ctx.dataContext, span: LAYOUT_COLUMNS)
 
-        out << "<div class=\"span${ctx.span}\">\n"
+        // Use even spacing for columns unless the column model specifies a span.
+        String css = "span${ctx.span}"
+        if (model.css) {
+            if (!model.css.contains("span")) {
+                css += "${css} ${model.css}"
+            }
+            else {
+                css = model.css
+            }
+        }
+        out << "<div class=\"${css}\">\n"
         viewModelItems(model.items, childCtx)
         out << "</div>"
     }
@@ -521,9 +533,6 @@ class ModelTagLib {
             default:
                 at.addSpan("span${layoutContext.span}")
                 out << "<div${at.toString()}>"
-                if (model.type != "number" && attrs.edit) {
-                    elementAttributes.addClass 'span12'
-                }
         }
 
         out << INDENT << dataTag(attrs, model, layoutContext.dataContext, attrs.edit, elementAttributes, null, labelAttributes)

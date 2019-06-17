@@ -126,3 +126,13 @@ table .select2 {
     width:100% !important; box-sizing:border-box;
 }
 
+div.col-border-right {
+    border-right: 1px solid lightgrey;
+    padding-right: 8px;
+}
+
+.span12 > textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
