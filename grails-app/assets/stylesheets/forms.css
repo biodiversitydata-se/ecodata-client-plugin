@@ -131,7 +131,7 @@ div.col-border-right {
     padding-right: 8px;
 }
 
-.span12 > textarea {
+.span12 textarea {
     width: 100%;
     box-sizing: border-box;
 }
