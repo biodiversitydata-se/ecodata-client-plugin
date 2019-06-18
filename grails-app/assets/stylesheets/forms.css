@@ -131,8 +131,14 @@ div.col-border-right {
     padding-right: 8px;
 }
 
-.span12 textarea {
+.model-form .span12 textarea {
     width: 100%;
     box-sizing: border-box;
+}
+
+.model-form .span12 input[type=text]  {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 28px;
 }
 

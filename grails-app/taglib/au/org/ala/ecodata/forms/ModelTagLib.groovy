@@ -74,7 +74,7 @@ class ModelTagLib {
 
         LayoutRenderContext ctx = new LayoutRenderContext(out:out, parentView:'', dataContext: 'data', span:LAYOUT_COLUMNS, attrs:attrs)
 
-        ctx.out << """<div data-bind="withContext:{\$context:\$context, \$config:\$config}">"""
+        ctx.out << """<div class="model-form" data-bind="withContext:{\$context:\$context, \$config:\$config}">"""
         viewModelItems(attrs.model?.viewModel, ctx)
         ctx.out << """</div>"""
 
