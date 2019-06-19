@@ -82,4 +82,28 @@ describe("Expression Spec", function () {
         expect(ecodata.forms.utils.neat_number(2000.23, 2)).toEqual("2,000.23");
     });
 
+    it("should be able to check if two numbers are within a certain percentage of each other", function() {
+        var data = {
+            value1:"1",
+            value2:"2"
+        };
+        var expression = "within(value1, value2, 0.1)";
+        var result = ecodata.forms.expressionEvaluator.evaluateBoolean(expression, data);
+
+        expect(result).toBeFalsy();
+
+        data.value1 = "2";
+        result = ecodata.forms.expressionEvaluator.evaluateBoolean(expression, data);
+        expect(result).toBeTruthy();
+
+        data.value1 = "2.2";
+        result = ecodata.forms.expressionEvaluator.evaluateBoolean(expression, data);
+        expect(result).toBeTruthy();
+
+        data.value1 = "2.2.1";
+        result = ecodata.forms.expressionEvaluator.evaluateBoolean(expression, data);
+        expect(result).toBeFalsy();
+
+    });
+
 });

@@ -64,9 +64,9 @@
       "dataType":"list",
       "columns":[
         {
-          "name": "textField",
+          "name": "tableTextField",
           "dataType": "text",
-          "description": "Description for textField"
+          "description": "Description for tableTextField"
         },
         {
           "name": "textFieldWithConstraints",
@@ -187,9 +187,9 @@
       "userAddedRows": true,
       "columns":[
         {
-          "source": "textField",
+          "source": "tableTextField",
           "type": "text",
-          "title": "Description for textField"
+          "title": "Description for tableTextField"
         },
         {
           "source": "textFieldWithConstraints",

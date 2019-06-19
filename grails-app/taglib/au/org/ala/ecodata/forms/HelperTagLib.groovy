@@ -26,16 +26,23 @@ class HelperTagLib {
                 helpText = body()
             }
 
-            Map spanAttrs = [class:'helphover', 'data-original-title':title, 'data-placement':'top', 'data-content':helpText, 'data-trigger':'click']
-            if (attrs['dynamic-help']) {
-                spanAttrs << ['data-bind':"attr:{'data-content':"+attrs['dynamic-help']+"}"]
+            Map spanAttrs
+            if (attrs.useBinding) {
+                spanAttrs = ['data-bind':"popover:{content:'${helpText}'}"]
             }
-            if (attrs.container) {
-                spanAttrs << ['data-container':attrs.container]
+            else {
+                spanAttrs = [class:'helphover', 'data-original-title':title, 'data-placement':'top', 'data-content':helpText, 'data-trigger':'click']
+                if (attrs['dynamic-help']) {
+                    spanAttrs << ['data-bind':"attr:{'data-content':"+attrs['dynamic-help']+"}"]
+                }
+                if (attrs.container) {
+                    spanAttrs << ['data-container':attrs.container]
+                }
+                if (attrs.html) {
+                    spanAttrs << ['data-html':'true']
+                }
             }
-            if (attrs.html) {
-                spanAttrs << ['data-html':'true']
-            }
+
             mb.span(spanAttrs) {
                 i(class:'fa fa-question-circle') {
                     mkp.yieldUnescaped("&nbsp;")

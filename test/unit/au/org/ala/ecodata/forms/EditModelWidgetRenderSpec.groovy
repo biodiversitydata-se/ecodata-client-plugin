@@ -53,6 +53,7 @@ class EditModelWidgetRenderSpec extends Specification {
     def "the textarea renderer will append to the placeholder text if it exists and a maxSize validation attribute is supplied"() {
         setup:
         ctx = ctxBuilder().model([source:'myText', type:'textarea', placeholder:'placeholder']).validationString("required,maxSize[300]").build()
+        ctx.attributes.add('placeholder', ctx.model.placeholder)
 
         when:
         editModelWidgetRenderer.renderTextArea(ctx)
@@ -75,6 +76,7 @@ class EditModelWidgetRenderSpec extends Specification {
     def "the textarea renderer will include placeholder text if included in the model"() {
         setup:
         ctx = ctxBuilder().model([source:'myText', type:'textarea', placeholder:'my placeholder']).build()
+        ctx.attributes.add('placeholder', ctx.model.placeholder)
 
         when:
         editModelWidgetRenderer.renderTextArea(ctx)
