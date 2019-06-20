@@ -473,7 +473,7 @@ class ModelTagLib {
 
         LayoutRenderContext childCtx = ctx.createChildContext(parentView: 'row', dataContext: ctx.dataContext, span: span)
 
-        def extraClassAttrs = model.class ?: ""
+        def extraClassAttrs = model.class ?: model.css ?: ""
         def databindAttrs = model.visibility ? "data-bind=\"visible:${model.visibility}\"" : ""
 
         out << "<div class=\"row-fluid space-after ${extraClassAttrs}\" ${databindAttrs}>\n"
