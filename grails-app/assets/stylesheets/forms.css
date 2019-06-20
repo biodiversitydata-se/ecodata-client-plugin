@@ -126,9 +126,16 @@ table .select2 {
     width:100% !important; box-sizing:border-box;
 }
 
-div.col-border-right {
+.model-form div.col-border-right {
     border-right: 1px solid lightgrey;
-    padding-right: 8px;
+    padding-right: 2%;
+}
+
+.model-form .border-bottom {
+    border-bottom: 1px solid lightgrey;
+}
+.model-form .border-top {
+    border-top: 1px solid lightgrey;
 }
 
 .model-form .span12 textarea {
@@ -141,4 +148,5 @@ div.col-border-right {
     box-sizing: border-box;
     min-height: 28px;
 }
+
 
