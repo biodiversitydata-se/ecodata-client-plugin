@@ -85,6 +85,7 @@ grails.project.dependency.resolution = {
             excludes "httpmime"
             excludes "ala-auth"
         }
+        compile (":ala-auth:2.2.0")
         compile (":ala-map:2.1.7") {
             excludes "resources"
         }

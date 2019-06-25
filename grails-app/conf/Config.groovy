@@ -1,5 +1,6 @@
 // configuration for plugin testing - will not be included in the plugin zip
-
+disableCAS = true
+security.cas.appServerName = 'n/a'
 grails.mime.types = [ // the first one is the default format
                       all:           '*/*', // 'all' maps to '*' or the first available format in withFormat
                       atom:          'application/atom+xml',
