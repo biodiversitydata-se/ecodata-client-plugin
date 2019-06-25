@@ -15,15 +15,15 @@
 
 package au.org.ala.ecodata.forms
 /**
- * Helper class for invoking ecodata (and other Atlas) web services.
+ * Placeholder for the WebService class in BioCollect/Ecodata.  TODO Fix this.
+ * Using the ala-ws-plugin version is causing AST exceptions during the grails prod maven deploy in travis.
  */
-class WebService extends au.org.ala.ws.service.WebService {
-    private static APPLICATION_JSON = 'application/json'
+class WebService {
 
     def grailsApplication
 
     /** This isn't used! In both BioCollect and MERIT the WebService class is replaced by a locally defined service */
     def getJson(String url, Integer timeout = null, boolean includeApiKey = false) {
-        get(url, [:], APPLICATION_JSON, includeApiKey)
+        [:]
     }
 }

@@ -80,12 +80,6 @@ grails.project.dependency.resolution = {
     def tomcatVersion = '7.0.55'
     plugins {
         compile ":asset-pipeline:2.14.1"
-        compile ('org.grails.plugins:ala-ws-plugin:1.5.1') {
-            excludes "httpclient"
-            excludes "httpmime"
-            excludes "ala-auth"
-        }
-        compile (":ala-auth:2.2.0")
         compile (":ala-map:2.1.7") {
             excludes "resources"
         }
