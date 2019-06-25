@@ -16,6 +16,7 @@ class ActivityFormService {
     /**
      * Returns the activity form identified by name and version.  If version is ommitted the most recent
      * published version will be returned.
+     * Returns null if no activity form can be found.
      */
     def findActivityForm(String name, Integer version = null) {
 
@@ -24,7 +25,11 @@ class ActivityFormService {
         if (version) {
             url += '&formVersion='+version
         }
-        webService.getJson(url)
+        def result = webService.getJson(url)
+        if (!result || result.error) {
+            result = null
+        }
+        result
     }
 
     /**
@@ -33,10 +38,13 @@ class ActivityFormService {
      * This is to allow for a incremental transition to the new API.
      * @param name
      * @param version
-     * @return
+     * @return null if the form cannot be found.
      */
     Map getActivityAndOutputMetadata(String name, Integer version = null) {
         Map activityForm = findActivityForm(name, version)
+        if (!activityForm) {
+            activityForm = missingForm(name, version)
+        }
         List formSections = activityForm.sections
 
         Map model = [:]
@@ -49,5 +57,27 @@ class ActivityFormService {
         model.outputModels = formSections.collectEntries { [ it.name, it.template] }
 
         model
+    }
+
+    private Map missingForm(String name, Integer version) {
+        String message = "No activity form found with name ${name}"
+        if (version) {
+            message += " and version ${version}"
+        }
+        Map formTemplate = [
+                dataModel:[],
+                viewModel:[  ["type":"row", "items":[["type":"literal", "source":message]]]],
+                title:"Activity form not found"
+        ]
+        Map formModel = [
+                name:"Not found",
+                formVersion: version ?: 1,
+                supportsSites:false,
+                supportsPhotoPoints:null,
+                type:"Error",
+                category:"Missing",
+                sections:[[name:"Not found", title:"Activity form not found", optional:false, template:formTemplate]]
+        ]
+        formModel
     }
 }

@@ -56,4 +56,20 @@ class ActivityFormServiceSpec extends Specification {
         result.outputModels == [output:[modelName:'test']]
 
     }
+
+    void "the service will return a templated error message when a form is not found"() {
+        setup:
+        String name = "test form"
+
+        when:
+        def result = service.getActivityAndOutputMetadata(name)
+
+        then:
+        1 * webService.getJson({it.endsWith(ActivityFormService.ACTIVITY_FORM_PATH+"?name=test+form")}) >> [statusCode:404, error:"not found"]
+        result.metaModel.name == "Not found"
+        result.metaModel.outputs.size() == 1
+        result.metaModel.outputs[0] == "Not found"
+
+        result.outputModels["Not found"] != null
+    }
 }
