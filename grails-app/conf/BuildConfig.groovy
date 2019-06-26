@@ -65,6 +65,7 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.27'
         compile "org.apache.httpcomponents:httpcore:4.4.1"
         compile "org.apache.httpcomponents:httpclient:4.4.1"
+        compile "org.apache.httpcomponents:httpmime:4.4.1"
 
         //test 'xml-apis:xml-apis:1.4.01'
         test 'org.openclover:clover:4.3.0'
@@ -79,7 +80,6 @@ grails.project.dependency.resolution = {
     def tomcatVersion = '7.0.55'
     plugins {
         compile ":asset-pipeline:2.14.1"
-        //compile":ala-auth:2.2.0"
         compile (":ala-map:2.1.7") {
             excludes "resources"
         }
