@@ -693,12 +693,9 @@ class ModelTagLib {
 
         out << INDENT*4 << "<thead><tr>"
         table.columns.eachWithIndex { col, i ->
-            if (isRequired(attrs, col, attrs.edit)) {
-                out << "<th class=\"required\">" + labelText(attrs, col, col.title) + "</th>"
-            } else {
-                out << "<th>" + labelText(attrs, col, col.title) + "</th>"
-            }
-
+            boolean required = isRequired(attrs, col, attrs.edit)
+            String css = (required ? 'required' : "") + (col.css ?: "")
+            out << "<th class=\"${css}\">" + labelText(attrs, col, col.title) + "</th>"
         }
         if (table.source && attrs.edit && !attrs.printable && (table.editableRows || getAllowRowDelete(attrs, table.source, null))) {
             out << "<th></th>"
