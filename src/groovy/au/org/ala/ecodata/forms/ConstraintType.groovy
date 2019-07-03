@@ -24,13 +24,4 @@ enum ConstraintType {
         this.isBoolean = isBoolean
         this.appliesToLabel = appliesToLabel
     }
-
-    static ConstraintType findByBinding(String binding) {
-        for(ConstraintType v : values()) {
-            if( v.binding == binding) {
-                return v
-            }
-        }
-        return null
-    }
 }

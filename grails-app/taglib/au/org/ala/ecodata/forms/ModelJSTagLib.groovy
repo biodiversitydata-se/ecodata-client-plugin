@@ -818,7 +818,7 @@ class ModelJSTagLib {
 
         if (model.behaviour) {
             model.behaviour.each { constraint ->
-                ConstraintType type = ConstraintType.findByBinding(constraint.type)
+                ConstraintType type = ConstraintType.valueOf(constraint.type.toUpperCase())
                 if (type.isBoolean) {
                     out << INDENT * 3 << "${ctx.propertyPath}.${model.name}.${constraint.type}Constraint = ko.computed(function() {\n"
                     out << INDENT * 4 << "var condition = '${constraint.condition}';\n";
