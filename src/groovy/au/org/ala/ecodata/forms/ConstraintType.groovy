@@ -8,6 +8,7 @@ enum ConstraintType {
     VISIBLE("visible", true, true),
     IF("if", true, true),
     ENABLE("enable", true, false),
+    ENABLE_AND_CLEAR("enableAndClear", true, false),
     DISABLE("disable", true, false),
     CONDITIONAL_VALIDATION("conditionalValidation", false, false)
 
@@ -22,5 +23,14 @@ enum ConstraintType {
         this.binding = binding
         this.isBoolean = isBoolean
         this.appliesToLabel = appliesToLabel
+    }
+
+    static ConstraintType findByBinding(String binding) {
+        for(ConstraintType v : values()) {
+            if( v.binding == binding) {
+                return v
+            }
+        }
+        return null
     }
 }
