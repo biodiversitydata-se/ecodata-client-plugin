@@ -150,6 +150,14 @@ ko.extenders.feature = function (target, options) {
     result.areaHa = target.areaHa;
     result.lengthKm = target.lengthKm;
 
+    /**
+     * This callback is invoked when the component this model is bound to is desposed, which happens when
+     * a section or table row is deleted.  It is used to remove this model from the activity featureCollection.
+     */
+    result.dispose = function() {
+        options.featureCollection.deregisterFeature(target);
+    };
+
     return result;
 };
 
@@ -680,7 +688,15 @@ ko.components.register('feature', {
             if (self.model()) {
                 map.setGeoJSON(self.model(), {zoomToObject:false});
             }
-        }
+        };
+
+        /** Let the model know it's been deleted so it can deregister from the managed site */
+        self.dispose = function() {
+            if (_.isFunction(model.dispose)) {
+                model.dispose();
+            }
+        };
+
 
     },
     template: '<button class="btn edit-feature" data-bind="visible:!model() && !readonly, click:showMap, enable:enabled"><i class="fa fa-edit"></i></button>' +
@@ -716,6 +732,10 @@ ecodata.forms.FeatureCollection = function (features) {
 
     self.registerFeature = function (feature) {
         featureModels.push(feature);
+    };
+
+    self.deregisterFeature = function(feature) {
+        featureModels = _.without(featureModels, feature);
     };
 
     /**
