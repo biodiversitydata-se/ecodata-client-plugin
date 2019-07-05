@@ -33,7 +33,6 @@ ko.extenders.feature = function (target, options) {
     target([]);
     options.featureCollection.registerFeature(target);
 
-    var featureIds = [];
     var hasLength = true;
     var hasArea = true;
 
@@ -58,6 +57,26 @@ ko.extenders.feature = function (target, options) {
      * @returns {{featureIds: (Array|*), useArea: *, useLength: *}}
      */
     target.toJSON = function () {
+
+        // We are generating ids at serialization time because it removes issues with rows being added and
+        // deleted while the form is being edited.
+
+        var featureIdPrefix = options.featureId;
+        // Because the metadata extender is applied last, the behaviours will be applied
+        // to the value returned by this extender function, which in this case is this computed observable
+        // (result)
+        if (_.isFunction(result.getId)) {
+            featureIdPrefix = result.getId();
+        }
+
+        var features = target();
+        var featureIds = [];
+        _.each(features, function(feature, i) {
+            var featureId = featureIdPrefix + '-'+i;
+            feature.properties.id = featureId;
+            featureIds.push(featureId);
+        });
+
         return {
             featureIds: featureIds,
             hasArea: hasArea,
@@ -72,11 +91,11 @@ ko.extenders.feature = function (target, options) {
     target.loadData = function (data) {
         data = data || {};
 
-        featureIds = data.featureIds || [];
+        var featureIds = data.featureIds || [];
         var featureCollection = options.featureCollection.allFeatures();
         target(_.filter(featureCollection, function (feature) {
             if (feature.properties && feature.properties.id) {
-                return _.indexOf(data.featureIds, feature.properties.id) >= 0;
+                return _.indexOf(featureIds, feature.properties.id) >= 0;
             }
             return false;
         }));
@@ -107,25 +126,19 @@ ko.extenders.feature = function (target, options) {
         },
         write: function (geoJson) {
             var features = geoJson && geoJson.features || [];
-            var featureId = options.featureId;
 
-            // Because the metadata extender is applied last, the behaviours will be applied
-            // to the value returned by this extender function, which in this case is this computed observable
-            // (result)
-            if (_.isFunction(result.getId)) {
-                featureId = result.getId();
-            }
             _.each(features || [], function (feature) {
+
+                // Assign properties to each feature
                 if (!feature.properties) {
                     feature.properties = {};
                 }
                 // Track if this was a copy of a planning site.
                 if (feature.properties.id) {
                     feature.properties.originalId = feature.properties.id;
+                    feature.properties.id = null;
                 }
-                var id = featureId + '-' + featureIds.length;
-                feature.properties.id = id;
-                featureIds.push(id);
+
             });
             target(features);
         }
