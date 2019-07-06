@@ -31,7 +31,7 @@ ko.extenders.feature = function (target, options) {
     }
 
     target([]);
-    options.featureCollection.registerFeature(target);
+    var featureCollectionId = options.featureCollection.registerFeature(target);
 
     var hasLength = true;
     var hasArea = true;
@@ -66,7 +66,7 @@ ko.extenders.feature = function (target, options) {
         // to the value returned by this extender function, which in this case is this computed observable
         // (result)
         if (_.isFunction(result.getId)) {
-            featureIdPrefix = result.getId();
+            featureIdPrefix = result.getId()+'-'+featureCollectionId;
         }
 
         var features = target();
@@ -706,6 +706,7 @@ ko.components.register('feature', {
 });
 
 ecodata.forms.FeatureCollection = function (features) {
+    var counter = 0;
     var self = this;
 
     var featureModels = [];
@@ -732,6 +733,7 @@ ecodata.forms.FeatureCollection = function (features) {
 
     self.registerFeature = function (feature) {
         featureModels.push(feature);
+        return counter++;
     };
 
     self.deregisterFeature = function(feature) {
