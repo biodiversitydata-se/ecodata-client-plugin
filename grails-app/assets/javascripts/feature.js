@@ -72,7 +72,7 @@ ko.extenders.feature = function (target, options) {
         var features = target();
         var featureIds = [];
         _.each(features, function(feature, i) {
-            var featureId = featureIdPrefix + '-'+i;
+            var featureId = featureIdPrefix + i;
             feature.properties.id = featureId;
             featureIds.push(featureId);
         });
@@ -135,7 +135,9 @@ ko.extenders.feature = function (target, options) {
                 }
                 // Track if this was a copy of a planning site.
                 if (feature.properties.id) {
-                    feature.properties.originalId = feature.properties.id;
+                    if (!feature.properties.originalId) {
+                        feature.properties.originalId = feature.properties.id;
+                    }
                     feature.properties.id = null;
                 }
 
