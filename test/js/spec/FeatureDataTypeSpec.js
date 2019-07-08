@@ -182,7 +182,7 @@ describe("Feature Data Type Spec", function () {
         var data = JSON.parse(json);
         // The feature ids are regenerated every time the form is saved.  When attached to a model, the
         // model information is included in the id (rather than using the options.featureId as the prefix as per the previous test)
-        expect(data.data.feature.featureIds).toEqual(['simpleFeatureViewModel-feature-10', 'simpleFeatureViewModel-feature-11']);
+        expect(data.data.feature.featureIds).toEqual(['1-simpleFeatureViewModel-feature-0', '1-simpleFeatureViewModel-feature-1']);
 
 
     });

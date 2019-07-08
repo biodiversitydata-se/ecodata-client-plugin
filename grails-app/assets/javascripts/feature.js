@@ -66,7 +66,7 @@ ko.extenders.feature = function (target, options) {
         // to the value returned by this extender function, which in this case is this computed observable
         // (result)
         if (_.isFunction(result.getId)) {
-            featureIdPrefix = result.getId()+'-'+featureCollectionId;
+            featureIdPrefix = featureCollectionId + "-" +result.getId()+'-';
         }
 
         var features = target();
