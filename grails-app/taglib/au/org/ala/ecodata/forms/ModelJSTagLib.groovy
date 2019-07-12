@@ -265,7 +265,7 @@ class ModelJSTagLib {
             out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'].loadData(${value});\n"
         }
         else if (mod.dataType == 'document') {
-            out << INDENT*4 << "var doc = _.find(context.documents || [], function(document) { return document.documentId == data['${mod.name}']} );\n"
+            out << INDENT*4 << "var doc = _.find(context.documents || [], function(document) { if (data['${mod.name}']) \n return document.documentId == data['${mod.name}'] || document.documentId ==  data['${mod.name}'].documentId ;\n else \n return false });"
             out << INDENT*5 << "if (doc) {\n"
             out << INDENT*6 << "${ctx.propertyPath}['${mod.name}'](new DocumentViewModel(doc));\n"
             out << INDENT*4 << "}\n"
