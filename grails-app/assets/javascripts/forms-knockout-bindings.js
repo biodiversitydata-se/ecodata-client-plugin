@@ -842,6 +842,27 @@
         }
     };
 
+    /**
+     * Behaves as per the knockoutjs enable binding, but additionally clears the observable associated with the
+     * value binding if it is also applied to the same element.
+     * @type {{update: ko.bindingHandlers.enableAndClear.update}}
+     */
+    ko.bindingHandlers['enableAndClear'] = {
+        'update': function (element, valueAccessor, allBindings) {
+            var value = ko.utils.unwrapObservable(valueAccessor());
+            if (value && element.disabled)
+                element.removeAttribute("disabled");
+            else if ((!value) && (!element.disabled)) {
+                element.disabled = true;
+                var value = allBindings.get('value');
+                if (ko.isObservable(value)) {
+                    value(undefined);
+                }
+            }
+
+        }
+    };
+
     ko.components.register('multi-input', {
         viewModel: function(params) {
             var self = this;

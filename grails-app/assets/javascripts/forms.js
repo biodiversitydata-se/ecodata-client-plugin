@@ -475,7 +475,7 @@ function orEmptyArray(v) {
         };
 
         /** Merge properties from obj2 into obj1 recursively, favouring obj1 unless undefined / missing. */
-        self.merge = function (obj1, obj2, result) {
+        self.merge = function (obj1, obj2, result, rules) {
 
             var keys = _.union(_.keys(obj1), _.keys(obj2));
             result = result || {};
@@ -493,20 +493,86 @@ function orEmptyArray(v) {
                     result[key] = obj2[key];
                 }
                 else if (_.isArray(obj1[key]) && _.isArray(obj2[key])) {
-                    if (obj2[key].length > obj1[key].length) {
-                        obj2[key].splice(obj1[key].length, obj2[key].length - obj1[key].length); // Delete extra array elements from obj2.
-                    }
-                    result[key] = self.merge(obj1[key], obj2[key], []);
+                    result[key] = mergeArrays(obj1[key], obj2[key], rules && rules[key]);
                 }
                 else if (_.isObject(obj1[key]) && _.isObject(obj2[key])) {
-                    result[key] = self.merge(obj1[key], obj2[key]);
+                    result[key] = self.merge(obj1[key], obj2[key], rules && rules[key]);
                 }
                 else {
-                    result[key] = obj1[key];
+                    if (rules && rules[key] && rules[key].replaceExisting) {
+                        result[key] = obj2[key];
+                    }
+                    else {
+                        result[key] = obj1[key];
+                    }
                 }
             }
             return result;
         };
+
+        /**
+         * Checks if the list of properties identified by name in the keys array match in both obj1 and obj2.
+         */
+        function matches(obj1, obj2, keys) {
+            for (var i=0; i<keys.length; i++) {
+                if (obj1[keys[i]] != obj2[keys[i]]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function mergeArrays(array1, array2, rules) {
+            if (rules) {
+                var result = [];
+
+                // Align each row of array2 with array1.
+                for (var i=0; i<array1.length; i++) {
+
+                    // Find the entry in row 2 that matches the row 1 key
+                    var matchingItemFromArray2 = _.find(array2 || [], function(obj2) {
+                        return matches(array1[i], obj2, rules.keys);
+                    });
+
+                    // If there is no row in the pre-pop data matching an existing saved row, check the rules
+                    // to see if we keep the existing saved row or discard it.
+                    if (matchingItemFromArray2 || !rules.deleteUnmatchedExistingRows) {
+                        result.push(self.merge(array1[i], matchingItemFromArray2 || {}, {}, rules));
+                    }
+                }
+
+                // Deal with extra items from array 2 if we should add new rows from the pre-pop data
+                if (rules.addUnmatchedNewRows) {
+                    for (var i=0; i<array2.length; i++) {
+                        // Find the entry in row 1 that matches the row 2 key
+                        var matchingItemFromArray1 = _.find(array1 || [], function(obj1) {
+                            return matches(array2[i], obj1, rules.keys);
+                        });
+
+                        if (!matchingItemFromArray1) {
+                            result.push(array2[i]);
+                        }
+                    }
+                }
+                if (rules.keys && rules.sort) {
+                    result = _.sortBy(result, function(value) {
+                        var sortKey = '';
+                        for (var i=0; i<rules.keys.length; i++) {
+                            sortKey += value[rules.keys[i]];
+                        }
+                        return sortKey;
+                    });
+                }
+                return result;
+            }
+            else {
+                // Do the merge based on the row index.
+                if (array2.length > array1.length) {
+                    array2.splice(array1.length, array2.length - array1.length); // Delete extra array elements from obj2.
+                }
+                return self.merge(array1, array2, []);
+            }
+        }
 
         self.prepop = function (conf) {
             return self.getPrepopData(conf).then(function (prepopData) {
@@ -1003,7 +1069,7 @@ function orEmptyArray(v) {
                         if (item.merge || !data) {
                             waitingOn.push(dataLoader.prepop(item).done(function (prepopData) {
                                 if (prepopData) {
-                                    _.extend(result, dataLoader.merge(prepopData, result));
+                                    _.extend(result, dataLoader.merge(result, prepopData, result, item.merge));
                                 }
                             }));
                         }

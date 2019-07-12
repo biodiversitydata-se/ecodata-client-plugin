@@ -29,7 +29,7 @@ ecodata.forms.SimpleFeatureViewModel = function (output, dataModel, context, con
     var self = this;
     ecodata.forms.OutputModel.apply(self, [output, dataModel, context, config]);
 
-    self.data.feature = ko.observable().extend({metadata:{metadata:self.dataModel['feature'], context:self.$context, config:self.$config}}).extend({feature:context});
+    self.data.feature = ko.observable().extend({feature:context}).extend({metadata:{metadata:self.dataModel['feature'], context:self.$context, config:config}});
     self.data.areaHa = ko.computed(function () {
         return ecodata.forms.expressionEvaluator.evaluate('$geom.areaHa(feature)', self.data, 2);
     });

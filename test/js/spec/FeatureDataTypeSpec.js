@@ -1,6 +1,8 @@
 describe("Feature Data Type Spec", function () {
     var turf ;
 
+    var context;
+
     beforeEach(function() {
         turf = window.turf;
         window.turf = {
@@ -10,6 +12,42 @@ describe("Feature Data Type Spec", function () {
             length: function(geoJSON, units) {
                 return 1;
             }
+
+        };
+
+        context = {
+
+            featureCollection: new ecodata.forms.FeatureCollection([
+                {
+                    type: "Feature",
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [[[]]]
+                    },
+                    properties: {
+                        id: 'Feature-0'
+                    }
+                },
+                {
+                    type: "Feature",
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [[[]]]
+                    },
+                    properties: {
+                        id: 'Feature-1'
+                    }
+                },
+                {
+                    type: "Feature",
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [[[]]]
+                    },
+                    properties: {
+                        id: 'Feature-2'
+                    }
+                }])
 
         };
     });
@@ -73,77 +111,16 @@ describe("Feature Data Type Spec", function () {
         expect(Number(model.data.feature.lengthKm())).toBeCloseTo(1);
     });
 
-    it("Something about the dlshith", function() {
 
-        var callback;
-        var config = {
-            featureCollection:{
-                registerFeature:function(feature) {
+    var metadata = {
+        name:'feature',
+        dataType:'feature'
+    };
 
-                }
-            }
-        };
-
-        // The feature data type relies on having the metadata available.
-        var feature = ko.observable().extend({metadata:{metadata:{name:'feature'}}, config:{}, context:{}}).extend({feature:config});
-
-        var geoJson = {type:'Polygon', coordinates:[[[1,0], [1,1], [0, 1], [0, 0], [1, 0]]]};
-        feature(geoJson);
-
-        //expect(feature()).toBe(geoJson);
-
-    });
-
-
-        var metadata = {
-            name:'feature',
-            dataType:'feature'
-        };
-        var context = {
-            featureCollection: {
-                allFeatures:function() {
-                    return [
-                        {
-                            type: "Feature",
-                            geometry: {
-                                type: "Polygon",
-                                coordinates: [[[]]]
-                            },
-                            properties: {
-                                id: 'Feature-1'
-                            }
-
-
-                        },
-                        {
-                            type: "Feature",
-                            geometry: {
-                                type: "Polygon",
-                                coordinates: [[[]]]
-                            },
-                            properties: {
-                                id: 'Feature-2'
-                            }
-                        },
-                        {
-                            type: "Feature",
-                            geometry: {
-                                type: "Polygon",
-                                coordinates: [[[]]]
-                            },
-                            properties: {
-                                id: 'Feature-3'
-                            }
-                        }]
-                },
-                registerFeature:function(feature) {
-                }
-            }
-        };
     function makeAFeature(featureCollection) {
         featureCollection = featureCollection || context.featureCollection;
 
-        var config = {featureCollection:featureCollection, outputName:'Test', featureId:'Feature'};
+        var config = {featureCollection:featureCollection, outputName:'Test', featureId:'Feature-'};
 
         // The feature data type relies on having the metadata available.
         return ko.observable().extend({metadata:{metadata:metadata, config:config, context:context}}).extend({feature:config});
@@ -153,7 +130,7 @@ describe("Feature Data Type Spec", function () {
     it("Should return geojson for use by other components (e.g. geojson2svg)", function() {
 
         var feature = makeAFeature();
-        feature.loadData({featureIds:['Feature-3']});
+        feature.loadData({featureIds:['Feature-2']});
 
         expect(feature().type).toEqual("FeatureCollection");
         expect(feature().features).toBeDefined();
@@ -189,7 +166,7 @@ describe("Feature Data Type Spec", function () {
     });
 
     it("Shouldn't return details of the shapes, just references to the ids", function() {
-        var featureIds = ['Feature-1', 'Feature-2'];
+        var featureIds = ['Feature-0', 'Feature-1'];
         var feature = makeAFeature();
         feature.loadData({featureIds:featureIds});
 
@@ -198,12 +175,14 @@ describe("Feature Data Type Spec", function () {
         expect(data.featureIds).toEqual(featureIds);
         expect(data.type).toBeUndefined();
 
-        var model = new ecodata.forms.SimpleFeatureViewModel({}, ecodata.forms.simpleFeatureViewModelMetadata, context, {});
+        var model = new ecodata.forms.SimpleFeatureViewModel({}, ecodata.forms.simpleFeatureViewModelMetadata, context, {outputName:"simpleFeatureViewModel"});
         model.loadData({feature:{featureIds:featureIds}});
         var json = model.modelAsJSON();
 
         var data = JSON.parse(json);
-        expect(data.data.feature.featureIds).toEqual(featureIds);
+        // The feature ids are regenerated every time the form is saved.  When attached to a model, the
+        // model information is included in the id (rather than using the options.featureId as the prefix as per the previous test)
+        expect(data.data.feature.featureIds).toEqual(['1-simpleFeatureViewModel-feature-0', '1-simpleFeatureViewModel-feature-1']);
 
 
     });
@@ -258,24 +237,4 @@ describe("Feature Data Type Spec", function () {
 
     });
 
-    it("can create unique ids for features as required", function() {
-        var featureCollection = new ecodata.forms.FeatureCollection(featureArray);
-        var config = {featureCollection:featureCollection, outputName:'Test', featureId:'Feature'};
-
-        // The feature data type relies on having the metadata available.
-        var featureModel = ko.observable().extend({metadata:{metadata:metadata, config:config, context:context}}).extend({feature:config});
-
-        featureModel({
-            type:'FeatureCollection',
-            features:featureArray
-        });
-
-
-        var result = featureModel();
-        var ids = _.map(result.features, function(feature) {return feature.properties.id;});
-        expect(ids).toEqual(['Feature-0', 'Feature-1', 'Feature-2', 'Feature-3']);
-        var names = _.map(result.features, function(feature) {return feature.properties.name;});
-        expect(names).toEqual(['polygon 1', 'polygon 2', 'polygon 3', 'polygon 4']);
-
-    });
 });
