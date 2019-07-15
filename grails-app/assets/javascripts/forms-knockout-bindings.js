@@ -67,8 +67,7 @@
             $(element).fileupload({
                 url:config.url,
                 autoUpload:true,
-                dataType:'json',
-                forceIframeTransport: true
+                dataType:'json'
             }).on('fileuploadadd', function(e, data) {
                 complete(false);
                 progress(1);
@@ -156,7 +155,6 @@
             $(element).fileupload({
                 url:config.url,
                 autoUpload:true,
-                forceIframeTransport: false,
                 dropZone: dropZone,
                 dataType:'json'
             }).on(eventPrefix+'add', function(e, data) {
