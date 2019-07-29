@@ -77,12 +77,12 @@ describe("Specification for the featureCollection", function () {
         featureCollection.registerFeature(featureModel);
         featureCollection.registerFeature(new ko.observable(feature()));
 
-        expect(featureCollection.allFeatures().length).toEqual(1);
+        expect(featureCollection.allFeatures().length).toEqual(2);
 
         var feature2 = feature();
         feature2.properties.id = 2;
         featureCollection.registerFeature(new ko.observable(feature2));
-        expect(featureCollection.allFeatures().length).toEqual(2);
+        expect(featureCollection.allFeatures().length).toEqual(3);
 
     });
 
