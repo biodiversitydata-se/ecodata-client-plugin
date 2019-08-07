@@ -198,14 +198,6 @@ describe("Feature Data Type Spec", function () {
 
     //============ ecodata.forms.FeatureCollection ===========
 
-    it("A feature collection with no attached feature models should return the original data only", function() {
-
-        var featureCollection = new ecodata.forms.FeatureCollection(featureArray);
-
-        expect(featureCollection.allFeatures()).toEqual(featureArray);
-
-    });
-
     it("A feature collection should not duplicate features after they are applied to feature models", function() {
 
         var featureCollection = new ecodata.forms.FeatureCollection(featureArray);
@@ -213,28 +205,10 @@ describe("Feature Data Type Spec", function () {
         var featureModel = makeAFeature(featureCollection);
         featureModel.loadData({featureIds:['Feature-1', 'Feature-2']});
 
-        var allFeatures = _.sortBy(featureCollection.allFeatures(), function(feature) {
-            return feature.properties.id;
-        });
 
-        expect(allFeatures).toEqual(featureArray);
+        expect(featureCollection.allFeatures()).toEqual([featureArray[0], featureArray[1]]);
 
     });
 
-    it("A feature collection should not duplicate features after they are applied to feature models", function() {
-
-        var featureCollection = new ecodata.forms.FeatureCollection(featureArray);
-
-        var featureModel = makeAFeature(featureCollection);
-        featureModel.loadData({featureIds:['Feature-1', 'Feature-2']});
-
-        featureModel({
-           type:"FeatureCollection",
-            features:[]
-        });
-
-        expect(featureCollection.allFeatures()).toEqual(featureArray);
-
-    });
 
 });

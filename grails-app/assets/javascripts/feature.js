@@ -92,7 +92,7 @@ ko.extenders.feature = function (target, options) {
         data = data || {};
 
         var featureIds = data.featureIds || [];
-        var featureCollection = options.featureCollection.allFeatures();
+        var featureCollection = options.featureCollection.savedFeatures();
         target(_.filter(featureCollection, function (feature) {
             if (feature.properties && feature.properties.id) {
                 return _.indexOf(featureIds, feature.properties.id) >= 0;
@@ -713,26 +713,6 @@ ecodata.forms.FeatureCollection = function (features) {
 
     var featureModels = [];
 
-    /**
-     * Returns the set of unique features as managed by all of the feature models registered with this collection
-     * (via the registerFeature function).
-     * @returns {*}
-     */
-    var uniqueFeatures = function () {
-
-        var unwrappedFeatures = _.filter(
-            _.map(featureModels, function (feature) {
-                return ko.utils.unwrapObservable(feature)
-            }), function (feature) {
-                return feature;
-            });
-
-        // We are using indexBy to remove duplicate features.
-        return _.values(_.indexBy(_.flatten(unwrappedFeatures), function (feature) {
-            return feature.properties && feature.properties.id;
-        }));
-    };
-
     self.registerFeature = function (feature) {
         featureModels.push(feature);
         return counter++;
@@ -740,6 +720,10 @@ ecodata.forms.FeatureCollection = function (features) {
 
     self.deregisterFeature = function(feature) {
         featureModels = _.without(featureModels, feature);
+    }
+
+    self.savedFeatures = function() {
+        return features;
     };
 
     /**
@@ -748,12 +732,15 @@ ecodata.forms.FeatureCollection = function (features) {
      * @returns {*}
      */
     self.allFeatures = function () {
-        return _.union(uniqueFeatures(), features);
+        return _.flatten(
+            _.map(featureModels, function (feature) {
+                return ko.utils.unwrapObservable(feature)
+            }));
     };
 
 
     self.isDirty = function () {
-        return _.difference(uniqueFeatures(), features).length > 0;
+        return _.difference(self.allFeatures(), features).length > 0;
     };
 
     /**
@@ -763,7 +750,7 @@ ecodata.forms.FeatureCollection = function (features) {
      */
     self.toSite = function (site) {
 
-        var featureGeoJson = {type: 'FeatureCollection', features: uniqueFeatures()};
+        var featureGeoJson = {type: 'FeatureCollection', features: self.allFeatures()};
 
         var extent = turf.convex(featureGeoJson);
 
