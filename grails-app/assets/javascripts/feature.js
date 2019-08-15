@@ -90,16 +90,14 @@ ko.extenders.feature = function (target, options) {
         }
     });
 
-    // Copy the utilities and any augmentations done in earlier extenders into the return value.
-    _.defaults(result, target);
-
     if (options.featureCollection) {
         options.featureCollection.registerFeature(result);
+
         /**
          * This callback is invoked when the component this model is bound to is disposed, which happens when
          * a section or table row is deleted.  It is used to remove this model from the activity featureCollection.
          */
-        target.dispose = function() {
+        target.onDispose = function() {
             options.featureCollection.deregisterFeature(result);
         };
     }
@@ -108,6 +106,8 @@ ko.extenders.feature = function (target, options) {
             result(data);
         }
     }
+    // Copy the utilities and any augmentations done in earlier extenders into the return value.
+    _.defaults(result, target);
 
     return result;
 
@@ -658,8 +658,8 @@ ko.components.register('feature', {
 
         /** Let the model know it's been deleted so it can deregister from the managed site */
         self.dispose = function() {
-            if (_.isFunction(model.dispose)) {
-                model.dispose();
+            if (_.isFunction(model.onDispose)) {
+                model.onDispose();
             }
         };
 
