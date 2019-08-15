@@ -25,7 +25,7 @@ class FeatureMap extends Module {
         interact {
             moveByOffset(100, 100)
         }
-        waitFor{$('.leaflet-draw-tooltip').displayed}
+        waitFor{$('.leaflet-draw-actions').getAt(0).displayed}
 
         interact {
             click()
