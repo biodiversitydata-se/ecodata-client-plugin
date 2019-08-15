@@ -6,11 +6,9 @@ environments {
 
     // When developing functional tests, it's convenient to not require the app to be launched
     // when using test-app.  This can be achieved by passing the grails.server.url & grails.server.port
-    // grails -Dgeb.env=chrome -Dgrails.server.url=localhost -Dgrails.server.port=8080
-    // The browser can be selected by passing geb.env to the runtime.
-    // To use chrome, install the chrome driver, and pass: -Dwebdriver.chrome.driver=/path/to/chromedriver.
-    // To use phantomjs we can rely on the nodejs installation used by the javascript tests.
-    // (once you have run npm install it will be available)
+    // grails test-app functional: -Dgeb.env=chrome -Dgrails.server.url=localhost -Dgrails.server.port=8080
+    // The browser can be selected by passing geb.env to the runtime.  You need to run npm install before
+    // the drivers will be available for use by geb.
 
 
     baseUrl = 'http://localhost:8080/ecodata-client-plugin/'
