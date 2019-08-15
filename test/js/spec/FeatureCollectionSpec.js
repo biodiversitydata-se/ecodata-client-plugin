@@ -86,4 +86,21 @@ describe("Specification for the featureCollection", function () {
 
     });
 
+    it("will remove deleted features from the collection", function() {
+        var featureCollection = new ecodata.forms.FeatureCollection();
+
+        var featureModel1 = ko.observable(feature());
+        var featureModel2 = ko.observable(feature());
+        var featureModel3 = ko.observable(feature());
+        featureCollection.registerFeature(featureModel1);
+        featureCollection.registerFeature(featureModel2);
+        featureCollection.registerFeature(featureModel3);
+
+        expect(featureCollection.allFeatures().length).toEqual(3);
+
+        featureCollection.deregisterFeature(featureModel2);
+
+        expect(featureCollection.allFeatures().length).toEqual(2);
+    });
+
 });

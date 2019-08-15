@@ -828,7 +828,6 @@ ecodata.forms.FeatureCollection = function (features) {
     self.deregisterFeature = function(feature) {
         console.log("Feature de-registered:");
         featureModels = _.without(featureModels, feature);
-        delete modelIds[feature];
     };
 
     self.savedFeatures = function() {
