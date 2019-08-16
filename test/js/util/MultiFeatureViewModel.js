@@ -49,6 +49,7 @@ ecodata.forms.MultiFeatureViewModel = function (output, dataModel, context, conf
 
         self.test = ko.observable('test');
         self.loadData = function(data) {
+            data = data || {};
             self['feature'].loadData(ecodata.forms.orDefault(data['feature'], undefined));
         };
 
@@ -58,9 +59,12 @@ ecodata.forms.MultiFeatureViewModel = function (output, dataModel, context, conf
 
     var context = _.extend({}, context, {parent:self, listName:'features'});
     self.features = ko.observableArray().extend({list:{metadata:self.dataModel, constructorFunction:featuresRow, context:context, userAddedRows:true, config:config}});
-
+    self.features.loadDefaults = function() {
+        self.features.addRow();
+    };
     self.loadData = function(data) {
-        self.loadfeatures(data);
+        data = data || {};
+        self.loadfeatures(data.features);
     };
 
     self.removeBeforeSave = function(jsData) {

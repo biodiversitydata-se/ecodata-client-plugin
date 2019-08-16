@@ -83,10 +83,12 @@ ko.extenders.feature = function (target, options) {
             if (!geojson || !geojson.type) {
                 target(null);
             }
-            // We always store data as a FeatureCollection so that we can support different
-            // geometry types.
-            var featureCollection = toFeatureCollection(geojson);
-            target(featureCollection);
+            else {
+                // We always store data as a FeatureCollection so that we can support different
+                // geometry types.
+                var featureCollection = toFeatureCollection(geojson);
+                target(featureCollection);
+            }
         }
     });
 
@@ -745,14 +747,6 @@ ecodata.forms.FeatureCollection = function (features) {
         if (!data) {
             return;
         }
-        if (data.modelId) {
-            maxId = data.modelId > maxId ? data.modelId : maxId;
-            featureModel.modelId = data.modelId;
-        }
-        else {
-            // Legacy situation = we have data but not an id.
-            // It is safe to assign one at this point.
-        }
         var featureIds = data.featureIds || [];
         var featuresForModel = _.filter(features, function (feature) {
             if (feature.properties && feature.properties.id) {
@@ -760,6 +754,19 @@ ecodata.forms.FeatureCollection = function (features) {
             }
             return false;
         });
+
+        if (data.modelId) {
+            maxId = data.modelId > maxId ? data.modelId : maxId;
+            featureModel.modelId = data.modelId;
+        }
+        else {
+            // Legacy situation = we have data but not an id.
+            // It is safe to assign one at this point.
+            var id = assignModelId(featureModel);
+            _.each(featuresForModel || [], function(feature) {
+                feature.properties.id = id+"-"+feature.properties.id;
+            });
+        }
 
         var geoJson = null;
         if (featuresForModel.length > 0) {
