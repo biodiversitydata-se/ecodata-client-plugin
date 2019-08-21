@@ -1,7 +1,7 @@
 dist: xenial
 language: groovy
 jdk:
-- oraclejdk8
+- openjdk8
 sudo: false
 branches:
   only:
