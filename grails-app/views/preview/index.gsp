@@ -17,7 +17,8 @@
                 </g:each>
             </ul>
         </div>
-        <div class="span10 example">
+        <div id="output-container" class="span10 example">
+
             <h3>${model.title ?: model.modelName}</h3>
             <md:modelView model="${model}" edit="true" printable="${false}"/>
 
@@ -52,7 +53,8 @@
             bieUrl:'',
             searchBieUrl:'',
             model: outputModel,
-            prepopUrlPrefix: '${createLink(controller:'preview')}'
+            prepopUrlPrefix: '${createLink(controller:'preview')}',
+            viewRootElementId:'output-container'
         };
         var output = {};
         var context = {

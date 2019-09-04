@@ -1,12 +1,14 @@
+dist: xenial
 language: groovy
 jdk:
-- oraclejdk8
+- openjdk8
 sudo: false
 branches:
   only:
   - master
   - dev
-  - issue-1499
+  - /^feature\/.*$/
+  - /^hotfix\/.*$/
 before_install:
 - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
 - wget -q https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/ala_common.sh

@@ -6,7 +6,10 @@ import grails.converters.JSON
 class PreviewPage extends Page {
     static url = "preview"
 
-    static at = { title.startsWith("Preview") }
+    static at = {
+        waitFor{js.modelReady == true}
+        title.startsWith("Preview")
+    }
 
     static content = {
         featureMapDialog { module FeatureMapDialog }
