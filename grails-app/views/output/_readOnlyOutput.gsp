@@ -29,7 +29,7 @@
 
             var context = {
                 project: fcConfig.project,
-                documents:<fc:modelAsJavascript model="${activity.documents}"/>,
+                documents:<fc:modelAsJavascript model="${activity.documents}" default="${[]}"/>,
                 pActivity: fcConfig.project
             };
 
