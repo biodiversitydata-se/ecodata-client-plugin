@@ -1,4 +1,5 @@
 import org.openqa.selenium.chrome.ChromeDriver
+import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.phantomjs.PhantomJSDriver
 
@@ -36,4 +37,18 @@ environments {
 
         driver = { new PhantomJSDriver() }
     }
+
+    chromeHeadless {
+
+        if (!System.getProperty("webdriver.chrome.driver")) {
+            System.setProperty("webdriver.chrome.driver", "node_modules/chromedriver/bin/chromedriver")
+        }
+        driver = {
+            ChromeOptions o = new ChromeOptions()
+            o.addArguments('headless')
+            o.addArguments('disable-dev-shm-usage')
+            new ChromeDriver(o)
+        }
+    }
+
 }

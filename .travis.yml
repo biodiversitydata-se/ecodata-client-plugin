@@ -3,6 +3,8 @@ language: groovy
 jdk:
 - openjdk8
 sudo: false
+addons:
+  chrome: stable
 branches:
   only:
   - master
@@ -16,11 +18,12 @@ before_install:
 - source ./ala_common.sh
 - ala_travis_grails_setup_env
 before_script:
+- export DETECT_CHROMEDRIVER_VERSION=true
 - npm install
 - npm run-script package-turf
 script:
 - node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
-- grails -Dphantomjs.binary.path=/usr/local/phantomjs/bin/phantomjs -Dgeb.env=phantomjs test-app -clover.on --non-interactive --stacktrace
+- grails -Dphantomjs.binary.path=/usr/local/phantomjs/bin/phantomjs -Dgeb.env=chromeHeadless test-app -clover.on --non-interactive --stacktrace
 - ala_travis_grails_build
 env:
   global:
