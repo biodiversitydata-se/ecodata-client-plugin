@@ -73,7 +73,7 @@ grails.project.dependency.resolution = {
         test "org.seleniumhq.selenium:selenium-support:2.53.1"
         test "org.seleniumhq.selenium:selenium-firefox-driver:2.53.1"
         test "org.seleniumhq.selenium:selenium-chrome-driver:2.53.1"
-        test "com.codeborne:phantomjsdriver:1.2.1"
+        test "com.codeborne:phantomjsdriver:1.3.0"
         test "net.sourceforge.nekohtml:nekohtml:1.9.22"
     }
 
