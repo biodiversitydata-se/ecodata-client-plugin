@@ -35,7 +35,7 @@ clover {
                 }
             }
         }
-        ant.'clover-check'(target: "48%", haltOnFailure: true) { }
+        ant.'clover-check'(target: "52%", haltOnFailure: true) { }
 
     }
 }

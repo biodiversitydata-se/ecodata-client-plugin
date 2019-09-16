@@ -206,4 +206,15 @@ class TestSpec extends GebReportingSpec {
         page.model.data.exampleList[0].value2 == "test 2"
 
     }
+
+    def "we can render model items as read only text in a span using the readonlyText view type"() {
+        when:
+        to ([name:'viewReadonlyTextExample'], PreviewPage)
+
+        then:
+        title == "Preview Readonly View Type Example"
+
+        and:
+        page.findFieldByModelName("notes").text() == "Default Value"
+    }
 }
