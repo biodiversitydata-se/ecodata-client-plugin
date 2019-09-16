@@ -97,6 +97,17 @@ class EditModelWidgetRenderSpec extends Specification {
         TestUtils.compareHtml(ctx.writer, """<input type="text" data-bind="value:${ctx.model.source}" class="input-small" maxlength="100" placeholder="(maximum 100 characters)" data-validation-engine="validate[${ctx.dataModel.validate}]"></textarea>""")
     }
 
+    def "the readonlyText method renders text in a span"() {
+        setup:
+        ctx = ctxBuilder().model([source:'myText', type:'readonlyText']).build()
+
+        when:
+        editModelWidgetRenderer.renderReadonlyText(ctx)
+
+        then:
+        TestUtils.compareHtml(ctx.writer, """<span data-bind="text:${ctx.model.source}"></span>""")
+
+    }
 
     WidgetRenderContextBuilder ctxBuilder() {
         new WidgetRenderContextBuilder()
