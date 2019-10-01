@@ -700,6 +700,8 @@ ecodata.forms.FeatureCollection = function (features) {
     // Tracks the individual feature data types that contribute to the collection
     var featureModels = [];
 
+    var legacyModelData = [];
+
     // It's not safe to assign ids to new features until we have
     // finished the load so we need to be notified when the load is complete.
     var loadComplete = false;
@@ -738,12 +740,28 @@ ecodata.forms.FeatureCollection = function (features) {
     }
 
     self.loadComplete = function() {
+
+        // Do the update after the load so as to ensure the models are marked as
+        // dirty.
+        _.each(legacyModelData, function(data) {
+            var id = assignModelId(data.model);
+            _.each(data.features || [], function(feature) {
+                feature.properties.id = id+"-"+feature.properties.id;
+            });
+        });
+
         loadComplete = true;
+
+        // Notify subscribers of the change.
+        _.each(legacyModelData, function(data) {
+            data.model.notifySubscribers();
+        });
+        legacyModelData = [];
+
     };
 
     self.loadDataForFeature = function(featureModel, data) {
 
-        console.log("Feature load:");
         if (!data) {
             return;
         }
@@ -761,11 +779,10 @@ ecodata.forms.FeatureCollection = function (features) {
         }
         else {
             // Legacy situation = we have data but not an id.
-            // It is safe to assign one at this point.
-            var id = assignModelId(featureModel);
-            _.each(featuresForModel || [], function(feature) {
-                feature.properties.id = id+"-"+feature.properties.id;
-            });
+            // Store the details to "fix" after the load is complete.  It
+            // has to be done after the dirty flag is reset or the changed
+            // features will not be saved (unless other edits are made to the same outputs)
+            legacyModelData.push({model:featureModel, features:featuresForModel});
         }
 
         var geoJson = null;
@@ -779,15 +796,13 @@ ecodata.forms.FeatureCollection = function (features) {
     };
 
     self.saveDataForFeature = function(featureModel) {
-        console.log("Feature save:");
-
         var featureCollection = featureModel();
 
         if (!featureCollection) {
             return;
         }
 
-        if (!featureModel.modelId) {
+        if (loadComplete && !featureModel.modelId) {
             // This shouldn't be possible, but it could be a dirty check
             // somehow triggers this?
             console.log("Attempted to save featureModel with no id");
@@ -809,7 +824,6 @@ ecodata.forms.FeatureCollection = function (features) {
     };
 
     self.featureChanged = function(featureModel) {
-        console.log("Feature data changed:");
         var featureCollection = featureModel();
 
         // Check if we need to assign ids to our features if/when they change.
@@ -823,7 +837,6 @@ ecodata.forms.FeatureCollection = function (features) {
     };
 
     self.registerFeature = function (featureModel) {
-        console.log("Feature registered:");
         featureModels.push(featureModel);
         featureModel.loadData = function(data) { self.loadDataForFeature(featureModel, data) };
         featureModel.toJSON = function() { return self.saveDataForFeature(featureModel) };
@@ -833,7 +846,6 @@ ecodata.forms.FeatureCollection = function (features) {
     };
 
     self.deregisterFeature = function(feature) {
-        console.log("Feature de-registered:");
         featureModels = _.without(featureModels, feature);
     };
 
