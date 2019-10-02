@@ -50,7 +50,7 @@ describe("Specification for the featureCollection", function () {
     });
 
 
-    it("can be convered to an ecodata 'compound' site", function () {
+    it("can be converted to an ecodata 'compound' site", function () {
 
         var featureCollection = new ecodata.forms.FeatureCollection();
 
@@ -103,4 +103,43 @@ describe("Specification for the featureCollection", function () {
         expect(featureCollection.allFeatures().length).toEqual(2);
     });
 
+
+    it("will save the original feature id in an original id property to track the origin of the feature", function () {
+        var featureCollection = new ecodata.forms.FeatureCollection();
+        featureCollection.loadComplete();
+
+        var featureModel = ko.observable();
+        featureCollection.registerFeature(featureModel);
+
+        var featureCollection = {
+            type:"FeatureCollection",
+            features:[feature()]
+        };
+       featureModel(featureCollection);
+
+        expect(featureModel.modelId).toBe(1);
+        expect(featureCollection.features[0].properties.originalId).toBe(feature().properties.id);
+        expect(featureCollection.features[0].properties.id).toBe("1-0");
+
+    });
+
+    it("will not overwrite the original id if the id is already there", function () {
+        var featureCollection = new ecodata.forms.FeatureCollection();
+        featureCollection.loadComplete();
+
+        var featureModel = ko.observable();
+        featureCollection.registerFeature(featureModel);
+
+        var featureCollection = {
+            type:"FeatureCollection",
+            features:[feature()]
+        };
+        featureCollection.features[0].properties.id="2";
+        featureCollection.features[0].properties.originalId="original";
+        featureModel(featureCollection);
+
+        expect(featureModel.modelId).toBe(1);
+        expect(featureCollection.features[0].properties.originalId).toBe("original");
+        expect(featureCollection.features[0].properties.id).toBe("1-0");
+    });
 });

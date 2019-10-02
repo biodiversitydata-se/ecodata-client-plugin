@@ -732,8 +732,8 @@ ecodata.forms.FeatureCollection = function (features) {
                 }
                 if (!feature.properties.originalId) {
                     feature.properties.originalId = feature.properties.id;
-                    feature.properties.id = featureId+i;
                 }
+                feature.properties.id = featureId+i;
             });
         }
 
@@ -824,6 +824,7 @@ ecodata.forms.FeatureCollection = function (features) {
     };
 
     self.featureChanged = function(featureModel) {
+        console.log("Feature changed")
         var featureCollection = featureModel();
 
         // Check if we need to assign ids to our features if/when they change.
