@@ -824,7 +824,6 @@ ecodata.forms.FeatureCollection = function (features) {
     };
 
     self.featureChanged = function(featureModel) {
-        console.log("Feature changed")
         var featureCollection = featureModel();
 
         // Check if we need to assign ids to our features if/when they change.
