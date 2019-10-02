@@ -246,6 +246,7 @@ describe("Specification for the featureCollection", function () {
         };
         var ids = ['MultiFeatureModel-feature-0-0', 'MultiFeatureModel-feature-0-1', 'MultiFeatureModel-feature-1-0'];
         var features = _.map(ids, function(id, i) {return featureWithId(id, i)});
+        features[0].properties.originalId = 'originalId';
         // There is an associated site containing these same ids in the feature collection of the site
         context.featureCollection = new ecodata.forms.FeatureCollection(features);
 
@@ -263,6 +264,7 @@ describe("Specification for the featureCollection", function () {
         var feature1 = multiFeatureModel.features()[0].feature();
         expect(feature1.features.length).toBe(2);
         expect(feature1.features[0].properties.id).toEqual('1-MultiFeatureModel-feature-0-0');
+        expect(feature1.features[0].properties.originalId).toEqual("originalId");
         expect(feature1.features[1].properties.id).toEqual('1-MultiFeatureModel-feature-0-1');
 
         var feature2 = multiFeatureModel.features()[1].feature();
@@ -282,5 +284,4 @@ describe("Specification for the featureCollection", function () {
 
 
     });
-
 });
