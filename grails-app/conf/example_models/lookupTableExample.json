@@ -1,0 +1,57 @@
+{
+  "modelName": "Lookup table example",
+  "dataModel": [
+    {
+      "dataType": "number",
+      "name": "input"
+    },
+    {
+      "dataType": "text",
+      "name": "lookupValue",
+      "computed": {
+        "operation": "lookup",
+        "lookupMap": "lookupMap",
+        "dependents": ["data.input"]
+      }
+    },
+    {
+      "dataType": "text",
+      "name": "lookupMap",
+      "map": [
+        {
+          "inputMin":1,
+          "inputMax":1,
+          "output": "\"value1\"",
+        },
+        {
+          "inputMin":2,
+          "inputMax":2,
+          "output": "\"value2\""
+        }
+      ]
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "preLabel": "Input",
+              "source": "input",
+              "type": "number"
+            },
+            {
+              "preLabel": "Output",
+              "source": "lookupValue",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "title": "Lookup table example"
+}
