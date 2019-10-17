@@ -11,12 +11,20 @@ branches:
   - dev
   - /^feature\/.*$/
   - /^hotfix\/.*$/
+  - grails-3.3.10
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
 before_install:
 - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
-- wget -q https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/ala_common.sh
-- chmod +x ala_common.sh
-- source ./ala_common.sh
-- ala_travis_grails_setup_env
+
 before_script:
 - export DETECT_CHROMEDRIVER_VERSION=true
 - npm install
@@ -25,6 +33,10 @@ script:
 - node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
 - grails -Dphantomjs.binary.path=/usr/local/phantomjs/bin/phantomjs -Dgeb.env=chromeHeadless test-app -clover.on --non-interactive --stacktrace
 - ala_travis_grails_build
+
+after_success:
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
+
 env:
   global:
   - TRAVIS_NODE_VERSION="10.8.0"

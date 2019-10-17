@@ -1,7 +1,8 @@
 package au.org.ala.ecodata.forms
 
-import org.codehaus.groovy.grails.plugins.codecs.JavaScriptCodec
+//import org.codehaus.groovy.grails.plugins.codecs.JavaScriptCodec
 
+import org.grails.encoder.impl.JavaScriptCodec
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 

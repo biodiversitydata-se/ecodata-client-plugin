@@ -1,8 +1,8 @@
 package au.org.ala.ecodata.forms
 
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONElement
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONElement
+import org.grails.web.json.JSONObject
 
 /**
  * Responsible for retrieving ActivityForms from ecodata.
