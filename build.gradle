@@ -55,7 +55,7 @@ dependencies {
     testCompile "org.grails:grails-web-testing-support"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    testCompile "org.grails:grails-test-mixins:3.3.0"
+    //testCompile "org.grails:grails-test-mixins:3.3.0"
 
     testRuntime 'com.github.detro:phantomjsdriver:1.2.0'
 

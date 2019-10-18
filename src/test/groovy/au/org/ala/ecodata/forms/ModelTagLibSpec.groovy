@@ -1,12 +1,14 @@
 package au.org.ala.ecodata.forms
 
-import grails.test.mixin.TestFor
+import grails.testing.web.taglib.TagLibUnitTest
+
+//import grails.test.mixin.TestFor
 import groovy.util.slurpersupport.NodeChild
 import groovy.xml.MarkupBuilder
 import spock.lang.Specification
 
-@TestFor(ModelTagLib)
-class ModelTagLibSpec extends Specification {
+//@TestFor(ModelTagLib)
+class ModelTagLibSpec extends Specification implements TagLibUnitTest<ModelTagLib> {
 
     ModelTagLib.LayoutRenderContext ctx
     StringWriter actualOut

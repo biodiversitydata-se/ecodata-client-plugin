@@ -1,10 +1,12 @@
 package au.org.ala.ecodata.forms
 
-import grails.test.mixin.TestFor
+import grails.testing.services.ServiceUnitTest
+
+//import grails.test.mixin.TestFor
 import spock.lang.Specification
 
-@TestFor(ModelService)
-class ModelServiceSpec extends Specification {
+//@TestFor(ModelService)
+class ModelServiceSpec extends Specification implements ServiceUnitTest<ModelService> {
 
     def "The default value for a data model item without a defaultValue attribute is null"() {
         setup:
