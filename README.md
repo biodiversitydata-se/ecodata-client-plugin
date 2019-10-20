@@ -30,11 +30,14 @@ grails test-app
 ```
 Webdrivers for chrome and phantomjs for use by the functional tests are installed by npm, so ensure you have run npm install before running the tests.  When running locally it is convenient to supply just one GEB environment.  e.g. -Dgeb.env=chrome
 
-* Javascript user tests are run using npm/karma.
+* Javascript user tests are run using npm.
 ```
-node_modules/karma/bin/karma start karma.conf.js
+npm test
 ```
-(if you installed karma globally you won't need the full path)
+To run the javascript tests in debug mode use:
+```
+npm run-script debug
+```
 
 ## Running
 The ecodata client plugin application includes a simple servlet that reads a data model and displays a form generated from that model.
