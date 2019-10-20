@@ -22,7 +22,7 @@ npm install -g karma
 * Run the npm script to package the turf geojson libraries and copy them to the grails-app/assets/javascripts folder.
 ```
 npm run-script package-turf
-
+```
 ## Testing
 * To run the grails unit tests, use:
 ```
