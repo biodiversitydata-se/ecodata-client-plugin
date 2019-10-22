@@ -12,7 +12,7 @@ environments {
     // the drivers will be available for use by geb.
 
 
-    baseUrl = 'http://localhost:8080/ecodata-client-plugin/'
+    //baseUrl = 'http://localhost:8080/'
 
     chrome {
         if (!System.getProperty("webdriver.chrome.driver")) {

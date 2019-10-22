@@ -26,6 +26,12 @@ endpoints:
     jmx:
         enabled: true
 
+disableCAS: true
+
+security:
+    cas:
+        appServerName: 'n/a'
+
 ---
 grails:
     mime:

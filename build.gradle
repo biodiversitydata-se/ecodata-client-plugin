@@ -51,22 +51,40 @@ dependencies {
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.14.2"
     testCompile "org.grails:grails-gorm-testing-support"
     testCompile "org.grails:grails-plugin-testing"
-    testCompile "org.grails.plugins:geb:1.1.2"
     testCompile "org.grails:grails-web-testing-support"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    //testCompile "org.grails:grails-test-mixins:3.3.0"
 
-    testRuntime 'com.github.detro:phantomjsdriver:1.2.0'
+    testCompile 'com.github.detro:phantomjsdriver:1.2.0'
 
-    compile "org.apache.httpcomponents:httpcore:4.4.1"
-    compile "org.apache.httpcomponents:httpclient:4.4.1"
+    testCompile "org.grails.plugins:geb"
+/*
+        exclude group: 'org.gebish', module: 'geb-spock'
+    }
+    testCompile "org.gebish:geb-spock:$gebVersion"
+*/
 
+    testCompile "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+//  testRuntime "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
+
+    testCompile "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+    
     compile "org.grails.plugins:ala-map-plugin:3.0-SNAPSHOT"
-
-
 }
 
+tasks.withType(Test) {
+    systemProperty "geb.env", System.getProperty('geb.env')
+    systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
+}
+/*
+webdriverBinaries {
+    chromedriver "$chromeDriverVersion"
+    geckodriver "$geckodriverVersion"
+}
+*/
 bootRun {
     jvmArgs('-Dspring.output.ansi.enabled=always')
     addResources = true

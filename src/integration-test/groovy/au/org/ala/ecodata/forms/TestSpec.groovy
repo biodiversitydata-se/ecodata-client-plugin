@@ -1,9 +1,14 @@
 package au.org.ala.ecodata.forms
 
 import geb.spock.GebReportingSpec
+import grails.testing.mixin.integration.Integration
 import pages.PreviewPage
 
+
+@Integration
 class TestSpec extends GebReportingSpec {
+
+    def grailsApplication
 
     def "test this!"() {
         when:

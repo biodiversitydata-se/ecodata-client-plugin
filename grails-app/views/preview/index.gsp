@@ -53,7 +53,7 @@
             bieUrl:'',
             searchBieUrl:'',
             model: outputModel,
-            prepopUrlPrefix: '${createLink(controller:'preview')}',
+            prepopUrlPrefix: window.location.origin, //"http://localhost:${serverPort}",
             viewRootElementId:'output-container'
         };
         var output = {};
