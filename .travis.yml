@@ -32,7 +32,7 @@ before_script:
 script:
 - node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
 #- grails -Dphantomjs.binary.path=/usr/local/phantomjs/bin/phantomjs -Dgeb.env=chromeHeadless test-app -clover.on --non-interactive --stacktrace
-#- ala_travis_grails_build
+- ala_travis_grails_build
 
 after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
