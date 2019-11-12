@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="application/javascript;charset=UTF-8" %>
 <g:set var="outputNameAsIdentifer" value="${md.toSingleWord([name: outputName])}"/>
 ecodata.forms["${outputNameAsIdentifer + 'ViewModel'}"] = function (output, dataModel, context, config) {
     var self = this;
