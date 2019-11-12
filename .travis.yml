@@ -29,9 +29,9 @@ before_script:
 #- export DETECT_CHROMEDRIVER_VERSION=true
 - npm install
 - npm run-script package-turf
-- LATEST_CHROMEDRIVER_VERSION=`curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"`
-- curl "https://chromedriver.storage.googleapis.com/${LATEST_CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" -O
-- unzip chromedriver_linux64.zip -d ~/bin
+#- LATEST_CHROMEDRIVER_VERSION=`curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"`
+#- curl "https://chromedriver.storage.googleapis.com/${LATEST_CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" -O
+#- unzip chromedriver_linux64.zip -d ~/bin
 
 script:
 - node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
