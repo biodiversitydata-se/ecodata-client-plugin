@@ -732,8 +732,8 @@ ecodata.forms.FeatureCollection = function (features) {
                 }
                 if (!feature.properties.originalId) {
                     feature.properties.originalId = feature.properties.id;
-                    feature.properties.id = featureId+i;
                 }
+                feature.properties.id = featureId+i;
             });
         }
 
