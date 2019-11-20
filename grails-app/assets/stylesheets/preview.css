@@ -40,3 +40,7 @@
     border-right: 1px solid grey;
     height:100%;
 }
+
+span.title {
+    text-overflow: ellipsis;
+}

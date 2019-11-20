@@ -1,0 +1,16 @@
+{
+  "dataModel": [
+    {
+      "dataType": "image",
+      "description": "",
+      "name": "images"
+    }
+  ],
+  "modelName": "Images Example",
+  "viewModel": [
+    {
+      "title": "Images:",
+      "source": "images",
+      "type": "image"
+    }]
+}
