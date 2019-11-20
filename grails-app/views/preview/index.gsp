@@ -77,10 +77,12 @@
             prepopUrlPrefix: '${createLink(controller:'preview')}',
             viewRootElementId:'output-container'
         };
+        var output = {};
+        <g:if test="${data}">
         var outputData = JSON.parse('${data.encodeAsJavaScript()}');
-        var output = {
-            data:outputData
-        };
+        outputt.data = outputData;
+        </g:if>
+
         var context = {
             activityData: {
                 value1: 1,

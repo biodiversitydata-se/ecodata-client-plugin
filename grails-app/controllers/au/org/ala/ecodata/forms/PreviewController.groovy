@@ -85,7 +85,7 @@ class PreviewController {
             }
         }
         else {
-            fileIn = getClass().getResourceAsStream(path)
+            fileIn = getClass().getResourceAsStream(relativePath)
         }
         Map result = [:]
         if (fileIn != null) {
