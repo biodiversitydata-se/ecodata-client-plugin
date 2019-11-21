@@ -80,7 +80,7 @@
         var output = {};
         <g:if test="${data}">
         var outputData = JSON.parse('${data.encodeAsJavaScript()}');
-        outputt.data = outputData;
+        output.data = outputData;
         </g:if>
 
         var context = {
@@ -92,7 +92,24 @@
                 {
                     documentId:'d1',
                     url:fcConfig.imagePreviewUrl+'/Landscape_1.jpg',
-                    thumbnailUrl:fcConfig.imagePreviewUrl+'/Landscape_1.jpg'
+                    thumbnailUrl:fcConfig.imagePreviewUrl+'/Landscape_1.jpg',
+                    "name": "Test image 1",
+                    "attribution": "Test attribution 1",
+                    "notes": "test notes 1",
+                    filename:"Landscape_1.jpg",
+                    filesize:1000
+
+                },
+                {
+                    documentId:'d2',
+                    url:fcConfig.imagePreviewUrl+'/Landscape_2.jpg',
+                    thumbnailUrl:fcConfig.imagePreviewUrl+'/Landscape_2.jpg',
+                    "name": "Test image 2",
+                    "attribution": "Test attribution 2",
+                    "notes": "Test notes 2",
+                    filename:"Landscape_2.jpg",
+                    filesize:1000
+
                 }
             ]
         };
