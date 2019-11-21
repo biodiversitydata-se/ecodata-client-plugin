@@ -1,0 +1,40 @@
+{
+  "dataModel": [
+    {
+      "dataType": "image",
+      "description": "",
+      "name": "images1"
+    },{
+      "dataType": "image",
+      "description": "",
+      "name": "images2"
+    }
+  ],
+  "modelName": "Images Example",
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "preLabel": "Always visible metadata:",
+              "source": "images1",
+              "type": "image",
+              "displayOptions": {
+                "metadataAlwaysVisible": true
+              }
+            },
+            {
+              "preLabel": "Default metadata behaviour:",
+              "source": "images2",
+              "type": "image"
+            }
+          ]
+        }
+      ]
+    }
+
+   ]
+}

@@ -15,6 +15,11 @@
 //= require attach-document.js
 //= require jquery.fileDownload/jQuery.fileDownload
 //= require leaflet-manifest.js
+//= require momentjs/2.24.0/moment.min.js
+//= require momentjs/2.24.0/locales/en-au.js
+//= require momentjs/moment-timezone-with-data.min.js
+//= require utils.js
+//= require knockout-dates.js
 //= require knockout-utils.js
 //= require forms.js
 //= require geojson2svg/1.2.3/geojson2svg

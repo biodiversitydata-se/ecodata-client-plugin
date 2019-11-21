@@ -4,23 +4,44 @@
     <title>Preview ${model.modelName}</title>
     <asset:stylesheet src="preview.css"/>
     <md:modelStyles model="${model}" edit="true"/>
+    <script>
+    // This is required by the ImageViewModel - should be passed in via the config rather than implicitly
+    // requiring access to a global.
+    // it also has server side dependencies that are not currently part of the ecodata-client-plugin codebase.
+    window.fcConfig = {
+        imageLeafletViewer:'/',
+        imagePreviewUrl: '${createLink(action:'imagePreview')}'
+    };
+
+</script>
 </head>
 <body>
 <div class="container-fluid validationEngineContainer">
 
     <div class="row-fluid">
-        <div class="span2 list">
+        <div class="span3 list">
             <h3>All examples</h3>
             <ul class="unstyled">
                 <g:each in="${examples}" var="example">
-                    <li><a href="${g.createLink(action:'index', params:[name:example.name])}">${example.title}</a></li>
+                    <li>
+                        <div class="row-fluid">
+                            <div class="title span8">${example.title}</div>
+
+                            <div class="span2">
+                                <a href="${g.createLink(action:'index', params:[name:example.name, mode:'view'])}" class="btn btn-small"><i class="fa fa-eye"></i> </a>
+                            </div>
+                            <div class="span2">
+                                <a href="${g.createLink(action:'index', params:[name:example.name])}" class="btn btn-small"><i class="fa fa-edit"></i> </a>
+                            </div>
+                        </div>
+                    </li>
                 </g:each>
             </ul>
         </div>
-        <div id="output-container" class="span10 example">
+        <div id="output-container" class="span9 example">
 
             <h3>${model.title ?: model.modelName}</h3>
-            <md:modelView model="${model}" edit="true" printable="${false}"/>
+            <md:modelView model="${model}" edit="${params.mode != 'view'}" printable="${false}"/>
 
             <hr/>
             <h3>Model JSON</h3>
@@ -35,7 +56,7 @@
 <asset:javascript src="preview.js"/>
 
 <g:render template="/output/outputJSModel"
-          model="${[edit: true,
+          model="${[edit: params.mode != 'view',
                     model: model,
                     outputName: model.modelName]}">
 
@@ -57,12 +78,42 @@
             viewRootElementId:'output-container'
         };
         var output = {};
+        <g:if test="${data}">
+        var outputData = JSON.parse('${data.encodeAsJavaScript()}');
+        output.data = outputData;
+        </g:if>
+
         var context = {
             activityData: {
                 value1: 1,
                 value2: "2"
-            }
+            },
+            documents:[
+                {
+                    documentId:'d1',
+                    url:fcConfig.imagePreviewUrl+'/Landscape_1.jpg',
+                    thumbnailUrl:fcConfig.imagePreviewUrl+'/Landscape_1.jpg',
+                    "name": "Test image 1",
+                    "attribution": "Test attribution 1",
+                    "notes": "test notes 1",
+                    filename:"Landscape_1.jpg",
+                    filesize:1000
+
+                },
+                {
+                    documentId:'d2',
+                    url:fcConfig.imagePreviewUrl+'/Landscape_2.jpg',
+                    thumbnailUrl:fcConfig.imagePreviewUrl+'/Landscape_2.jpg',
+                    "name": "Test image 2",
+                    "attribution": "Test attribution 2",
+                    "notes": "Test notes 2",
+                    filename:"Landscape_2.jpg",
+                    filesize:1000
+
+                }
+            ]
         };
+
 
         // This is required by any models that use the feature dataType
         context.featureCollection = config.featureCollection = new ecodata.forms.FeatureCollection([]);
