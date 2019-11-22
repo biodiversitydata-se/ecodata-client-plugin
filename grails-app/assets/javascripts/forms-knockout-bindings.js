@@ -531,8 +531,15 @@
         };
     };
 
+    /**
+     * Provides support for applying https://select2.org for options selection.
+     * The value supplied to this binding will be passed through as options to the select2
+     * widget.  It is expected this binding will be used in conjunction with the value binding
+     * so that updates to the view model will be reflected in the select 2 component.
+     * @type {{init: ko.bindingHandlers.select2.init}}
+     */
     ko.bindingHandlers.select2 = {
-        init: function(element, valueAccessor) {
+        init: function(element, valueAccessor, allBindings) {
             var defaults = {
                 placeholder:'Please select...',
                 dropdownAutoWidth:true,
@@ -547,6 +554,15 @@
             }
             $(element).select2(options);
             applySelect2ValidationCompatibility(element);
+
+            // Listen for changes to the view model and ensure the select2 component is
+            // updated to reflect the change.
+            var valueBinding = allBindings.get('value');
+            if (ko.isObservable(valueBinding)) {
+                valueBinding.subscribe(function() {
+                    $(element).trigger('change');
+                });
+            }
         }
     };
 
