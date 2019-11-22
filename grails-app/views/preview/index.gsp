@@ -95,7 +95,7 @@
                     thumbnailUrl:fcConfig.imagePreviewUrl+'/Landscape_1.jpg',
                     "name": "Test image 1",
                     "attribution": "Test attribution 1",
-                    "notes": "test notes 1",
+                    "notes": "Test notes 1",
                     filename:"Landscape_1.jpg",
                     filesize:1000
 

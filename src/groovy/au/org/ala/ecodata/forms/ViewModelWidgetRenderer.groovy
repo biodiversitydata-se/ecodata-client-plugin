@@ -107,9 +107,14 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderImage(WidgetRenderContext context) {
-        context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
-        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
-                model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: "''"])
+        if (context.getDisplayOption('metadataAlwaysVisible')) {
+            context.writer << context.g.render(template: '/output/imageDataTypeViewModelWithMetadataTemplate', plugin: 'ecodata-client-plugin',
+                    model: [name: context.source, index: "''"])
+        }
+        else {
+            context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
+                    model: [name: context.source, index: "''"])
+        }
     }
 
     @Override
