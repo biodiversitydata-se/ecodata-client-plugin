@@ -1,8 +1,8 @@
-//= require jquery/3.3.1/jquery-3.3.1.min.js
+//= require jquery/3.4.1/jquery-3.4.1.min.js
 //= require knockout/3.5.0/knockout
 //= require knockout/3.5.0/knockout.mapping-latest.js
 //= require bootstrap/js/bootstrap.js
-//= require bootstrap-datepicker/js/bootstrap-datepicker.js
+//= require bootstrap-datepicker/1.9/js/bootstrap-datepicker.js
 //= require modal-fullscreen-bootstrap-2.3.2/js/bootstrap-modal-fullscreen.js
 //= require file-upload-with-tmpl-manifest.js
 //= require underscorejs/1.8.3/underscore.js
