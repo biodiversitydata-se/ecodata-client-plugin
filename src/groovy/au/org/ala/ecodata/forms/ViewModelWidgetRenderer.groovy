@@ -57,8 +57,7 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderSimpleDate(WidgetRenderContext context) {
-        context.databindAttrs.add 'datepicker', context.source + '.date'
-        context.writer << "<input ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr} type='text' class='input-small'/>"
+        renderDate(context)
     }
 
     @Override
