@@ -38,7 +38,7 @@ module.exports = function (config) {
             'grails-app/assets/javascripts/forms.js',
             'grails-app/assets/javascripts/*.js',
             'grails-app/assets/components/ecodata-components.js',
-            'grails-app/assets/components/compile/*.js',
+            'grails-app/assets/components/compile/ecodata-templates.js',
             'grails-app/assets/components/javascript/*.js',
             'test/js/util/*.js',
             'test/js/spec/**/*.js'

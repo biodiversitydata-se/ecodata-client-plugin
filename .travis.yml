@@ -22,6 +22,7 @@ before_script:
 - npm install
 - npm run-script package-turf
 script:
+- grails compile
 - node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
 - grails -Dphantomjs.binary.path=/usr/local/phantomjs/bin/phantomjs -Dgeb.env=chromeHeadless test-app -clover.on --non-interactive --stacktrace
 - ala_travis_grails_build
