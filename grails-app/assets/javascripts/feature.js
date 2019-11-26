@@ -615,64 +615,6 @@ ecodata.forms.maps.showMapInModal = function(options) {
     return self.featureMapInstance;
 };
 
-ko.components.register('feature', {
-
-    viewModel: function (params) {
-
-        var self = this;
-        var model = params.feature;
-
-        if (!model) {
-            throw "The model attribute is required for this component";
-        }
-        self.model = model;
-
-        self.enabled = true;
-        if (_.isFunction(model.enableConstraint)) {
-            self.enabled = model.enableConstraint;
-        }
-
-
-        self.readonly = params.config.readonly;
-
-        self.ok = function (map) {
-
-            var geoJson = map.getGeoJSON();
-
-            _.each(geoJson.features || [], function (feature) {
-                delete feature.layer;
-            });
-
-            model(geoJson);
-        };
-
-        self.showMap = function() {
-
-            var options = {
-                okCallback:self.ok
-            };
-
-            var map = ecodata.forms.maps.showMapInModal(options);
-            if (self.model()) {
-                map.setGeoJSON(self.model(), {zoomToObject:false});
-            }
-        };
-
-        /** Let the model know it's been deleted so it can deregister from the managed site */
-        self.dispose = function() {
-            if (_.isFunction(model.onDispose)) {
-                model.onDispose();
-            }
-        };
-
-
-    },
-    template: '<button class="btn edit-feature" data-bind="visible:!model() && !readonly, click:showMap, enable:enabled"><i class="fa fa-edit"></i></button>' +
-        '<button class="btn edit-feature" data-bind="visible:model(), click:showMap, enable:enabled"><div class="mini-feature" data-bind="if:model(),geojson2svg:model"></div></button>'
-
-
-});
-
 /**
  * A FeatureCollection is responsible for managing the lifecycle and data
  * of model elements with the dataType of 'feature'.

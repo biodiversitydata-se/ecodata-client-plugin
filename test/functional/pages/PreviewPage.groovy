@@ -13,6 +13,7 @@ class PreviewPage extends Page {
 
     static content = {
         featureMapDialog { module FeatureMapDialog }
+        multiInput(required: false) { module MultiInput }
     }
 
     Map getModel() {
