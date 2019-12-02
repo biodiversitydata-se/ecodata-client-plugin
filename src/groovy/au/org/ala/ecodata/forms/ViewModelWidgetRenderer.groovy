@@ -57,8 +57,7 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderSimpleDate(WidgetRenderContext context) {
-        context.databindAttrs.add 'datepicker', context.source + '.date'
-        context.writer << "<input ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'${context.validationAttr} type='text' class='input-small'/>"
+        renderDate(context)
     }
 
     @Override
@@ -107,9 +106,14 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderImage(WidgetRenderContext context) {
-        context.databindAttrs.add 'imageUpload', "{target:${context.source}, config:{}}"
-        context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
-                model: [databindAttrs:context.databindAttrs.toString(), name: context.source, index: "''"])
+        if (context.getDisplayOption('metadataAlwaysVisible')) {
+            context.writer << context.g.render(template: '/output/imageDataTypeViewModelWithMetadataTemplate', plugin: 'ecodata-client-plugin',
+                    model: [name: context.source, index: "''"])
+        }
+        else {
+            context.writer << context.g.render(template: '/output/imageDataTypeViewModelTemplate', plugin: 'ecodata-client-plugin',
+                    model: [name: context.source, index: "''"])
+        }
     }
 
     @Override

@@ -2,17 +2,24 @@ package au.org.ala.ecodata.forms
 
 import grails.converters.JSON
 import grails.util.Environment
+import org.apache.commons.io.FilenameUtils
 
 class PreviewController {
 
     private static String EXAMPLE_MODEL = 'example.json'
     private static String EXAMPLE_MODELS_PATH = '/example_models/'
+    private static String EXAMPLE_DATA_PATH = '/example_data/'
+
 
     def index() {
 
         String modelName = params.name ?: EXAMPLE_MODEL
         Map model = getExample(modelName)
-        render ([model:[model:model, title:model.modelName, examples:allExamples()], view:'index'])
+
+        String dataFileName = params.data ?: modelName
+        Map data = getData(dataFileName)
+
+        render ([model:[model:model, data:data, title:model.modelName, examples:allExamples()], view:'index'])
 
     }
 
@@ -25,6 +32,21 @@ class PreviewController {
 
         render ([model:[model:model, title:model.modelName], view:'index'])
     }
+
+    def imagePreview(String id) {
+        String ext = FilenameUtils.getExtension(id)
+
+        InputStream imageIn = getClass().getResourceAsStream(EXAMPLE_DATA_PATH+id)
+        if (imageIn) {
+            response.contentType = 'image/'+ext
+            response.outputStream << imageIn
+            response.outputStream.flush()
+        }
+        else {
+            response.status = 404
+        }
+    }
+
 
     private List allExamples(){
         List examples = []
@@ -43,21 +65,37 @@ class PreviewController {
 
 
     private Map getExample(String name) {
+        loadFile(EXAMPLE_MODELS_PATH, name)
+    }
+
+    private getData(String name) {
+        loadFile(EXAMPLE_DATA_PATH, name)
+    }
+
+    private Map loadFile(String path, String name) {
         if (!name.endsWith('.json')) {
             name += '.json'
         }
 
-        String path = EXAMPLE_MODELS_PATH + name
+        String relativePath = path + name
 
-        InputStream modelIn
+        InputStream fileIn = null
+        // Allow easy reloading in development environments.
         if (Environment.current == Environment.DEVELOPMENT) {
-            File model = new File("./grails-app/conf"+path)
-            modelIn = new FileInputStream(model)
+            File file = new File("./grails-app/conf"+relativePath)
+            if (file.exists()) {
+                fileIn = new FileInputStream(file)
+            }
         }
         else {
-            modelIn = getClass().getResourceAsStream(path)
+            fileIn = getClass().getResourceAsStream(relativePath)
         }
-        JSON.parse(modelIn, 'UTF-8')
+        Map result = [:]
+        if (fileIn != null) {
+            result = JSON.parse(fileIn, 'UTF-8')
+        }
+        result
+
     }
 
     /**

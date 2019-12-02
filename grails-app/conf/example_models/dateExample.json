@@ -1,0 +1,68 @@
+{
+  "modelName": "Date example",
+  "dataModel": [
+    {
+      "dataType": "date",
+      "name": "date1"
+    },
+    {
+      "dataType": "date",
+      "name": "date2"
+    },
+    {
+      "dataType": "list",
+      "name": "nested",
+      "columns": [
+        {
+          "dataType":"date",
+          "name": "date3"
+        },
+        {
+          "dataType": "date",
+          "name": "date4"
+        }
+      ]
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "preLabel": "Date 1",
+              "source": "date1",
+              "type": "date"
+            },
+            {
+              "preLabel": "Date 2",
+              "source": "date2",
+              "type": "simpleDate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "source": "nested",
+      "columns": [
+        {
+          "type": "date",
+          "source": "date3",
+          "title": "Date 3",
+          "width": "50%"
+        },
+        {
+          "type": "simpleDate",
+          "source": "date4",
+          "title": "Date 4",
+          "width": "50%"
+        }
+      ]
+    }
+  ],
+  "title": "Date example"
+}
