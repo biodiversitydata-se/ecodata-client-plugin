@@ -139,10 +139,15 @@ class WidgetRenderContext {
      */
     String unitsToRender() {
         String units = null
-        if (model.displayOptions?.displayUnits) {
+        if (getDisplayOption('displayUnits')) {
             units = dataModel.units
         }
         units
+    }
+
+    /** Convenience method to formalise the use of the "displayOptions" view model attribute */
+    def getDisplayOption(String name) {
+        model.displayOptions ? model.displayOptions[name] : null
     }
 
 }

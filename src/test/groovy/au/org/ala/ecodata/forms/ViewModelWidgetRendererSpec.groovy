@@ -1,13 +1,9 @@
 package au.org.ala.ecodata.forms
 
-import grails.testing.web.GrailsWebUnitTest
-
-//import grails.test.mixin.TestMixin
-//import grails.test.mixin.support.GrailsUnitTestMixin
-//import org.grails.plugins.codecs.HTMLCodec
 import spock.lang.Specification
+import org.grails.plugins.codecs.HTMLCodec
+import org.grails.web.taglib.NamespacedTagDispatcher
 
-//@TestMixin(GrailsUnitTestMixin)
 class ViewModelWidgetRendererSpec extends Specification implements GrailsWebUnitTest{
 
     ViewModelWidgetRenderer viewModelWidgetRenderer
@@ -28,6 +24,25 @@ class ViewModelWidgetRendererSpec extends Specification implements GrailsWebUnit
         then:
         TestUtils.compareHtml(ctx.writer, """<span data-bind="text:${ctx.model.source}"></span>""")
 
+    }
+
+    def "the image view type accepts a parameter to chose the view template"() {
+        setup:
+        ctx = ctxBuilder().model([source:'myImage', type:'image', displayOptions:[metadataAlwaysVisible:true]]).build()
+        ctx.g = Mock(NamespacedTagDispatcher)
+
+        when:
+        viewModelWidgetRenderer.renderImage(ctx)
+
+        then:
+        1 * ctx.g.methodMissing("render", {it[0].template == '/output/imageDataTypeViewModelWithMetadataTemplate' && it[0].model.name == 'myImage'})
+
+        when:
+        ctx.model.displayOptions = null
+        viewModelWidgetRenderer.renderImage(ctx)
+
+        then:
+        1 * ctx.g.methodMissing("render", {it[0].template == '/output/imageDataTypeViewModelTemplate' && it[0].model.name == 'myImage'})
     }
 
     WidgetRenderContextBuilder ctxBuilder() {

@@ -23,27 +23,21 @@ npm install -g karma
 ```
 npm run-script package-turf
 ```
-* Install (or locate in the node_modules folder) web drivers required for Chrome, Firefox and/or PhantomJS.
-* Update the file:
-```
-test/functional/GebConfig.groovy
-```
-to supply paths to the web drivers.  Or when you run the tests, pass the required properties on the command line. e.g.
-```
-grails -Dwebdriver.chrome.driver=/path/to/chromedriver test-app :functional
-```
-
 ## Testing
 * To run the grails unit tests, use:
 ```
 grails test-app
 ```
+Webdrivers for chrome and phantomjs for use by the functional tests are installed by npm, so ensure you have run npm install before running the tests.  When running locally it is convenient to supply just one GEB environment.  e.g. -Dgeb.env=chrome
 
-* Javascript user tests are run using npm/karma.
+* Javascript user tests are run using npm.
 ```
-node_modules/karma/bin/karma start karma.conf.js
+npm test
 ```
-(if you installed karma globally you won't need the full path)
+To run the javascript tests in debug mode use:
+```
+npm run-script debug
+```
 
 ## Running
 The ecodata client plugin application includes a simple servlet that reads a data model and displays a form generated from that model.
