@@ -8,7 +8,7 @@ buildscript {
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.14.2"
-        classpath 'com.bmuschko:gradle-clover-plugin:2.2.3'
+        classpath 'com.bmuschko:gradle-clover-plugin:2.2.4'
     }
 }
 
@@ -21,7 +21,7 @@ apply plugin:"org.grails.grails-plugin"
 apply plugin:"org.grails.grails-plugin-publish"
 apply plugin:"asset-pipeline"
 apply plugin:"org.grails.grails-gsp"
-apply plugin:"com.bmuschko.clover"
+apply from: "${project.projectDir}/gradle/clover.gradle"
 
 repositories {
     mavenLocal()
@@ -82,29 +82,6 @@ tasks.withType(Test) {
     testLogging {
         events "passed", "skipped", "failed"
         exceptionFormat 'full'
-    }
-}
-
-clover {
-    excludes = ['**/Application.groovy',
-                '**/BootStrap.groovy',
-                '**/UrlMappings.groovy',
-                '**/*GrailsPlugin.groovy',
-                '**/*Mock.groovy',
-    ]
-
-    testIncludes = ['**/*Spec.groovy']
-
-    report {
-        //html = true Causes NPE on mac os / OpenJDK 8, possibly due to missing fonts
-        //xml = true
-        json = true
-
-        // Support capturing test results from JUnix XML report
-        testResultsDir = project.tasks.getByName('test').reports.junitXml.destination
-        testResultsInclude = 'TEST-*.xml'
-
-        targetPercentage = 53
     }
 }
 
