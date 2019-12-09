@@ -1,17 +1,16 @@
 package au.org.ala.ecodata.forms
 
 import spock.lang.Specification
-import org.grails.plugins.codecs.HTMLCodec
-import org.grails.web.taglib.NamespacedTagDispatcher
+import org.grails.taglib.NamespacedTagDispatcher
+import grails.testing.web.GrailsWebUnitTest
 
-class ViewModelWidgetRendererSpec extends Specification implements GrailsWebUnitTest{
+class ViewModelWidgetRendererSpec extends Specification implements GrailsWebUnitTest {
 
     ViewModelWidgetRenderer viewModelWidgetRenderer
     WidgetRenderContext ctx
 
     def setup() {
         viewModelWidgetRenderer = new ViewModelWidgetRenderer()
-        //mockCodec(HTMLCodec)
     }
 
     def "the readonlyText method renders text in a span"() {
