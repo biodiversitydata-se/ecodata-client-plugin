@@ -1,8 +1,10 @@
 package au.org.ala.ecodata.forms
 
 import geb.spock.GebReportingSpec
+import grails.testing.mixin.integration.Integration
 import pages.PreviewPage
 
+@Integration
 class ImageTypeSpec extends GebReportingSpec {
 
     def "The default behaviour of the view mode of the image view type is to show metadata on hover"() {

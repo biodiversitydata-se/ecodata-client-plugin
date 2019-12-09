@@ -1,8 +1,10 @@
 package au.org.ala.ecodata.forms
 
 import geb.spock.GebReportingSpec
+import grails.testing.mixin.integration.Integration
 import pages.PreviewPage
 
+@Integration
 class DateSpec extends GebReportingSpec {
 
     def "We can enter dates via the date or simpleDate view types"() {

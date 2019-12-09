@@ -59,11 +59,6 @@ dependencies {
     testCompile 'com.github.detro:phantomjsdriver:1.2.0'
 
     testCompile "org.grails.plugins:geb"
-/*
-        exclude group: 'org.gebish', module: 'geb-spock'
-    }
-    testCompile "org.gebish:geb-spock:$gebVersion"
-*/
 
     testCompile "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
     testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
@@ -77,7 +72,7 @@ dependencies {
 }
 
 tasks.withType(Test) {
-    systemProperty "geb.env", "chromeHeadless"//System.getProperty('geb.env')
+    systemProperty 'geb.env', System.getProperty('geb.env') ?: 'chromeHeadless'
     systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
 
     testLogging {
