@@ -842,10 +842,16 @@ function orEmptyArray(v) {
             // Download a blank template if we are appending, otherwise download a template containing the existing data.
             if (self.appendTableRows()) {
                 var url = config.excelOutputTemplateUrl + '?listName=' + listName + '&type=' + modelName;
-                $.fileDownload(url);
+                $.fileDownload(url)
+                    .fail(function (error){
+                            bootbox.alert('File download failed! ' + error);
+                     });
             }
             else {
-                self.downloadTemplateWithData(true, userAddedRows);
+                self.downloadTemplateWithData(true, userAddedRows)
+                    .fail(function (error){
+                        bootbox.alert('File download failed! ' + error);
+                     });
             }
         };
 
@@ -888,8 +894,14 @@ function orEmptyArray(v) {
         };
         self.uploadFailed = function (message) {
             var text = "<span class='label label-important'>Important</span><h4>There was an error uploading your data.</h4>";
-            text += "<p>" + message + "</p>";
+            if (message.jqXHR){
+                var resp = message.jqXHR.responseJSON
+                text += "<p>" + resp.error + "</p>";
+            }else{
+                text += "<p>" + message + "</p>";
+            }
             bootbox.alert(text)
+
         };
         self.allowUserAddedRows = userAddedRows;
         self.findDocumentInContext = function (documentId) {
