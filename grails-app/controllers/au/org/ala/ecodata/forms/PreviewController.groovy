@@ -15,10 +15,8 @@ class PreviewController {
 
         String modelName = params.name ?: EXAMPLE_MODEL
         Map model = getExample(modelName)
-
         String dataFileName = params.data ?: modelName
         Map data = getData(dataFileName)
-
         render ([model:[model:model, data:data, title:model.modelName, examples:allExamples()], view:'index'])
 
     }
