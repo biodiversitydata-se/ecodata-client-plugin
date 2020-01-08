@@ -1,0 +1,37 @@
+{
+  "modelName": "MultiInput View Type Example",
+  "dataModel": [
+    {
+      "columns": [
+        {
+          "dataType": "stringList",
+          "name": "webLinks",
+          "description": "Please a list of values"
+        }
+      ],
+      "dataType": "list",
+      "name": "actions"
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "columns": [
+            {
+              "preLabel": "List of values",
+              "computed": null,
+              "source": "webLinks",
+              "title": "Multi input",
+              "type": "multiInput"
+            }
+          ],
+          "userAddedRows": false,
+          "source": "actions",
+          "type": "table"
+        }
+      ]
+    }
+  ]
+}
