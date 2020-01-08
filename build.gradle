@@ -130,3 +130,14 @@ publishing {
         }
     }
 }
+
+task _Events {
+    doLast {
+        new GroovyScriptEngine([''] as String[]).run('_Events.groovy', new Binding())
+    }
+}
+
+// the tasks used here for dependsOn may be incomplete/incorrect
+assetCompile.dependsOn(_Events)
+compileGroovy.dependsOn(_Events)
+bootRun.dependsOn(_Events)
