@@ -7,7 +7,7 @@ import org.apache.commons.io.FileUtils
 Boolean doesTemplateNeedCompiling (File templateDirectory, File compiledTemplateFile) {
     Boolean compile = false
     if (templateDirectory != null) {
-        BasicFileAttributes attr = Files.readAttributes(compiledTemplateFile.canonicalPath, BasicFileAttributes.class)
+        BasicFileAttributes attr = Files.readAttributes(Paths.get(compiledTemplateFile.canonicalPath), BasicFileAttributes.class)
         FileTime lastModifiedTime = attr.lastModifiedTime()
         def templateFiles = templateDirectory.listFiles()
 
