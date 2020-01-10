@@ -133,7 +133,8 @@ publishing {
 
 task _Events {
     doLast {
-        new GroovyScriptEngine([''] as String[]).run('_Events.groovy', new Binding())
+        println "Running _Events.groovy script"
+        new GroovyScriptEngine([''] as String[]).run("${project.projectDir}/_Events.groovy", new Binding(['projectDir': project.projectDir]))
     }
 }
 

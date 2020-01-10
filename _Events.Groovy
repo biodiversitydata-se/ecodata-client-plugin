@@ -40,7 +40,7 @@ void generateTemplateFile(File compiledTemplateFile, File templateDirectory) {
                         .replaceAll("\"", "\\\\\"")
                         .replaceAll('\\s+', ' ')
                 FileUtils.writeStringToFile(compiledTemplateFile,
-                        "componentService.setTemplate(\"${componentName}\", \"" + content + "\");", true)
+                        "componentService.setTemplate(\"${componentName}\", \"" + content + "\");" as String, true)
             }
         }
     }
@@ -55,4 +55,4 @@ def buildTemplateFile(String templateDirectoryName, String compiledTemplateFileN
 
 }
 
-buildTemplateFile("./grails-app/assets/components/template", "./grails-app/assets/components/compile/ecodata-templates.js")
+buildTemplateFile("${projectDir}/grails-app/assets/components/template", "${projectDir}/grails-app/assets/components/compile/ecodata-templates.js")

@@ -94,7 +94,7 @@ class TemplateFileAssetResolver extends FileSystemAssetResolver {
                             .replaceAll("\"", "\\\\\"")
                             .replaceAll('\\s+', ' ')
                     FileUtils.writeStringToFile(file,
-                            "componentService.setTemplate(\"${componentName}\", \"" + content + "\");", true)
+                            "componentService.setTemplate(\"${componentName}\", \"" + content + "\");" as String, "UTF-8",true)
                 }
             }
         }
