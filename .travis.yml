@@ -27,8 +27,6 @@ before_install:
 - echo "before install"
 - export TZ=Australia/Canberra
 - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
-- echo $HOME
-- cd $HOME
 before_script:
 #- export DETECT_CHROMEDRIVER_VERSION=true
 - echo "before script"
@@ -39,11 +37,12 @@ before_script:
 #- unzip chromedriver_linux64.zip -d ~/bin
 
 script:
+- cd ~/AtlasOfLivingAustralia/ecodata-client-plugin
 - echo "in script"
 - ls -lt
-- node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
-- ./gradlew cloverGenerateReport
-- ./gradlew clean && ./gradlew build
+#- node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
+#- ./gradlew cloverGenerateReport
+#- ./gradlew clean && ./gradlew build
 #- grails -Dphantomjs.binary.path=/usr/local/phantomjs/bin/phantomjs -Dgeb.env=chromeHeadless test-app -clover.on --non-interactive --stacktrace
 
 after_success:
