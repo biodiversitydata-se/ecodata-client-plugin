@@ -26,6 +26,7 @@ cache:
 before_install:
 - echo "before install"
 - export TZ=Australia/Canberra
+- ls -lt
 - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
 before_script:
 #- export DETECT_CHROMEDRIVER_VERSION=true
@@ -37,7 +38,7 @@ before_script:
 #- unzip chromedriver_linux64.zip -d ~/bin
 
 script:
-- cd ~/AtlasOfLivingAustralia/ecodata-client-plugin
+- cd ~/build/AtlasOfLivingAustralia/ecodata-client-plugin
 - echo "in script"
 - ls -lt
 #- node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
