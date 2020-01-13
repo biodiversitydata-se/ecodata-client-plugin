@@ -35,7 +35,7 @@ install:
 before_script:
 #- export DETECT_CHROMEDRIVER_VERSION=true
 - echo "before script"
-- cd ~/build/AtlasOfLivingAustralia
+- cd ~/build/AtlasOfLivingAustralia/ecodata-client-plugin
 - npm install
 - npm run-script package-turf
 #- LATEST_CHROMEDRIVER_VERSION=`curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"`
