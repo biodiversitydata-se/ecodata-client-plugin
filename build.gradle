@@ -135,7 +135,7 @@ task _Events {
     doLast {
         println "Running _Events.groovy script"
         println "${project.projectDir}/_Events.groovy"
-        new GroovyScriptEngine([''] as String[]).run("${project.projectDir}/_Events.groovy", new Binding(['projectDir': project.projectDir]))
+        new GroovyScriptEngine(["${project.projectDir}"] as String[]).run("_Events.groovy", new Binding(['projectDir': project.projectDir]))
     }
 }
 
