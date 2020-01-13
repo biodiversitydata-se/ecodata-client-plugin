@@ -43,6 +43,7 @@ before_script:
 #- unzip chromedriver_linux64.zip -d ~/bin
 
 script:
+- cd $TRAVIS_BUILD_DIR
 - node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
 - ./gradlew cloverGenerateReport
 - ./gradlew clean && ./gradlew build
