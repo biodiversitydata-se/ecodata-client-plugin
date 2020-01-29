@@ -166,19 +166,11 @@ function enmapify(args) {
         viewModel.emit('sitechanged', siteId);
     });
 
-    // undefined/null, Google Maps or Default should enable Google Maps view
-    if (mapConfiguration.baseLayersName !== 'Open Layers') {
-        var googleLayer = new L.Google('ROADMAP', {maxZoom: 21, nativeMaxZoom: 21});
-        var otherLayers = {
-            Roadmap: googleLayer,
-            Hybrid: new L.Google('HYBRID', {maxZoom: 21, nativeMaxZoom: 21}),
-            Terrain: new L.Google('TERRAIN', {maxZoom: 21, nativeMaxZoom: 21})
-        };
-
-        mapOptions.baseLayer = googleLayer;
-        mapOptions.otherLayers = otherLayers;
-    }
-
+    var baseLayersAndOverlays = Biocollect.MapUtilities.getBaseLayerAndOverlayFromMapConfiguration(fcConfig.mapLayersConfig);
+    mapOptions.baseLayer = baseLayersAndOverlays.baseLayer;
+    mapOptions.otherLayers = baseLayersAndOverlays.otherLayers;
+    mapOptions.overlays = baseLayersAndOverlays.overlays;
+    mapOptions.overlayLayersSelectedByDefault = baseLayersAndOverlays.overlayLayersSelectedByDefault;
     var map = context.siteMap = new ALA.Map(viewModel.mapElementId, mapOptions);
 
     container[viewModel.mapElementId] = map;

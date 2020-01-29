@@ -24,7 +24,6 @@ cache:
 
 before_install:
 - export TZ=Australia/Canberra
-- ls -lt
 - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`)
 
 # added install step since travis is automatically injecting gradle assemble command. It causes issues the build to fail.
