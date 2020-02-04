@@ -672,7 +672,6 @@ function enmapify(args) {
 
 
         extent.geometry.centre = latLng;
-
         extent.geometry.type = geoType;
         extent.source = geoType == "Point" ? "Point" : geoType == "pid" ? "pid" : "drawn";
         extent.geometry.radius = feature.properties.radius;
@@ -728,7 +727,6 @@ function enmapify(args) {
         value ? map.startLoading() : map.finishLoading();
     });
 
-
     // continue init map
     if (!readonly) {
         map.addButton("<span class='fa fa-undo reset-map' title='Reset map'></span>", function () {
@@ -749,22 +747,26 @@ function enmapify(args) {
                 if(site.siteId == defaultZoomArea)
                     return site;
             });
-            var geojson;
+            // Is zoom area a project area?
+            if( (defaultsite.length == 0) && defaultZoomArea == project.projectSiteId) {
+                defaultsite = $.grep(project.sites,function(site){
+                    if(site.siteId == defaultZoomArea)
+                        return site;
+                });
+            }
 
+            var geojson;
             if (defaultsite.length>0) {
                 geojson = createGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(defaultsite[0].extent.geometry));
                 var bounds = geojson.getBounds(),
                     mapImpl = map.getMapImpl();
-
                 mapImpl.fitBounds(bounds);
-                //geojson.addTo(map);
             }
 
         }
     }
 
     zoomToDefaultSite();
-
 }
 
 var AddSiteViewModel = function (uniqueNameUrl) {
