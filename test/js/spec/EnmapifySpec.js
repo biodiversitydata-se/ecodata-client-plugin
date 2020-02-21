@@ -2,44 +2,6 @@ function resolveSites() {
     return [];
 }
 
-var Biocollect = {
-    "MapUtilities" : {
-        "getBaseLayerAndOverlayFromMapConfiguration": function () {
-            return {};
-        },
-        "featureToValidGeoJson": function () {
-            return {
-                type: "Feature",
-                geometry: {},
-                properties: {}
-            }
-        }
-    }
-};
-
-var fcConfig = {};
-var ALA = {
-    "Map": function () {
-        return {
-            subscribe: function () {
-                
-            },
-            markMyLocation: function () {
-                
-            },
-            getGeoJSON: function () {
-                
-            },
-            registerListener: function () {
-                
-            },
-            addButton: function () {
-                
-            }
-        }
-    }
-};
-
 function Emitter (viewModel) {
     viewModel.emit = function () {
 
@@ -51,6 +13,44 @@ describe("Enmapify Spec", function () {
     var mockElement = null;
     var options = null;
     beforeEach(function() {
+        window.Biocollect = {
+            "MapUtilities" : {
+                "getBaseLayerAndOverlayFromMapConfiguration": function () {
+                    return {};
+                },
+                "featureToValidGeoJson": function () {
+                    return {
+                        type: "Feature",
+                        geometry: {},
+                        properties: {}
+                    }
+                }
+            }
+        };
+
+        window.fcConfig = {};
+        window.ALA = {
+            "Map": function () {
+                return {
+                    subscribe: function () {
+
+                    },
+                    markMyLocation: function () {
+
+                    },
+                    getGeoJSON: function () {
+
+                    },
+                    registerListener: function () {
+
+                    },
+                    addButton: function () {
+
+                    }
+                }
+            }
+        };
+
         options = {
             viewModel: {mapElementId: "map"}
             , container: {"Test": "ghh"}
