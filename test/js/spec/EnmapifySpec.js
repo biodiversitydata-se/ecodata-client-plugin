@@ -17,7 +17,7 @@ var Biocollect = {
     }
 };
 
-fcConfig = {};
+var fcConfig = {};
 var ALA = {
     "Map": function () {
         return {
