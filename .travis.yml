@@ -38,7 +38,7 @@ before_script:
 script:
 - cd $TRAVIS_BUILD_DIR
 - ./gradlew clean && ./gradlew build
-- node_modules/karma/bin/karma start karma.conf.js --single-run --browsers PhantomJS
+- node_modules/karma/bin/karma start karma.conf.js --single-run --browsers ChromeHeadless
 - ./gradlew cloverGenerateReport
 #- grails -Dphantomjs.binary.path=/usr/local/phantomjs/bin/phantomjs -Dgeb.env=chromeHeadless test-app -clover.on --non-interactive --stacktrace
 
