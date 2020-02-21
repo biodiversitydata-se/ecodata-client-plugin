@@ -655,7 +655,6 @@ class ModelJSTagLib {
                 , name: "${model.name}"
                 , edit: ${!!edit}
                 , readonly: ${!!readonly}
-                , zoomToProjectArea: ${model.zoomToProjectArea}
                 , markerOrShapeNotBoth: ${model.options ? !model.options.allowMarkerAndRegion : true}
                 , proxyFeatureUrl: '${createLink(controller: 'proxy', action: 'feature')}'
                 , spatialGeoserverUrl: '${grailsApplication.config.spatial.geoserverUrl}'

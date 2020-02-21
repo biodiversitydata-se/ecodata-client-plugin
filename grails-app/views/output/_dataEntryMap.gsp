@@ -13,35 +13,34 @@
         <m:map id="${source}Map" width="100%"/>
     </div>
 </g:if>
-<g:if test="${!hideSiteSelection}">
-    <div class="${isHorizontal ? 'span6' : 'row-fluid'}" data-bind="visible: data.${source}SitesArray().length > 0">
-        <div>
-            <g:set var="textOnSiteLocation" value="Create or select a location"/>
-            <!-- ko if: selectFromSitesOnly -->
-                   <g:set var="textOnSiteLocation" value="Select a location"/>
-            <!-- /ko -->
 
-            <div class="row-fluid">
-                <div class="span12">
-                    <label for="siteLocation">${readonly ? 'Location:' : "${textOnSiteLocation}"}</label>
-                    <g:if test="${readonly}">
-                        <span class="output-text" data-bind="text: data.${source}Name() "></span>
-                    </g:if>
-                    <g:else>
-                    <!-- ko with: checkMapInfo -->
-                        <!-- ko ifnot: validation -->
-                        <span class="label label-important" data-bind="text:message"></span><br/>
-                        <!-- /ko -->
+<div class="${isHorizontal ? 'span6' : 'row-fluid'}" data-bind="visible: transients.hideSiteSelection">
+    <div>
+        <g:set var="textOnSiteLocation" value="Create or select a location"/>
+        <!-- ko if: selectFromSitesOnly -->
+               <g:set var="textOnSiteLocation" value="Select a location"/>
+        <!-- /ko -->
+
+        <div class="row-fluid">
+            <div class="span12">
+                <label for="siteLocation">${readonly ? 'Location:' : "${textOnSiteLocation}"}</label>
+                <g:if test="${readonly}">
+                    <span class="output-text" data-bind="text: data.${source}Name() "></span>
+                </g:if>
+                <g:else>
+                <!-- ko with: checkMapInfo -->
+                    <!-- ko ifnot: validation -->
+                    <span class="label label-important" data-bind="text:message"></span><br/>
                     <!-- /ko -->
-                        <select id="siteLocation"
-                                data-bind='options: data.${source}SitesArray, optionsText: "name", optionsValue: "siteId", value: data.${source}, optionsCaption: "${textOnSiteLocation}", disable: ${readonly} || data.${source}Loading'
-                                class="form-control input-xlarge full-width" data-validation-engine="validate[required,funcCall[validator_site_check]"></select>
-                    </g:else>
-                </div>
+                <!-- /ko -->
+                    <select id="siteLocation"
+                            data-bind='options: data.${source}SitesArray, optionsText: "name", optionsValue: "siteId", value: data.${source}, optionsCaption: "${textOnSiteLocation}", disable: ${readonly} || data.${source}Loading'
+                            class="form-control input-xlarge full-width" data-validation-engine="validate[required,funcCall[validator_site_check]"></select>
+                </g:else>
             </div>
         </div>
     </div>
-</g:if>
+</div>
 
 
 
@@ -52,48 +51,46 @@
 </g:if>
 
 <div class="${isHorizontal? 'span6' : 'row-fluid'}">
-    <div>
-        <g:if test="${!hideSiteSelection}">
-            <!-- ko if: data.${source} -->
+    <div data-bind="visible: transients.hideSiteSelection">
+        <!-- ko if: data.${source} -->
 
-            <div class="row-fluid">
-                <div class="span3">
-                    <label for="${source}CentroidLatitude">Centroid Latitude
-                        <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.centroidLatLon"/>', content:'<g:message code="record.edit.map.centroidLatLon.content"/>'}">
-                            <i class="icon-question-sign"></i>
-                        </a>
-                    </label>
-                </div>
-
-                <div class="span9">
-                    <g:if test="${readonly}">
-                        <span data-bind="text: data.${source}CentroidLatitude"></span>
-                    </g:if>
-                    <g:else>
-                        <input id="${source}Latitude" type="text" data-bind="value: data.${source}CentroidLatitude"
-                            ${validation} disabled class="form-control full-width-input">
-                    </g:else>
-                </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <label for="${source}CentroidLatitude">Centroid Latitude
+                    <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.centroidLatLon"/>', content:'<g:message code="record.edit.map.centroidLatLon.content"/>'}">
+                        <i class="icon-question-sign"></i>
+                    </a>
+                </label>
             </div>
 
-            <div class="row-fluid">
-                <div class="span3">
-                    <label for="${source}CentroidLongitude">Centroid Longitude</label>
-                </div>
+            <div class="span9">
+                <g:if test="${readonly}">
+                    <span data-bind="text: data.${source}CentroidLatitude"></span>
+                </g:if>
+                <g:else>
+                    <input id="${source}Latitude" type="text" data-bind="value: data.${source}CentroidLatitude"
+                        ${validation} disabled class="form-control full-width-input">
+                </g:else>
+            </div>
+        </div>
 
-                <div class="span9">
-                    <g:if test="${readonly}">
-                        <span data-bind="text: data.${source}CentroidLongitude"></span>
-                    </g:if>
-                    <g:else>
-                        <input id="${source}CentroidLongitude" type="text" data-bind="value: data.${source}CentroidLongitude"
-                            ${validation} disabled class="form-control full-width-input">
-                    </g:else>
-                </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <label for="${source}CentroidLongitude">Centroid Longitude</label>
             </div>
 
-            <!-- /ko -->
-        </g:if>
+            <div class="span9">
+                <g:if test="${readonly}">
+                    <span data-bind="text: data.${source}CentroidLongitude"></span>
+                </g:if>
+                <g:else>
+                    <input id="${source}CentroidLongitude" type="text" data-bind="value: data.${source}CentroidLongitude"
+                        ${validation} disabled class="form-control full-width-input">
+                </g:else>
+            </div>
+        </div>
+
+        <!-- /ko -->
 
         <!-- ko if: ko.isObservable(data.${source}Latitude) -->
 
@@ -249,9 +246,8 @@
         <div>
             Allow Points: <span data-bind="text:activityLevelData.pActivity.allowPoints">Allow Points</span> <br/>
             Allow Polygons: <span data-bind="text:activityLevelData.pActivity.allowPolygons"></span> <br/>
-            Allow Additional Survey Sites: <span data-bind="text:activityLevelData.pActivity.allowAdditionalSurveySites"></span> <br/>
+            Allow Additional Survey Sites: <span data-bind="text:activityLevelData.pActivity.addCreatedSiteToListOfSelectedSites"></span> <br/>
             Default zoom to: <span data-bind="text:activityLevelData.pActivity.defaultZoomArea"> </span> <br/>
-            Select only: <span data-bind="text:activityLevelData.pActivity.selectFromSitesOnly"> </span> <br/>
             Site ID： <span data-bind="text:data.${source}"/></span>
         </div>
     </div>
