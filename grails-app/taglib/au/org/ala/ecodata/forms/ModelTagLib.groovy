@@ -164,7 +164,7 @@ class ModelTagLib {
                 renderer = new PrintModelWidgetRenderer()
             }
         } else {
-            def toEdit = editable && !model.computed && !model.noEdit
+            def toEdit = editable && !model.noEdit
             if (toEdit) {
                 renderer = new EditModelWidgetRenderer()
             } else {
@@ -208,7 +208,8 @@ class ModelTagLib {
         if (model.enabled) {
             renderContext.databindAttrs.add "enable", evalDependency(model.enabled)
         }
-        if (model.readonly) {
+        // Computed values should be readonly.
+        if (model.readonly || model.computed || dataModel?.computed) {
             renderContext.attributes.add "readonly", "readonly"
         }
         if (model.placeholder) {
@@ -510,9 +511,6 @@ class ModelTagLib {
 
         AttributeMap at = new AttributeMap()
         at.addClass(model.css)
-        // inject computed from data model
-
-        model.computed = model.computed ?: getComputed(attrs, model.source, '')
 
         // Wrap data elements in rows to reset the bootstrap indentation on subsequent spans to save the
         // model definition from needing to do so.
