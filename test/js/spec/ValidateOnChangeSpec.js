@@ -1,5 +1,13 @@
 describe("Validate on change binding handler Spec", function () {
 
+    beforeEach(function() {
+        jasmine.clock().install();
+    });
+
+    afterEach(function() {
+        jasmine.clock().uninstall();
+    });
+
     it("Should replace the text of the element with the result of evaluating the expression against the binding context", function() {
         var mockElement = document.createElement('input');
         $(mockElement).attr('readonly', 'readonly');
@@ -10,10 +18,8 @@ describe("Validate on change binding handler Spec", function () {
         spyOn($.fn, 'validationEngine');
         observable("new value");
 
-        setTimeout(function() {
-            expect($.fn.validationEngine).toHaveBeenCalledWith('validate');
-            done();
-        })
+        jasmine.clock().tick(101);
+        expect($.fn.validationEngine).toHaveBeenCalledWith('validate');
     });
 
 });
