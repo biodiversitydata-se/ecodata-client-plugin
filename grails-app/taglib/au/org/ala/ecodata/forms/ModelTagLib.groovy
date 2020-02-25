@@ -199,7 +199,7 @@ class ModelTagLib {
         }
 
         if (source?.warning) {
-            renderContext.databindAttrs.add 'warning', model.source
+            renderContext.databindAttrs.add 'warning', renderContext.source
         }
 
         if (model.visibility) {
@@ -212,7 +212,7 @@ class ModelTagLib {
         if (model.readonly || model.computed || dataModel?.computed) {
             renderContext.attributes.add "readonly", "readonly"
             if (source && validationHelper.isValidatable(source, model, toEdit)) {
-                renderContext.databindAttrs.add("validateOnChange", model.source)
+                renderContext.databindAttrs.add("validateOnChange", renderContext.source)
             }
         }
 
