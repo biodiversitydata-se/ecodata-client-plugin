@@ -156,6 +156,7 @@ class ModelTagLib {
     def dataTag(attrs, model, context, editable, elementAttributes, databindAttrs, labelAttributes) {
         ModelWidgetRenderer renderer
 
+        boolean toEdit = editable && !model.noEdit
         if (attrs.printable) {
             if (attrs.printable == 'pdf') {
                 renderer = new PDFModelWidgetRenderer()
@@ -164,7 +165,6 @@ class ModelTagLib {
                 renderer = new PrintModelWidgetRenderer()
             }
         } else {
-            def toEdit = editable && !model.noEdit
             if (toEdit) {
                 renderer = new EditModelWidgetRenderer()
             } else {
@@ -211,7 +211,11 @@ class ModelTagLib {
         // Computed values should be readonly.
         if (model.readonly || model.computed || dataModel?.computed) {
             renderContext.attributes.add "readonly", "readonly"
+            if (source && validationHelper.isValidatable(source, model, toEdit)) {
+                renderContext.databindAttrs.add("validateOnChange", model.source)
+            }
         }
+
         if (model.placeholder) {
             renderContext.attributes.add("placeholder", model.placeholder)
         }

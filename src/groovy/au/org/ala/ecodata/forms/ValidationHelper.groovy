@@ -17,6 +17,16 @@ class ValidationHelper {
     /** jquery-validation-engine allows parameters to be passed to validation rules in the form maxLength[100] */
     private static Pattern RULE_PATTERN = Pattern.compile(/(.*)\[(.*)\]/)
 
+    /** Returns true if the element rendered from the supplied model has the potential to be validated */
+    boolean isValidatable(Map dataModel, Map viewModel, Boolean edit) {
+        boolean validatable = false
+        if (edit) {
+            def attr = findValidationAttribute(dataModel, viewModel, edit)
+            validatable = attr || dataModel.behaviour?.find{it.type?.toUpperCase() == ConstraintType.CONDITIONAL_VALIDATION.name()}
+        }
+        validatable
+    }
+
     List getValidationCriteria(Map dataModel, Map viewModel, Boolean edit) {
 
         def validationAttribute = findValidationAttribute(dataModel, viewModel, edit)
@@ -105,22 +115,6 @@ class ValidationHelper {
         if (validationAttribute) {
             addValidationAttribute(validationAttribute, context)
         }
-    }
-
-    /**
-     * Returns a Map of the form [rule: <rule>, value:<value>]
-     * If no rule with name ruleName is defined, null is returned.
-     */
-    Map getValidationRule(String ruleName) {
-        if (!validationRules) {
-            validationRules = validationHelper.validationRules(dataModel, model, editMode)
-        }
-
-        Map rule = null
-        if (validationRules.containsKey(ruleName)) {
-            rule = [rule:ruleName, value:validationRules[ruleName]]
-        }
-        rule
     }
 
     private void addValidationAttribute(String validationRules, WidgetRenderContext context) {
