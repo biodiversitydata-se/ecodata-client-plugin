@@ -73,4 +73,83 @@ class ModelJSTagLibSpec extends Specification implements TagLibUnitTest<ModelJST
         then:
         extenders == ".extend({writableComputed:{expression:'3*4', context:data}})"
     }
+
+    def "computed values containing expressions are rendered correctly"() {
+        setup:
+        Map dataModel = [type:'number', name:'test', dataType:'number', computed:[expression:'test1+1']]
+        ctx.dataModel = dataModel
+        ctx.propertyPath = 'data'
+        ctx.attrs = [:]
+
+        when:
+        tagLib.computedModel(ctx)
+
+        then:
+
+        compareWithoutWhiteSpace(
+                "data.test = ko.computed(function() { return ecodata.forms.expressionEvaluator.evaluate('test1+1', data, 2); });",
+                actualOut.toString())
+    }
+
+    def "computed values with expressions are rendered correctly"() {
+        setup:
+        Map dataModel = [type:'number', name:'test', dataType:'number', computed:[expression:'test1+1']]
+        ctx.dataModel = dataModel
+        ctx.propertyPath = 'data'
+        ctx.attrs = [:]
+
+        when:
+        tagLib.computedModel(ctx)
+
+        then:
+
+        compareWithoutWhiteSpace(
+                "data.test = ko.computed(function() { return ecodata.forms.expressionEvaluator.evaluate('test1+1', data, 2); });",
+                actualOut.toString())
+    }
+
+    def "computed values inside tables/lists with expressions are rendered correctly"() {
+        setup:
+        Map dataModel = [dataType:'list', name:'list', columns:[[name:'test', dataType:'number', computed:[expression:'test1+1']]]]
+        ctx.dataModel = dataModel
+        ctx.propertyPath = 'data'
+        ctx.attrs = [:]
+
+        ctx = ctx.createChildContext()
+        ctx.propertyPath = 'self'
+        ctx.dataModel = dataModel.columns[0]
+
+        when:
+        tagLib.computedModel(ctx)
+
+        then:
+
+        compareWithoutWhiteSpace(
+                "self.test = ko.computed(function() { return ecodata.forms.expressionEvaluator.evaluate('test1+1', self, 2); });",
+                actualOut.toString())
+    }
+
+    def "computed values with behaviours are rendered correctly"() {
+        setup:
+        Map computedValidation = [type:'conditional_validation', condition:'test1 == 1', value:[validate:'required', message:'test message']]
+        Map dataModel = [type:'number', name:'test', dataType:'number', computed:[expression:'test1+1'], behaviour:[computedValidation]]
+        ctx.dataModel = dataModel
+        ctx.propertyPath = 'data'
+        ctx.attrs = [:]
+
+        when:
+        tagLib.computedModel(ctx)
+
+        then:
+
+        compareWithoutWhiteSpace(
+                "data.test = ko.computed(function() { return ecodata.forms.expressionEvaluator.evaluate('test1+1', data, 2); });"+
+                "data.test = data.test.extend({metadata:{metadata:self.dataModel['test'],context:self.\$context,config:config}});",
+                actualOut.toString())
+    }
+
+
+    private void compareWithoutWhiteSpace(String expected, String actual) {
+        assert expected.replaceAll(/\s/, "") == actual.replaceAll(/\s/, "")
+    }
 }

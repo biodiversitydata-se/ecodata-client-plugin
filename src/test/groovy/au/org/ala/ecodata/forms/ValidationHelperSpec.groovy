@@ -102,4 +102,31 @@ class ValidationHelperSpec extends Specification {
         ctx.databindAttrs.map.get("computedValidation") == "item1.get(\"validate\")"
     }
 
+    def "The validation helper can determine whether a field needs validation"() {
+        setup:
+        Map dataModel = [name:"test", dataType:"number"]
+        Map viewModel = [source:"test", "type":"number"]
+
+        expect:
+        validationHelper.isValidatable(dataModel, viewModel, true) == false
+
+        when:
+        dataModel.validate = ["required"]
+
+        then:
+        validationHelper.isValidatable(dataModel, viewModel, true) == true
+        validationHelper.isValidatable(dataModel, viewModel, false) == false
+
+        when:
+        dataModel.validate = null
+        dataModel.behaviour = [
+                [type:"conditional_validation"]
+        ]
+
+        then:
+        validationHelper.isValidatable(dataModel, viewModel, true) == true
+        validationHelper.isValidatable(dataModel, viewModel, false) == false
+
+    }
+
 }
