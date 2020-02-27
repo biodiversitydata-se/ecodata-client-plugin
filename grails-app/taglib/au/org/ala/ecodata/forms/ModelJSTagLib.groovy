@@ -5,6 +5,8 @@ class ModelJSTagLib {
 
     class JSModelRenderContext {
 
+        JSModelRenderContext parentContext
+
         /** Used to render the results */
         def out
         /**
@@ -42,7 +44,8 @@ class ModelJSTagLib {
                     propertyPath: propertyPath,
                     dataModel: dataModel,
                     viewModelPath: viewModelPath,
-                    attrs:attrs
+                    attrs:attrs,
+                    parentContext: this
             )
         }
     }
@@ -121,7 +124,7 @@ class ModelJSTagLib {
     void renderDataModelItem(JSModelRenderContext ctx) {
         Map mod = ctx.dataModel
         if (mod.computed) {
-            computedValueRenderer.computedViewModel(ctx.out, ctx.attrs, mod, ctx.propertyPath, ctx.propertyPath)
+            computedModel(ctx)
         }
         else if (mod.dataType == 'text') {
             textViewModel(ctx)
@@ -521,17 +524,7 @@ class ModelJSTagLib {
         childCtx.viewModelPath = 'self.$parent'
         model.columns.each { col ->
             childCtx.dataModel = col
-            if (col.computed) {
-                switch (col.dataType) {
-                    case 'number':
-                    case 'text':
-                        computedValueRenderer.computedObservable(col, 'self', 'self', out)
-                        break
-                }
-            }
-            else {
-                renderDataModelItem(childCtx)
-            }
+            renderDataModelItem(childCtx)
         }
         renderLoad(ctx.dataModel.columns, childCtx)
 
@@ -673,6 +666,23 @@ class ModelJSTagLib {
 
     def featureModel(JSModelRenderContext ctx) {
         observable(ctx, ["{feature:config}"])
+    }
+
+    def computedModel(JSModelRenderContext ctx) {
+
+        // TODO computed values within tables are rendered differently to values outside tables for historical reasons
+        // This should be tidied up.
+        if (ctx.parentContext) {
+            computedValueRenderer.computedObservable(ctx.dataModel, ctx.propertyPath, ctx.propertyPath, ctx.out)
+        }
+        else {
+            computedValueRenderer.computedViewModel(ctx.out, ctx.attrs, ctx.dataModel, ctx.propertyPath, ctx.propertyPath)
+        }
+
+        if (requiresMetadataExtender(ctx.dataModel)) {
+            ctx.out << INDENT*3 << "${ctx.propertyPath}.${ctx.dataModel.name} = ${ctx.propertyPath}.${ctx.dataModel.name}${extenderJS(ctx, [])};\n"
+        }
+
     }
 
     def audioModel(JSModelRenderContext ctx) {

@@ -1,0 +1,107 @@
+{
+  "modelName": "Computed value with conditional validation example",
+  "dataModel": [
+    {
+      "dataType": "number",
+      "name": "item1",
+      "validate": "custom[integer]"
+    },
+    {
+      "computed": {
+        "expression": "item1 + 2"
+      },
+      "dataType": "number",
+      "name": "item2",
+      "behaviour": [
+        {
+          "condition": "item1 > 0",
+          "type": "conditional_validation",
+          "value": {
+            "validate":"min[10]",
+            "message":"test message"
+          }
+        }
+      ]
+    },
+    {
+      "dataType": "list",
+      "name": "nested",
+      "columns": [
+        {
+          "dataType":"number",
+          "name": "item3"
+        },
+        {
+          "dataType": "number",
+          "name": "item4",
+          "computed": {
+            "expression": "item3*item2"
+          }
+        }
+      ]
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "preLabel": "Item 1",
+              "source": "item1",
+              "type": "number"
+            },
+            {
+              "preLabel": "Item 2",
+              "source": "item2",
+              "type": "number"
+            },
+            {
+              "preLabel": "Item 2 with noEdit applied",
+              "source": "item2",
+              "type": "number",
+              "noEdit": true
+            },
+            {
+              "preLabel": "Item 2 as readonlyText",
+              "source": "item2",
+              "type": "readonlyText"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "source": "nested",
+      "columns": [
+        {
+          "type": "number",
+          "source": "item3",
+          "title": "Item 3"
+        },
+        {
+          "type": "number",
+          "source": "item4",
+          "title": "Item 4"
+        },
+        {
+          "type": "number",
+          "source": "item4",
+          "title": "Item 4",
+          "noEdit": "true",
+          "title": "item4 with \"noEdit\" applied"
+        },
+        {
+          "type": "readonlyText",
+          "source": "item4",
+          "title": "item4 as readonlyText"
+        }
+      ]
+
+    }
+  ],
+  "title": "Computed value with conditional validation example"
+}

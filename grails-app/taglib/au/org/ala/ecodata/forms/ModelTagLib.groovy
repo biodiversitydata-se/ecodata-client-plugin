@@ -156,6 +156,7 @@ class ModelTagLib {
     def dataTag(attrs, model, context, editable, elementAttributes, databindAttrs, labelAttributes) {
         ModelWidgetRenderer renderer
 
+        boolean toEdit = editable && !model.noEdit
         if (attrs.printable) {
             if (attrs.printable == 'pdf') {
                 renderer = new PDFModelWidgetRenderer()
@@ -164,7 +165,6 @@ class ModelTagLib {
                 renderer = new PrintModelWidgetRenderer()
             }
         } else {
-            def toEdit = editable && !model.computed && !model.noEdit
             if (toEdit) {
                 renderer = new EditModelWidgetRenderer()
             } else {
@@ -199,7 +199,7 @@ class ModelTagLib {
         }
 
         if (source?.warning) {
-            renderContext.databindAttrs.add 'warning', model.source
+            renderContext.databindAttrs.add 'warning', renderContext.source
         }
 
         if (model.visibility) {
@@ -208,9 +208,14 @@ class ModelTagLib {
         if (model.enabled) {
             renderContext.databindAttrs.add "enable", evalDependency(model.enabled)
         }
-        if (model.readonly) {
+        // Computed values should be readonly.
+        if (model.readonly || model.computed || dataModel?.computed) {
             renderContext.attributes.add "readonly", "readonly"
+            if (source && validationHelper.isValidatable(source, model, toEdit)) {
+                renderContext.databindAttrs.add("validateOnChange", renderContext.source)
+            }
         }
+
         if (model.placeholder) {
             renderContext.attributes.add("placeholder", model.placeholder)
         }
@@ -510,9 +515,6 @@ class ModelTagLib {
 
         AttributeMap at = new AttributeMap()
         at.addClass(model.css)
-        // inject computed from data model
-
-        model.computed = model.computed ?: getComputed(attrs, model.source, '')
 
         // Wrap data elements in rows to reset the bootstrap indentation on subsequent spans to save the
         // model definition from needing to do so.

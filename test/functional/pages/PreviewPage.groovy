@@ -19,6 +19,7 @@ class PreviewPage extends Page {
 
     static content = {
         featureMapDialog { module FeatureMapDialog }
+        multiInput(required: false) { module MultiInput }
     }
 
     Map getModel() {
@@ -38,6 +39,14 @@ class PreviewPage extends Page {
         }
         fields
 
+    }
+
+    Navigator findValidationElementForModelName(String name) {
+        Navigator modelField = findFieldByModelName(name)
+        String id = modelField.getAttribute("id")
+
+        Navigator validation = $("."+id+"formError")
+        validation
     }
 
     Navigator findFeatureMapButtonByModelName(String name) {

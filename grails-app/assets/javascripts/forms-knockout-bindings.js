@@ -877,77 +877,25 @@
         }
     };
 
-    ko.components.register('multi-input', {
-        viewModel: function(params) {
-            var self = this;
+    /**
+     * Because the jQueryValidationEngine triggers validation on blur, fields that don't accept focus
+     * (in particular computed fields with validation rules attached) can use this binding to trigger validation
+     * based on model value changes.
+     * @type {{init: ko.bindingHandlers.validateOnChange.init}}
+     */
+    ko.bindingHandlers['validateOnChange'] = {
+        'init': function (element, valueAccessor) {
 
-            self.observableValues = ko.observableArray();
-
-            // This method updates the values parameter with the contents of the managed array.
-            function syncValues() {
-                var rawValues = [];
-                for (var i=0; i<self.observableValues().length; i++) {
-                    rawValues.push(self.observableValues()[i].val());
-                }
-                params.values(rawValues);
+            if (ko.isObservable(valueAccessor())) {
+                var $element = $(element);
+                valueAccessor().subscribe(function() {
+                    setTimeout(function() {
+                        $element.validationEngine('validate');
+                    });
+                })
             }
-
-            function newValue(value) {
-                var observable = ko.observable(value || '');
-                observable.subscribe(syncValues);
-                self.observableValues.push({val:observable});
-            }
-
-            self.addValue = function() {
-                newValue();
-            };
-
-            self.removeValue = function(value) {
-                self.observableValues.remove(value);
-            };
-
-            if (params.values()) {
-                for (var i=0; i<params.values().length; i++) {
-                    newValue(params.values()[i]);
-                }
-            }
-
-            self.observableValues.subscribe(syncValues);
-        },
-        template: {element:'template-multi-input'}
-
-    });
-
-    ko.components.register('condition-trajectory', {
-        viewModel: function (params) {
-            var self = this;
-            var offsets = ["Very poor", "Poor", "Good", "Very good"];
-            var trajectories = ["Improving", "Deteriorating", "Stable", "Unclear"];
-
-            var width = 75;
-            var boxWidth = 30;
-            self.boxPosition = ko.computed(function() {
-                var condition = ko.utils.unwrapObservable(params.condition);
-                var index = offsets.indexOf(condition);
-                return index * width + width/2 - boxWidth/2;
-            });
-            self.title = ko.computed(function() {
-                var condition = ko.utils.unwrapObservable(ko.trajectory);
-                return "Condition: "+condition+", Trajectory: "+params.trajectory;
-            });
-
-            self.trajectoryTemplate = ko.computed(function() {
-                var trajectory = ko.utils.unwrapObservable(params.trajectory);
-                if (trajectory) {
-                    return 'template-trajectory-'+trajectory.toLowerCase();
-                }
-                return 'template-trajectory-none';
-            });
-
-        },
-        template:{element:'template-condition-trajectory'}
-
-    });
+        }
+    };
 
     /**
      * Extends the target as a ecodata.forms.DataModelItem.  This is required to support many of the
