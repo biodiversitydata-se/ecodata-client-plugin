@@ -150,3 +150,6 @@ table .select2 {
 }
 
 
+#error-info .formError.inline .formErrorContent {
+    box-sizing: border-box;
+}

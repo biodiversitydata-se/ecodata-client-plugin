@@ -1,257 +1,234 @@
 <g:set var="orientation" value="${orientation ?: 'horizontal'}"/>
 <g:set var="isHorizontal" value="${orientation == 'horizontal'}"/>
-<g:if test="${validation?.contains('required')}">
-    <g:set var="latValidation" value="data-validation-engine='validate[required,min[-90],max[90]]'"/>
-    <g:set var="lngValidation" value="data-validation-engine='validate[required,min[-180],max[180]]'"/>
-</g:if>
-<g:else>
-    <g:set var="latValidation" value="data-validation-engine='validate[min[-90],max[90]]'"/>
-    <g:set var="lngValidation" value="data-validation-engine='validate[min[-180],max[180]]'"/>
-</g:else>
-<g:if test="${isHorizontal}">
-    <div class="span6">
-        <m:map id="${source}Map" width="100%"/>
-    </div>
-</g:if>
+<g:set var="orientationClass" value="${isHorizontal ? 'span6' : 'row-fluid'}"/>
+<g:set var="latValidation" value="data-validation-engine='validate[min[-90],max[90]]'"/>
+<g:set var="lngValidation" value="data-validation-engine='validate[min[-180],max[180]]'"/>
 
-<div class="${isHorizontal ? 'span6' : 'row-fluid'}" data-bind="visible: transients.hideSiteSelection">
-    <div>
-        <g:set var="textOnSiteLocation" value="Create or select a location"/>
-        <!-- ko if: selectFromSitesOnly -->
-               <g:set var="textOnSiteLocation" value="Select a location"/>
+<h4 data-validation-engine="validate[funcCall[validator_site_check]" data-prompt-position="inline" data-position-type="inline" data-prompt-target="error-info">
+    <g:message code="geomap.heading" default="Location"/>
+    <g:if test="${!readonly}">
+        <span class="req-field"></span>
+    </g:if>
+</h4>
+<div class="row-fluid">
+    <g:if test="${isHorizontal}">
+        <div class="span6">
+            <!-- ko template: 'site-selector-dropdown-template' -->
+            <!-- /ko -->
+            <span id="error-info" class="margin-bottom-1"></span>
+            <m:map id="${source}Map" width="100%"/>
+        </div>
+    </g:if>
+
+    <g:if test="${!isHorizontal}">
+        <!-- ko template: 'site-selector-dropdown-template' -->
         <!-- /ko -->
 
-        <div class="row-fluid">
-            <div class="span12">
-                <label for="siteLocation">${readonly ? 'Location:' : "${textOnSiteLocation}"}</label>
-                <g:if test="${readonly}">
-                    <span class="output-text" data-bind="text: data.${source}Name() "></span>
-                </g:if>
-                <g:else>
-                <!-- ko with: checkMapInfo -->
-                    <!-- ko ifnot: validation -->
-                    <span class="label label-important" data-bind="text:message"></span><br/>
-                    <!-- /ko -->
-                <!-- /ko -->
-                    <select id="siteLocation"
-                            data-bind='options: data.${source}SitesArray, optionsText: "name", optionsValue: "siteId", value: data.${source}, optionsCaption: "${textOnSiteLocation}", disable: ${readonly} || data.${source}Loading'
-                            class="form-control input-xlarge full-width" data-validation-engine="validate[required,funcCall[validator_site_check]"></select>
-                </g:else>
-            </div>
+        <div class="row-fluid margin-bottom-1">
+            <span id="error-info" class="margin-bottom-1"></span>
+            <m:map id="${source}Map" width="100%"/>
         </div>
-    </div>
-</div>
+    </g:if>
 
+    <div class="${orientationClass}">
+        <div data-bind="visible: transients.showDataEntryFields">
+            <!-- ko if: transients.showCentroid() -->
 
-
-<g:if test="${!isHorizontal}">
-    <div class="row-fluid margin-bottom-1">
-        <m:map id="${source}Map" width="100%"/>
-    </div>
-</g:if>
-
-<div class="${isHorizontal? 'span6' : 'row-fluid'}">
-    <div data-bind="visible: transients.hideSiteSelection">
-        <!-- ko if: data.${source} -->
-
-        <div class="row-fluid">
-            <div class="span3">
-                <label for="${source}CentroidLatitude">Centroid Latitude
-                    <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.centroidLatLon"/>', content:'<g:message code="record.edit.map.centroidLatLon.content"/>'}">
-                        <i class="icon-question-sign"></i>
-                    </a>
-                </label>
-            </div>
-
-            <div class="span9">
-                <g:if test="${readonly}">
-                    <span data-bind="text: data.${source}CentroidLatitude"></span>
-                </g:if>
-                <g:else>
-                    <input id="${source}Latitude" type="text" data-bind="value: data.${source}CentroidLatitude"
-                        ${validation} disabled class="form-control full-width-input">
-                </g:else>
-            </div>
-        </div>
-
-        <div class="row-fluid">
-            <div class="span3">
-                <label for="${source}CentroidLongitude">Centroid Longitude</label>
-            </div>
-
-            <div class="span9">
-                <g:if test="${readonly}">
-                    <span data-bind="text: data.${source}CentroidLongitude"></span>
-                </g:if>
-                <g:else>
-                    <input id="${source}CentroidLongitude" type="text" data-bind="value: data.${source}CentroidLongitude"
-                        ${validation} disabled class="form-control full-width-input">
-                </g:else>
-            </div>
-        </div>
-
-        <!-- /ko -->
-
-        <!-- ko if: ko.isObservable(data.${source}Latitude) -->
-
-        <div class="row-fluid">
-            <div class="span3">
-                <label for="${source}Latitude">Latitude
-                    <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.latLon"/>', content:'<g:message code="record.edit.map.latLon.content"/>'}">
-                        <i class="icon-question-sign"></i>
-                    </a>
-                    <g:if test="${validation?.contains('required')}"><span class="req-field"></span></g:if>
-                </label>
-            </div>
-
-            <div class="span9">
-                <g:if test="${readonly}">
-                    <span data-bind="text: data.${source}Latitude"></span>
-                </g:if>
-                <g:else>
-                    <input placeholder="Use map tools to get coordinates" id="${source}Latitude" type="number" min="-90" max="90" data-bind="value: data.${source}Latitude, disable: data.${source}LatLonDisabled"
-                           ${latValidation} class="form-control full-width-input">
-                </g:else>
-            </div>
-        </div>
-        <!-- /ko -->
-
-        <!-- ko if: ko.isObservable(data.${source}Longitude) -->
-
-        <div class="row-fluid">
-            <div class="span3">
-                <label for="${source}Longitude">Longitude<g:if test="${validation?.contains('required')}"><span class="req-field"></span></g:if></label>
-            </div>
-
-            <div class="span9">
-                <g:if test="${readonly}">
-                    <span data-bind="text: data.${source}Longitude"></span>
-                </g:if>
-                <g:else>
-                    <input placeholder="Use map tools to get coordinates" id="${source}Longitude" type="number" min="-180" max="180" data-bind="value: data.${source}Longitude, disable: data.${source}LatLonDisabled"
-                           ${lngValidation} class="form-control full-width-input">
-                </g:else>
-            </div>
-        </div>
-
-        <!-- /ko -->
-        <!-- Try to pass geo info of map to ko -->
-        <input id = "${source}geoInfo" hidden="true">
-
-        <g:if test="${includeAccuracy}">
             <div class="row-fluid">
                 <div class="span3">
-                    <label for="${source}Accuracy">Accuracy (metres)</label>
+                    <label for="${source}CentroidLatitude">Centroid Latitude
+                        <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.centroidLatLon"/>', content:'<g:message code="record.edit.map.centroidLatLon.content"/>'}">
+                            <i class="icon-question-sign"></i>
+                        </a>
+                    </label>
                 </div>
 
                 <div class="span9">
                     <g:if test="${readonly}">
-                        <span data-bind="text: data.${source}Accuracy"></span>
+                        <span data-bind="text: data.${source}CentroidLatitude"></span>
                     </g:if>
                     <g:else>
-                        <select data-bind="options: [0, 10, 50, 100, 500, 1000, 5000, 10000]
+                        <input id="${source}Latitude" type="text" data-bind="value: data.${source}CentroidLatitude"
+                            ${validation} disabled class="form-control full-width-input">
+                    </g:else>
+                </div>
+            </div>
+
+            <div class="row-fluid">
+                <div class="span3">
+                    <label for="${source}CentroidLongitude">Centroid Longitude</label>
+                </div>
+
+                <div class="span9">
+                    <g:if test="${readonly}">
+                        <span data-bind="text: data.${source}CentroidLongitude"></span>
+                    </g:if>
+                    <g:else>
+                        <input id="${source}CentroidLongitude" type="text" data-bind="value: data.${source}CentroidLongitude"
+                            ${validation} disabled class="form-control full-width-input">
+                    </g:else>
+                </div>
+            </div>
+
+            <!-- /ko -->
+
+            <!-- ko if: transients.showPointLatLon() -->
+
+            <div class="row-fluid">
+                <div class="span3">
+                    <label for="${source}Latitude">Latitude
+                        <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.latLon"/>', content:'<g:message code="record.edit.map.latLon.content"/>'}">
+                            <i class="icon-question-sign"></i>
+                        </a>
+                    </label>
+                </div>
+
+                <div class="span9">
+                    <g:if test="${readonly}">
+                        <span data-bind="text: data.${source}Latitude"></span>
+                    </g:if>
+                    <g:else>
+                        <input placeholder="Use map tools to get coordinates" id="${source}Latitude" type="number" min="-90" max="90" data-bind="value: data.${source}Latitude" disabled
+                            ${latValidation} class="form-control full-width-input">
+                    </g:else>
+                </div>
+            </div>
+
+            <div class="row-fluid">
+                <div class="span3">
+                    <label for="${source}Longitude">Longitude</label>
+                </div>
+
+                <div class="span9">
+                    <g:if test="${readonly}">
+                        <span data-bind="text: data.${source}Longitude"></span>
+                    </g:if>
+                    <g:else>
+                        <input placeholder="Use map tools to get coordinates" id="${source}Longitude" type="number" min="-180" max="180" data-bind="value: data.${source}Longitude" disabled
+                            ${lngValidation} class="form-control full-width-input">
+                    </g:else>
+                </div>
+            </div>
+
+            <!-- /ko -->
+            <!-- Try to pass geo info of map to ko -->
+            <input id = "${source}geoInfo" hidden="true">
+
+            <g:if test="${includeAccuracy}">
+                <div class="row-fluid">
+                    <div class="span3">
+                        <label for="${source}Accuracy">Accuracy (metres)</label>
+                    </div>
+
+                    <div class="span9">
+                        <g:if test="${readonly}">
+                            <span data-bind="text: data.${source}Accuracy"></span>
+                        </g:if>
+                        <g:else>
+                            <select data-bind="options: [0, 10, 50, 100, 500, 1000, 5000, 10000]
                            optionsCaption: 'Choose one...',
                            value: data.${source}Accuracy,
                            valueAllowUnset: true" class="form-control full-width">
-                        </select>
-                    </g:else>
+                            </select>
+                        </g:else>
+                    </div>
                 </div>
-            </div>
-        </g:if>
-        <g:if test="${includeSource}">
-            <div class="row-fluid">
-                <div class="span3">
-                    <label for="${source}Source">Source of coordinates</label>
-                </div>
+            </g:if>
+            <g:if test="${includeSource}">
+                <div class="row-fluid">
+                    <div class="span3">
+                        <label for="${source}Source">Source of coordinates</label>
+                    </div>
 
-                <div class="span9">
-                    <g:if test="${readonly}">
-                        <span data-bind="text: data.${source}Source"></span>
-                    </g:if>
-                    <g:else>
-                        <select data-bind="options: ['', 'Google maps', 'Google earth', 'GPS device', 'camera/phone', 'physical maps', 'other']
+                    <div class="span9">
+                        <g:if test="${readonly}">
+                            <span data-bind="text: data.${source}Source"></span>
+                        </g:if>
+                        <g:else>
+                            <select data-bind="options: ['', 'Google maps', 'Google earth', 'GPS device', 'camera/phone', 'physical maps', 'other']
                            optionsCaption: 'Choose one...',
                            value: data.${source}Source,
                            valueAllowUnset: true" class="form-control full-width"></select>
-                    </g:else>
-                </div>
-            </div>
-        </g:if>
-        <g:if test="${includeNotes}">
-            <div class="row-fluid">
-                <div class="span3">
-                    <label for="${source}Notes">Location notes</label>
-                </div>
-
-                <div class="span9">
-                    <div class="row-fluid">
-                        <div class="span12">
-                            <g:if test="${readonly}">
-                                <textarea id="${source}Notes" type="text" data-bind="text: data.${source}Notes" readonly class="full-width"></textarea>
-                            </g:if>
-                            <g:else>
-                                <textarea id="${source}Notes" type="text" data-bind="value: data.${source}Notes" class="full-width"></textarea>
-                            </g:else>
-                        </div>
+                        </g:else>
                     </div>
                 </div>
-            </div>
-        </g:if>
-        <g:if test="${includeLocality}">
-            <div class="row-fluid">
-                <g:if test="${!readonly}">
+            </g:if>
+            <g:if test="${includeNotes}">
+                <div class="row-fluid">
                     <div class="span3">
-                        <label for="bookmarkedLocations">Saved locations</label>
+                        <label for="${source}Notes">Location notes</label>
                     </div>
-                    <div class="span9">
-                        <form class="form-inline">
-                            <select name="bookmarkedLocations" id="bookmarkedLocations" class="form-control full-width">
-                                <option value="">-- saved locations --</option>
-                            </select>
-                        </form>
-                    </div>
-                </g:if>
-            </div>
-        </g:if>
-        <g:if test="${includeLocality}">
-            <div class="row-fluid" data-bind="slideVisible: data.${source}Latitude() && data.${source}Latitude()">
-                <div class="span3">
-                    <label for="${source}Locality">Matched locality</label>
-                </div>
 
-                <div class="span9">
-                    <div class="row-fluid">
-                        <div class="span12">
-                            <g:if test="${readonly}">
-                                <textarea id="${source}Locality" type="text" data-bind="value: data.${source}Locality" readonly class=" full-width"></textarea>
-                            </g:if>
-                            <g:else>
-                                <form class="form-inline">
-                                    <textarea id="${source}Locality" type="text" data-bind="value: data.${source}Locality" class="full-width"></textarea>
-                                    <g:if test="${!autoLocalitySearch}">
-                                        <button id="reverseGeocodeLocality" class="btn btn-default margin-top-1">Search for locality match</button>
-                                    </g:if>
-                                    <button id="saveBookmarkLocation" class="btn btn-default margin-top-1">Save this location</button>
-                                </form>
-                            </g:else>
+                    <div class="span9">
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <g:if test="${readonly}">
+                                    <textarea id="${source}Notes" type="text" data-bind="text: data.${source}Notes" readonly class="full-width"></textarea>
+                                </g:if>
+                                <g:else>
+                                    <textarea id="${source}Notes" type="text" data-bind="value: data.${source}Notes" class="full-width"></textarea>
+                                </g:else>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </g:if>
+            <g:if test="${includeLocality}">
+                <div class="row-fluid">
+                    <g:if test="${!readonly}">
+                        <div class="span3">
+                            <label for="bookmarkedLocations">Saved locations</label>
+                        </div>
+                        <div class="span9">
+                            <form class="form-inline">
+                                <select name="bookmarkedLocations" id="bookmarkedLocations" class="form-control full-width">
+                                    <option value="">-- saved locations --</option>
+                                </select>
+                            </form>
+                        </div>
+                    </g:if>
+                </div>
+            </g:if>
+            <g:if test="${includeLocality}">
+                <div class="row-fluid" data-bind="slideVisible: data.${source}Latitude() && data.${source}Latitude()">
+                    <div class="span3">
+                        <label for="${source}Locality">Matched locality</label>
+                    </div>
+
+                    <div class="span9">
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <g:if test="${readonly}">
+                                    <textarea id="${source}Locality" type="text" data-bind="value: data.${source}Locality" readonly class=" full-width"></textarea>
+                                </g:if>
+                                <g:else>
+                                    <form class="form-inline">
+                                        <textarea id="${source}Locality" type="text" data-bind="value: data.${source}Locality" class="full-width"></textarea>
+                                        <g:if test="${!autoLocalitySearch}">
+                                            <button id="reverseGeocodeLocality" class="btn btn-default margin-top-1">Search for locality match</button>
+                                        </g:if>
+                                        <button id="saveBookmarkLocation" class="btn btn-default margin-top-1">Save this location</button>
+                                    </form>
+                                </g:else>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </g:if>
+        </div>
+        <g:if env="development">
+            <div class="expandable-debug">
+                <h3>Debug</h3>
+                <div>
+                    Allow Points: <span data-bind="text:activityLevelData.pActivity.allowPoints">Allow Points</span> <br/>
+                    Allow Polygons: <span data-bind="text:activityLevelData.pActivity.allowPolygons"></span> <br/>
+                    Allow Additional Survey Sites: <span data-bind="text:activityLevelData.pActivity.addCreatedSiteToListOfSelectedSites"></span> <br/>
+                    Default zoom to: <span data-bind="text:activityLevelData.pActivity.defaultZoomArea"> </span> <br/>
+                    Site ID： <span data-bind="text:data.${source}"/></span>
+                </div>
             </div>
         </g:if>
     </div>
-    <g:if env="development">
-    <div class="expandable-debug">
-        <h3>Debug</h3>
-        <div>
-            Allow Points: <span data-bind="text:activityLevelData.pActivity.allowPoints">Allow Points</span> <br/>
-            Allow Polygons: <span data-bind="text:activityLevelData.pActivity.allowPolygons"></span> <br/>
-            Allow Additional Survey Sites: <span data-bind="text:activityLevelData.pActivity.addCreatedSiteToListOfSelectedSites"></span> <br/>
-            Default zoom to: <span data-bind="text:activityLevelData.pActivity.defaultZoomArea"> </span> <br/>
-            Site ID： <span data-bind="text:data.${source}"/></span>
-        </div>
-    </div>
-    </g:if>
 </div>
 
 <script type="text/html" id="AddSiteModal">
@@ -277,6 +254,35 @@
     <div class="modal-footer">
         <button type="button" class="btn" data-bind="click: cancel">Cancel</button>
         <button type="button" class="btn btn-primary" data-bind="click: add, enable: nameStatus() == 'ok' ">Save</button>
+    </div>
+</div>
+</script>
+
+<script id="site-selector-dropdown-template" type="text/html">
+<div data-bind="visible: transients.hideSiteSelection">
+    <div>
+        <g:set var="textOnSiteLocation" value="Create or select a location"/>
+        <g:set var="textOnSiteLocation" value="Select a location"/>
+
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="row-fluid">
+                    <span class="span4 preLabel">
+                        <label>${readonly ? 'Location:' : "${textOnSiteLocation}"}</label>
+                    </span>
+                    <div class="span8">
+                        <g:if test="${readonly}">
+                            <span class="output-text" data-bind="text: data.${source}Name() "></span>
+                        </g:if>
+                        <g:else>
+                            <select id="siteLocation"
+                                    data-bind='options: data.${source}SitesArray, optionsText: "name", optionsValue: "siteId", value: data.${source}, optionsCaption: "${textOnSiteLocation}", disable: ${readonly} || data.${source}Loading'
+                                    class="form-control input-xlarge full-width"></select>
+                        </g:else>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </script>

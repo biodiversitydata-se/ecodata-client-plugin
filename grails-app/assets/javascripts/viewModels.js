@@ -49,7 +49,7 @@ function enmapify(args) {
         polygonsOnly = !allowPoints && allowPolygons,
         defaultZoomArea = mapConfiguration.defaultZoomArea,
         addCreatedSiteToListOfSelectedSites = mapConfiguration.addCreatedSiteToListOfSelectedSites || false,
-        selectFromSitesOnly =viewModel.selectFromSitesOnly= mapConfiguration.siteSurveyOption == SITE_PICK ? true : false,
+        selectFromSitesOnly = viewModel.selectFromSitesOnly= mapConfiguration.surveySiteOption == SITE_PICK ? true : false,
 
 
         siteIdObservable =activityLevelData.siteId = container[name] = ko.observable(),
@@ -70,13 +70,27 @@ function enmapify(args) {
 
 
         loadingObservable = container[name + "Loading"] = ko.observable(false),
-        checkMapInfo = viewModel.checkMapInfo = ko.computed(function(){
+        checkMapInfo = viewModel.checkMapInfo = function(){
             var siteId = siteIdObservable();
-            if (!siteId )
-                return {validation:false, message:"A location is mandatory to submit. Please select or draw a location."};
+            if (!siteId ) {
+                var msg;
+                switch (mapConfiguration.surveySiteOption) {
+                    case SITE_CREATE:
+                        msg = "A location is mandatory. Please draw a location on the below map.";
+                        break;
+                    case SITE_PICK:
+                        msg = "A location is mandatory. Please pick a location from the above drop down list.";
+                        break;
+                    case SITE_PICK_CREATE:
+                        msg = "A location is mandatory. Please pick a location from the above drop down list or draw on the below map.";
+                        break;
+                }
+
+                return {validation:false, message: msg};
+            }
 
             return {validation:true};
-        });
+        };
 
     viewModel.mapElementId = name + "Map";
 
@@ -102,6 +116,7 @@ function enmapify(args) {
         zoomToObject: true,
         markerZoomToMax: true,
         maxZoom: 21,
+        addLayersControlHeading: true,
         drawOptions:  EnmapifyUtils.getMapOptions(activityLevelData, readonly, allowPolygons, allowPoints, allowLine, mapConfiguration.surveySiteOption)
     };
 
@@ -231,7 +246,12 @@ function enmapify(args) {
                 return ( parseFloat(c[0][0][1]) + parseFloat(c[0][1][1]) ) * parseFloat(c[1]);
             }).reduce(sum, 0).value() / sixA;
             return [cx, cy];
-        } else if (feature.geometry.type == 'Point') {
+        }
+        else if (feature.geometry.type == 'LineString') {
+            coords = feature.geometry.coordinates[0];
+            return [parseFloat(coords[0]), parseFloat(coords[1])];
+        }
+        else if (feature.geometry.type == 'Point') {
             coords = feature.geometry.coordinates;
             return [parseFloat(coords[0]), parseFloat(coords[1])];
         } else {
@@ -322,6 +342,39 @@ function enmapify(args) {
 
         return false;
     });
+
+    viewModel.transients.showDataEntryFields = ko.computed(function () {
+        switch (mapConfiguration.surveySiteOption) {
+            case SITE_CREATE:
+            case SITE_PICK_CREATE:
+                return true;
+                break;
+        }
+
+        return false;
+    });
+
+    viewModel.transients.showCentroid = function () {
+        switch (mapConfiguration.surveySiteOption) {
+            case SITE_CREATE:
+            case SITE_PICK_CREATE:
+                return allowPolygons || allowLine;
+                break;
+        }
+
+        return false;
+    };
+
+    viewModel.transients.showPointLatLon = function () {
+        switch (mapConfiguration.surveySiteOption) {
+            case SITE_CREATE:
+            case SITE_PICK_CREATE:
+                return allowPoints;
+                break;
+        }
+
+        return false;
+    };
 
     function updateMarkerPosition() {
         if ((!siteIdObservable() || !args.markerOrShapeNotBoth) && latObservable() && lonObservable()) {
@@ -791,8 +844,10 @@ function validator_site_check(field, rules, i, options){
     var model = ko.dataFor(field);
     if( model && (typeof model.checkMapInfo == 'function')) {
         var result = model.checkMapInfo();
-        if (!result.validation)
+        if (!result.validation) {
+            rules.push('required');
             return result.message;
+        }
         else
             return true;
     }
