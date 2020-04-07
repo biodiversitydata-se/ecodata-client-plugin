@@ -98,34 +98,6 @@ class TestSpec extends GebReportingSpec {
         page.findFieldByModelName("numberField").getAt(0).value() == "10"
     }
 
-    def "computed values are evaluated correctly"() {
-        when:
-        to ([name:'computedValueExample'], PreviewPage)
-
-        then:
-        title == "Preview Computed value example"
-
-        and:
-        page.findFieldByModelName("item2").getAt(0).text() == "2.00"
-        page.findFieldByModelName("item4").getAt(0).value() == "0.00"
-
-        when:
-        page.findFieldByModelName("item1").getAt(0).value("10")
-        page.commitEdits()
-
-        then:
-        page.findFieldByModelName("item2").getAt(0).text() == "12.00"
-        page.findFieldByModelName("item4").getAt(0).value() == "0.00"
-
-        when:
-        page.findFieldByModelName("item3").getAt(0).value("3")
-        page.commitEdits()
-
-        then:
-        page.findFieldByModelName("item4").getAt(0).value() == "36.00"
-
-    }
-
     def "default values can be specified as an expression"() {
         when:
         to ([name:'defaultValueExpression'], PreviewPage)

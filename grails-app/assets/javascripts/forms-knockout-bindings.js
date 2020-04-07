@@ -878,6 +878,26 @@
     };
 
     /**
+     * Because the jQueryValidationEngine triggers validation on blur, fields that don't accept focus
+     * (in particular computed fields with validation rules attached) can use this binding to trigger validation
+     * based on model value changes.
+     * @type {{init: ko.bindingHandlers.validateOnChange.init}}
+     */
+    ko.bindingHandlers['validateOnChange'] = {
+        'init': function (element, valueAccessor) {
+
+            if (ko.isObservable(valueAccessor())) {
+                var $element = $(element);
+                valueAccessor().subscribe(function() {
+                    setTimeout(function() {
+                        $element.validationEngine('validate');
+                    });
+                })
+            }
+        }
+    };
+
+    /**
      * Extends the target as a ecodata.forms.DataModelItem.  This is required to support many of the
      * dynamic behaviour features, including warnings and conditional validation rules.
      * @param target the observable to extend.

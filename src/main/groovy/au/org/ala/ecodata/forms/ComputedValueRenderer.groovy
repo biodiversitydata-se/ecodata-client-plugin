@@ -12,7 +12,7 @@ class ComputedValueRenderer {
     private void renderJSExpression(Map computed, String dependantContext, out) {
         String expression = computed.expression
         int decimalPlaces = computed.rounding != null ? computed.rounding : 2
-        out << "return ecodata.forms.expressionEvaluator.evaluate('${expression}', ${dependantContext}, ${decimalPlaces})\n";
+        out << "return ecodata.forms.expressionEvaluator.evaluate('${expression}', ${dependantContext}, ${decimalPlaces});\n";
     }
 
     def computedObservable(model, propertyContext, dependantContext, out) {

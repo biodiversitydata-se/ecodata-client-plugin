@@ -41,6 +41,14 @@ class PreviewPage extends Page {
 
     }
 
+    Navigator findValidationElementForModelName(String name) {
+        Navigator modelField = findFieldByModelName(name)
+        String id = modelField.getAttribute("id")
+
+        Navigator validation = $("."+id+"formError")
+        validation
+    }
+
     Navigator findFeatureMapButtonByModelName(String name) {
         $("[params*="+name+"]").find("button")
     }
