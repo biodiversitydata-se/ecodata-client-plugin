@@ -41,31 +41,39 @@ class GeoMap extends Module {
 
         waitFor{$('.leaflet-draw-actions').getAt(0).displayed}
 
+        moveAndClick(100, 100, 1)
+        moveAndClick(200, -200, 2)
+        moveAndClick(0, 100, 3)
+        moveAndClick(50, 0, 4)
+
         interact {
-            moveByOffset(100, 100)
-            click()
+            moveByOffset(-250, 100)
         }
-
         interact {
-            moveByOffset(200, -200)
-            click()
-        }
-
-        interact {
-            moveByOffset(0,100)
-            click()
-
-            moveByOffset(50,0)
-            click()
-
             doubleClick()
         }
 
-//        interact {
-//
-//        }
-
         waitFor { $("#locationCentroidLatitude").getAt(0).displayed }
+    }
+
+    def moveAndClick(int xOffset, int yOffset, int expectedCount) {
+        // This call to cursorPosition seems to mostly just have the effect of a delay which is enough to make
+        // everything work.  Probably needs to be improved.
+        cursorPosition()
+        interact { moveByOffset(xOffset, yOffset) }
+        waitFor {
+            interact { click() }
+
+            markerCount() == expectedCount
+        }
+    }
+
+    def cursorPosition() {
+        println $('.leaflet-map-pane .leaflet-mouse-marker').css("transform")
+    }
+
+    def markerCount() {
+        $('.leaflet-map-pane .leaflet-marker-icon.leaflet-editing-icon').size()
     }
 
     def drawLine() {
