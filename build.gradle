@@ -75,7 +75,7 @@ dependencies {
     testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 
     if (!inplace) {
-        compile ("org.grails.plugins:ala-map-plugin:3.1-SNAPSHOT") {
+        compile ("org.grails.plugins:ala-map-plugin:3.0-SNAPSHOT") {
             exclude group: 'com.bertramlabs.plugins', module: 'asset-pipeline-grails'
         }
     }

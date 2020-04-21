@@ -204,7 +204,7 @@ describe("Enmapify Spec", function () {
         expect(result.checkMapInfo().validation).toEqual(false);
     });
 
-    it("should show latitude, longitude and centroid latitude and centroid longitude when depending on project activity config", function () {
+    it("should show latitude, longitude and centroid latitude and centroid longitude depending on project activity config", function () {
         options.activityLevelData.pActivity.surveySiteOption = 'sitecreate';
         options.activityLevelData.pActivity.allowPolygons = true;
         options.activityLevelData.pActivity.allowPoints = false;

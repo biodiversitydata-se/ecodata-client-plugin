@@ -46,12 +46,6 @@ class GeoMapSpec extends GebReportingSpec {
         page.findById("locationLongitude").displayed == false
         page.findById("locationCentroidLatitude").displayed == true
         page.findById("locationCentroidLongitude").displayed == true
-//        def model = page.getModel()
-//        println(model)
-//        model.data.locationLatitude == null
-//        model.data.locationLongitude == null
-//        model.data.locationCentroidLatitude != null
-//        model.data.locationCentroidLongitude != null
 
         when:
         page.geoMap.drawLine()
