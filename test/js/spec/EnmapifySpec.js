@@ -202,5 +202,25 @@ describe("Enmapify Spec", function () {
         var result = enmapify(options);
         result.viewModel.loadActivitySite();
         expect(result.checkMapInfo().validation).toEqual(false);
-    })
+    });
+
+    it("should show latitude, longitude and centroid latitude and centroid longitude when depending on project activity config", function () {
+        options.activityLevelData.pActivity.surveySiteOption = 'sitecreate';
+        options.activityLevelData.pActivity.allowPolygons = true;
+        options.activityLevelData.pActivity.allowPoints = false;
+        options.activityLevelData.pActivity.allowLine = true;
+        var result = enmapify(options);
+        result.viewModel.transients.showCentroid() == true;
+        result.viewModel.transients.showPointLatLon() == false;
+
+        options.activityLevelData.pActivity.surveySiteOption = 'sitecreate';
+        options.activityLevelData.pActivity.allowPolygons = false;
+        options.activityLevelData.pActivity.allowPoints = true;
+        options.activityLevelData.pActivity.allowLine = false;
+        result = enmapify(options);
+        result.viewModel.transients.showCentroid() == false;
+        result.viewModel.transients.showPointLatLon() == true;
+    });
+
+
 });

@@ -10,7 +10,9 @@
     // it also has server side dependencies that are not currently part of the ecodata-client-plugin codebase.
     window.fcConfig = {
         imageLeafletViewer:'/',
-        imagePreviewUrl: '${createLink(action:'imagePreview')}'
+        imagePreviewUrl: '${createLink(action:'imagePreview')}',
+        saveBookmarkLocationURL: "${createLink(controller:"preview", action:"saveBookmarkLocation")}",
+        getBookmarkLocationsURL: "${createLink(controller:"preview", action:"getBookmarkLocations")}"
     };
 
 </script>
@@ -64,6 +66,8 @@
 
 <asset:deferredScripts/>
 <script>
+    function blockUIWithMessage(message) { }
+
     $(function() {
         var modelName = '${md.toSingleWord(name:model.modelName)}';
 
@@ -82,6 +86,12 @@
         var outputData = JSON.parse('${data.encodeAsJavaScript()}');
         output.data = outputData;
         </g:if>
+        // copy changes to site object to listSites action in PreviewController
+        var site = {
+            siteId: 'abc',
+            projects: ['projectA'],
+            name: 'Test site'
+        };
 
         var context = {
             activityData: {
@@ -111,10 +121,39 @@
                     filesize:1000
 
                 }
-            ]
+            ],
+            pActivity: {
+                projectActivityId: 'projectActivityA',
+                projectId : 'projectA',
+                allowPolygons: true,
+                allowPoints: true,
+                allowLine: true,
+                surveySiteOption: 'sitepickcreate',
+                defaultZoomArea: '123',
+                sites: [
+                    site
+                ]
+            },
+            getSiteUrl: "${createLink(action: 'getSite')}",
+            updateSiteUrl: "${createLink(action: 'updateSite')}",
+            listSitesUrl: "${createLink(action: 'listSites')}",
+            spatialGeoserverUrl: "${createLink(action: 'spatialGeoserver')}",
+            proxyFeatureUrl: "${createLink(action: 'proxyFeature')}",
+            uniqueNameUrl: "${createLink(action: 'uniqueName')}"
         };
 
+        // geoMap dependent functions
+        function resolveSites () {
+            return [site];
+        }
 
+        window.Biocollect = {
+            MapUtilities : {
+                getBaseLayerAndOverlayFromMapConfiguration: function () {
+                    return {}
+                }
+            }
+        };
         // This is required by any models that use the feature dataType
         context.featureCollection = config.featureCollection = new ecodata.forms.FeatureCollection([]);
 

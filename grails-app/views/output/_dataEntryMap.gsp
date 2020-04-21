@@ -34,7 +34,7 @@
         <div data-bind="visible: transients.showDataEntryFields">
             <!-- ko if: transients.showCentroid() -->
 
-            <div class="row-fluid">
+            <div class="row-fluid" data-bind="if: data.${source}CentroidLatitude">
                 <div class="span3">
                     <label for="${source}CentroidLatitude">Centroid Latitude
                         <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.centroidLatLon"/>', content:'<g:message code="record.edit.map.centroidLatLon.content"/>'}">
@@ -48,13 +48,13 @@
                         <span data-bind="text: data.${source}CentroidLatitude"></span>
                     </g:if>
                     <g:else>
-                        <input id="${source}Latitude" type="text" data-bind="value: data.${source}CentroidLatitude"
+                        <input id="${source}CentroidLatitude" type="number" data-bind="value: data.${source}CentroidLatitude"
                             ${validation} disabled class="form-control full-width-input">
                     </g:else>
                 </div>
             </div>
 
-            <div class="row-fluid">
+            <div class="row-fluid" data-bind="if: data.${source}CentroidLongitude">
                 <div class="span3">
                     <label for="${source}CentroidLongitude">Centroid Longitude</label>
                 </div>
@@ -64,7 +64,7 @@
                         <span data-bind="text: data.${source}CentroidLongitude"></span>
                     </g:if>
                     <g:else>
-                        <input id="${source}CentroidLongitude" type="text" data-bind="value: data.${source}CentroidLongitude"
+                        <input id="${source}CentroidLongitude" type="number" data-bind="value: data.${source}CentroidLongitude"
                             ${validation} disabled class="form-control full-width-input">
                     </g:else>
                 </div>
@@ -74,7 +74,7 @@
 
             <!-- ko if: transients.showPointLatLon() -->
 
-            <div class="row-fluid">
+            <div class="row-fluid" data-bind="if: data.${source}Latitude">
                 <div class="span3">
                     <label for="${source}Latitude">Latitude
                         <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.latLon"/>', content:'<g:message code="record.edit.map.latLon.content"/>'}">
@@ -94,7 +94,7 @@
                 </div>
             </div>
 
-            <div class="row-fluid">
+            <div class="row-fluid" data-bind="if: data.${source}Longitude">
                 <div class="span3">
                     <label for="${source}Longitude">Longitude</label>
                 </div>
@@ -216,18 +216,6 @@
                 </div>
             </g:if>
         </div>
-        <g:if env="development">
-            <div class="expandable-debug">
-                <h3>Debug</h3>
-                <div>
-                    Allow Points: <span data-bind="text:activityLevelData.pActivity.allowPoints">Allow Points</span> <br/>
-                    Allow Polygons: <span data-bind="text:activityLevelData.pActivity.allowPolygons"></span> <br/>
-                    Allow Additional Survey Sites: <span data-bind="text:activityLevelData.pActivity.addCreatedSiteToListOfSelectedSites"></span> <br/>
-                    Default zoom to: <span data-bind="text:activityLevelData.pActivity.defaultZoomArea"> </span> <br/>
-                    Site ID： <span data-bind="text:data.${source}"/></span>
-                </div>
-            </div>
-        </g:if>
     </div>
 </div>
 
@@ -287,6 +275,11 @@
 </div>
 </script>
 <asset:script type="text/javascript">
+    if (typeof fcConfig == 'undefined')
+        fcConfig = {};
+
+    fcConfig.saveBookmarkLocationURL = fcConfig.saveBookmarkLocationURL || "${createLink(controller:"ajax", action:"saveBookmarkLocation")}";
+    fcConfig.getBookmarkLocationsURL = fcConfig.getBookmarkLocationsURL || "${createLink(controller:"ajax", action:"getBookmarkLocations")}";
 
     $(function () {
         var prevLat, prevLng;
@@ -297,12 +290,8 @@
             var el = document.getElementById("${source}Map"),
                 viewModel = ko.dataFor(el);
 
-            if(isGeoMapPresentInViewModel(viewModel)){
-                var long = viewModel.data.${source}Longitude,
-                    lat = viewModel.data.${source}Latitude;
-
-                lat && !lat() && lat(data.decimalLatitude);
-                long && !long() && long(data.decimalLongitude);
+            if (isGeoMapPresentInViewModel(viewModel)) {
+                viewModel.addMarker(data);
             }
         });
 
@@ -339,7 +328,7 @@
             };
 
             $.ajax({
-                url: "${createLink(controller:"ajax", action:"saveBookmarkLocation")}",
+                url: fcConfig.saveBookmarkLocationURL,
                 dataType: 'json',
                 type: 'POST',
                 data: JSON.stringify(bookmark),
@@ -382,7 +371,7 @@
 
         function loadBookmarks() {
             $.ajax({
-                url: "${createLink(controller:"ajax", action:"getBookmarkLocations")}",
+                url: fcConfig.getBookmarkLocationsURL,
                 dataType: 'json',
             }).done(function (data) {
                 if (data.error) {

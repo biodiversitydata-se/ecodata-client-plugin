@@ -102,4 +102,66 @@ class PreviewController {
     def prepopulate() {
         respond params
     }
+
+    /**
+     * Stub function for testing geoMap dataType.
+     */
+    def getBookmarkLocations () {
+        render text: '[]', contentType: 'application/json'
+    }
+
+    /**
+     * Stub function for testing geoMap dataType.
+     */
+    def saveBookmarkLocation () {
+        render text: '{}', contentType: 'application/json'
+    }
+
+    /**
+     * Stub function for testing geoMap dataType.
+     */
+    def getSite () {
+        render text: '{}', contentType: 'application/json'
+    }
+
+    /**
+     * Stub function for testing geoMap dataType.
+     */
+    def updateSite() {
+        render text: '{"siteId": "abc"}', contentType: 'application/json'
+    }
+
+    /**
+     * Stub function for testing geoMap dataType.
+     */
+    def listSites() {
+        // copy changes to site object to index.gsp
+        def sites = [[
+            'siteId': 'abc',
+            'projects': ['projectA'],
+            'name': 'Test site'
+        ]]
+        render sites as JSON, contentType: 'application/json'
+    }
+
+    /**
+     * Stub function for testing geoMap dataType.
+     */
+    def spatialGeoserver() {
+        render text: '', contentType: 'text/plain'
+    }
+
+    /**
+     * Stub function for testing geoMap dataType.
+     */
+    def proxyFeature() {
+        render text: '', contentType: 'text/plain'
+    }
+
+    /**
+     * Stub function for testing geoMap dataType.
+     */
+    def uniqueName() {
+        render text: '', contentType: 'text/plain'
+    }
 }

@@ -29,14 +29,14 @@ function enmapify(args) {
         edit = args.edit,
         readonly = args.readonly,
         markerOrShapeNotBoth = args.markerOrShapeNotBoth,
-        proxyFeatureUrl = args.proxyFeatureUrl,
-        spatialGeoserverUrl = args.spatialGeoserverUrl,
-        updateSiteUrl = args.updateSiteUrl,
-        listSitesUrl = args.listSitesUrl,
-        getSiteUrl = args.getSiteUrl,
-        context = args.context,
         activityLevelData = args.activityLevelData,
-        uniqueNameUrl = args.uniqueNameUrl + "/" + ( activityLevelData.pActivity.projectActivityId || activityLevelData.pActivity.projectId),
+        proxyFeatureUrl = activityLevelData.proxyFeatureUrl || args.proxyFeatureUrl,
+        spatialGeoserverUrl = activityLevelData.spatialGeoserverUrl || args.spatialGeoserverUrl,
+        updateSiteUrl = activityLevelData.updateSiteUrl || args.updateSiteUrl,
+        listSitesUrl = activityLevelData.listSitesUrl || args.listSitesUrl,
+        getSiteUrl = activityLevelData.getSiteUrl || args.getSiteUrl,
+        context = args.context,
+        uniqueNameUrl = (activityLevelData.uniqueNameUrlz || args.uniqueNameUrl) + "/" + ( activityLevelData.pActivity.projectActivityId || activityLevelData.pActivity.projectId),
         // hideSiteSelection is now dependent on survey's mapConfiguration
         // check viewModel.transients.hideSiteSelection
         hideMyLocation = args.hideMyLocation || false,
@@ -117,6 +117,8 @@ function enmapify(args) {
         markerZoomToMax: true,
         maxZoom: 21,
         addLayersControlHeading: true,
+        autoZIndex: false,
+        preserveZIndex: true,
         drawOptions:  EnmapifyUtils.getMapOptions(activityLevelData, readonly, allowPolygons, allowPoints, allowLine, mapConfiguration.surveySiteOption)
     };
 
@@ -421,6 +423,20 @@ function enmapify(args) {
         }
     };
 
+    viewModel.addMarker = function(data) {
+        if (mapOptions && mapOptions.drawOptions && mapOptions.drawOptions.marker) {
+            if ( (data.decimalLatitude != undefined) && (data.decimalLongitude != undefined) ) {
+                latObservable(data.decimalLatitude);
+                lonObservable(data.decimalLongitude);
+
+                if (addCreatedSiteToListOfSelectedSites)
+                    completeDraw();
+                else
+                    completeDrawWithoutAdditionalSite();
+            }
+        }
+    }
+
     var siteSubscriber = siteIdObservable.subscribe(updateMapForSite);
 
     //Listen mylocation and search events from the map plugin
@@ -718,28 +734,15 @@ function enmapify(args) {
         value ? map.startLoading() : map.finishLoading();
     });
 
-    // continue init map
-    if (!readonly) {
-        map.addButton("<span class='fa fa-undo reset-map' title='Reset map'></span>", function () {
-            map.resetMap();
-            if (!viewModel.transients.hideSiteSelection()) {
-                if (activityLevelData.pActivity.sites.length == 1) {
-                    updateMapForSite(activityLevelData.pActivity.sites[0].siteId);
-                }
-            }
-        }, "bottomright");
-    }
-
-
-
     function zoomToDefaultSite(){
+        defaultZoomArea = defaultZoomArea || project.projectSiteId;
         if (!siteIdObservable()){
             var defaultsite  = $.grep(activityLevelData.pActivity.sites,function(site){
                 if(site.siteId == defaultZoomArea)
                     return site;
             });
             // Is zoom area a project area?
-            if( (defaultsite.length == 0) && defaultZoomArea == project.projectSiteId) {
+            if( (defaultsite.length == 0) && (defaultZoomArea == project.projectSiteId) && project.sites) {
                 defaultsite = $.grep(project.sites,function(site){
                     if(site.siteId == defaultZoomArea)
                         return site;

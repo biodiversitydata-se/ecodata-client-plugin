@@ -5,8 +5,6 @@ import geb.navigator.Navigator
 import grails.converters.JSON
 
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class PreviewPage extends Page {
@@ -19,6 +17,7 @@ class PreviewPage extends Page {
 
     static content = {
         featureMapDialog { module FeatureMapDialog }
+        geoMap { module GeoMap}
         multiInput(required: false) { module MultiInput }
     }
 
@@ -51,6 +50,14 @@ class PreviewPage extends Page {
 
     Navigator findFeatureMapButtonByModelName(String name) {
         $("[params*="+name+"]").find("button")
+    }
+
+    Navigator findById(String name) {
+        $("#"+name)
+    }
+
+    Navigator findByDataAttribute(String name) {
+        $("[data-bind*="+name+"]")
     }
 
     void commitEdits() {

@@ -7,7 +7,7 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.14.4"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.15.1"
         classpath 'com.bmuschko:gradle-clover-plugin:2.2.4'
     }
 }
@@ -28,6 +28,8 @@ repositories {
     maven { url "https://repo.grails.org/grails/core" }
     maven { url "https://nexus.ala.org.au/content/groups/public/" }
 }
+
+boolean inplace = false
 
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
@@ -53,7 +55,7 @@ dependencies {
     profile "org.grails.profiles:web-plugin"
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
-    compile "com.bertramlabs.plugins:asset-pipeline-grails:2.14.4"
+    compile "com.bertramlabs.plugins:asset-pipeline-grails:2.15.1"
     testCompile "org.grails:grails-gorm-testing-support"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails:grails-web-testing-support"
@@ -72,8 +74,10 @@ dependencies {
     testCompile "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
     testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 
-    compile ("org.grails.plugins:ala-map-plugin:3.1-SNAPSHOT") {
-                exclude group: 'com.bertramlabs.plugins', module: 'asset-pipeline-grails'
+    if (!inplace) {
+        compile ("org.grails.plugins:ala-map-plugin:3.1-SNAPSHOT") {
+            exclude group: 'com.bertramlabs.plugins', module: 'asset-pipeline-grails'
+        }
     }
 }
 
@@ -129,6 +133,15 @@ publishing {
             }
             from components.java
 
+        }
+    }
+}
+
+if (inplace) {
+    grails {
+        exploded = true
+        plugins {
+            compile (project(':ala-map-plugin'))
         }
     }
 }
