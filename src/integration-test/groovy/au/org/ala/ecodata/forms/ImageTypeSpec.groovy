@@ -41,4 +41,16 @@ class ImageTypeSpec extends GebReportingSpec {
         $("ul[data-bind*=images1] span[data-bind*=notes]").text() == "Test notes 1"
 
     }
+
+    def "If the showRemoveButtonWithImage displayOption is set, a remove button is added below image. This can be combined with showMetadata false."() {
+        when:
+        to ([name:'images'], PreviewPage)
+
+        then:
+        title == "Preview Images Example"
+
+        and: "The remove button is displayed below image"
+        $("a.remove-btn-with-image").size() == 1
+        $(".fileupload-buttonbar:nth-child(3) .image-title-input").displayed == false
+    }
 }

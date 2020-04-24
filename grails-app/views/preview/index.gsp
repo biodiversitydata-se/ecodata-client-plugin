@@ -120,6 +120,16 @@
                     filename:"Landscape_2.jpg",
                     filesize:1000
 
+                },
+                {
+                    documentId:'d3',
+                    url:fcConfig.imagePreviewUrl+'/Landscape_1.jpg',
+                    thumbnailUrl:fcConfig.imagePreviewUrl+'/Landscape_1.jpg',
+                    "name": "Test image 3",
+                    "attribution": "Test attribution 3",
+                    "notes": "Test notes 3",
+                    filename:"Landscape_1.jpg",
+                    filesize:1000
                 }
             ],
             pActivity: {

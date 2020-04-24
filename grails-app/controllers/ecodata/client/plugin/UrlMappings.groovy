@@ -16,6 +16,10 @@ class UrlMappings {
             controller = 'preview'
             action = 'imagePreview'
         }
+        "/" {
+            controller = 'preview'
+            action = [GET: 'index', POST: 'model']
+        }
         "500"(view:'/error')
     }
 }

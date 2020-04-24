@@ -13,6 +13,14 @@
                         </a>
                     </div>
                 </div>
+                <g:if test="${options?.showRemoveButtonWithImage}">
+                    <div class="row-fluid">
+                        <div class="span12">
+                            <a class="btn btn-danger btn-small margin-top-10 margin-bottom-10 remove-btn-with-image" data-bind="click: remove.bind($data,$parent.${name})"><i
+                                    class="icon-remove icon-white"></i> Remove</a>
+                        </div>
+                    </div>
+                </g:if>
             </div>
             <div class="span8"  style="display:${showImgMetadata};">
                 <div class="row-fluid">

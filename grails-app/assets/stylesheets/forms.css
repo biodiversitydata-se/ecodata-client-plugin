@@ -153,3 +153,11 @@ table .select2 {
 #error-info .formError.inline .formErrorContent {
     box-sizing: border-box;
 }
+
+.margin-top-10 {
+    margin-top: 10px;
+}
+
+.margin-bottom-10 {
+    margin-bottom: 10px;
+}

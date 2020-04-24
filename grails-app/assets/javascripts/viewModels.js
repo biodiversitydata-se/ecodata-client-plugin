@@ -36,7 +36,7 @@ function enmapify(args) {
         listSitesUrl = activityLevelData.listSitesUrl || args.listSitesUrl,
         getSiteUrl = activityLevelData.getSiteUrl || args.getSiteUrl,
         context = args.context,
-        uniqueNameUrl = (activityLevelData.uniqueNameUrlz || args.uniqueNameUrl) + "/" + ( activityLevelData.pActivity.projectActivityId || activityLevelData.pActivity.projectId),
+        uniqueNameUrl = (activityLevelData.uniqueNameUrl || args.uniqueNameUrl) + "/" + ( activityLevelData.pActivity.projectActivityId || activityLevelData.pActivity.projectId),
         // hideSiteSelection is now dependent on survey's mapConfiguration
         // check viewModel.transients.hideSiteSelection
         hideMyLocation = args.hideMyLocation || false,
@@ -430,9 +430,9 @@ function enmapify(args) {
                 lonObservable(data.decimalLongitude);
 
                 if (addCreatedSiteToListOfSelectedSites)
-                    completeDraw();
+                    createPublicSite();
                 else
-                    completeDrawWithoutAdditionalSite();
+                    createPrivateSite();
             }
         }
     }
@@ -443,9 +443,9 @@ function enmapify(args) {
     map.registerListener("searchEventFired", function (e) {
         console.log('Received search event');
         if (addCreatedSiteToListOfSelectedSites)
-            completeDraw();
+            createPublicSite();
         else
-            completeDrawWithoutAdditionalSite();
+            createPrivateSite();
     });
 
     // make sure the lat/lng fields are cleared when the marker is removed by cancelling a new marker
@@ -457,9 +457,9 @@ function enmapify(args) {
 
         //Create site for all type including point
         if (addCreatedSiteToListOfSelectedSites)
-            completeDraw();
+            createPublicSite();
         else
-            completeDrawWithoutAdditionalSite();
+            createPrivateSite();
     });
     var saved = false;
     map.registerListener("draw:edited", function (e) {
@@ -474,9 +474,9 @@ function enmapify(args) {
             map.clearLayers();
         } else if (saved) {
             if (addCreatedSiteToListOfSelectedSites)
-                completeDraw();
+                createPublicSite();
             else
-                completeDrawWithoutAdditionalSite()
+                createPrivateSite()
         } else {
             console.log("cancelled edit with selected site, not clearing geometry")
         }
@@ -490,7 +490,14 @@ function enmapify(args) {
         map.markMyLocation();
     }
 
-    function completeDraw() {
+    /**
+     * Public sites have a name and are indexed by ElasticSearch.
+     * Hence they are visible on site listing pages.
+     * Creating public site also adds the site to ProjectActivity's
+     * pre-determined list. Therefore, users will be able to pick it from
+     * site selection drop down after creation.
+     */
+    function createPublicSite() {
         siteSubscriber.dispose();
         siteIdObservable(null);
         Biocollect.Modals.showModal({
@@ -529,7 +536,10 @@ function enmapify(args) {
         siteSubscriber = siteIdObservable.subscribe(updateMapForSite);
     }
 
-    function completeDrawWithoutAdditionalSite() {
+    /**
+     * Private sites are not index by ElasticSearch. Hence not visible on site listing pages.
+     */
+    function createPrivateSite() {
         siteSubscriber.dispose();
 
         var extent = convertGeoJSONToExtent(map.getGeoJSON());
