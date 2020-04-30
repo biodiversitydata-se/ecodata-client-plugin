@@ -776,6 +776,9 @@ function enmapify(args) {
         mapOptions: mapOptions,
         hideSiteSelection: viewModel.transients.hideSiteSelection,
         checkMapInfo: checkMapInfo,
+        centroid: centroid,
+        createPublicSite: createPublicSite,
+        createPrivateSite: createPrivateSite,
         viewModel: viewModel
     };
 }

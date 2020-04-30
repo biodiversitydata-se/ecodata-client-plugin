@@ -2,7 +2,7 @@ function resolveSites() {
     return [];
 }
 
-function Emitter (viewModel) {
+function Emitter(viewModel) {
     viewModel.emit = function () {
 
     };
@@ -12,9 +12,9 @@ describe("Enmapify Spec", function () {
 
     var mockElement = null;
     var options = null;
-    beforeEach(function() {
+    beforeEach(function () {
         window.Biocollect = {
-            "MapUtilities" : {
+            "MapUtilities": {
                 "getBaseLayerAndOverlayFromMapConfiguration": function () {
                     return {};
                 },
@@ -33,23 +33,62 @@ describe("Enmapify Spec", function () {
             "Map": function () {
                 return {
                     subscribe: function () {
-
                     },
                     markMyLocation: function () {
-
                     },
                     getGeoJSON: function () {
-
                     },
                     registerListener: function () {
-
                     },
                     addButton: function () {
-
+                    },
+                    addMarker: function () {
+                    },
+                    startLoading: function(){},
+                    finishLoading: function(){},
+                    clearLayers: function(){},
+                    getGeoJSON: function () {
+                        return {
+                            features: [{
+                                properties: {},
+                                geometry: {
+                                    "type": "Point",
+                                    "coordinates": [
+                                        143.1205701828002930,
+                                        -18.3232404604433903
+                                    ]
+                                }
+                            }]
+                        };
                     }
                 }
+            },
+            "MapConstants": {
+                /**
+                 * Types of drawing objects
+                 */
+                DRAW_TYPE: {
+                    POINT_TYPE: "Point",
+                    CIRCLE_TYPE: "Circle",
+                    POLYGON_TYPE: "Polygon",
+                    LINE_TYPE: "LineString"
+                },
+
+                /**
+                 * Types of layers
+                 */
+                LAYER_TYPE: {
+                    MARKER: "marker"
+                }
+            },
+            "MapUtils": {
+                "calculateAreaKmSq": function(){}
             }
         };
+
+        window.blockUIWithMessage = function() {}
+        window.$.unblockUI = function(){}
+        window.bootbox = {alert: function(){}}
 
         options = {
             viewModel: {mapElementId: "map"}
@@ -65,7 +104,7 @@ describe("Enmapify Spec", function () {
             , getSiteUrl: ''
             , uniqueNameUrl: ''
             , activityLevelData: {
-                pActivity : {
+                pActivity: {
                     name: 'Test',
                     projectId: 'abc',
                     projectActivityId: 'def',
@@ -75,7 +114,7 @@ describe("Enmapify Spec", function () {
                         extent: {
                             geometry: {
                                 type: "point",
-                                coordinates: [1,1]
+                                coordinates: [1, 1]
                             }
                         }
                     }],
@@ -92,9 +131,7 @@ describe("Enmapify Spec", function () {
                         {
                             siteId: "ghh",
                             extent: {
-                                geometry: {
-
-                                }
+                                geometry: {}
                             }
                         }
                     ]
@@ -109,10 +146,10 @@ describe("Enmapify Spec", function () {
             , context: {}
         };
         mockElement = document.createElement('div');
-        mockElement.setAttribute('id','map' );
+        mockElement.setAttribute('id', 'map');
     });
 
-    it("when config is to pick from a list of pre-defined sites, then map config should not show drawing controls", function() {
+    it("when config is to pick from a list of pre-defined sites, then map config should not show drawing controls", function () {
         options.activityLevelData.pActivity.allowPolygons = false;
         options.activityLevelData.pActivity.allowLine = false;
         options.activityLevelData.pActivity.allowPoints = false;
@@ -128,7 +165,7 @@ describe("Enmapify Spec", function () {
         expect(result.mapOptions.drawOptions.edit).toBe(false);
     });
 
-    it("when config is to allow user to create site and not to pick from pre-defined list, then map config should show drawing controls", function() {
+    it("when config is to allow user to create site and not to pick from pre-defined list, then map config should show drawing controls", function () {
         options.activityLevelData.pActivity.allowPolygons = true;
         options.activityLevelData.pActivity.allowPoints = true;
         options.activityLevelData.pActivity.allowLine = false;
@@ -161,7 +198,7 @@ describe("Enmapify Spec", function () {
 
     });
 
-    it("when config is to allow user to create site and to pick from pre-defined list, then map config should show drawing controls", function() {
+    it("when config is to allow user to create site and to pick from pre-defined list, then map config should show drawing controls", function () {
         options.activityLevelData.pActivity.allowPolygons = true;
         options.activityLevelData.pActivity.allowPoints = true;
         options.activityLevelData.pActivity.allowLine = true;
@@ -210,17 +247,47 @@ describe("Enmapify Spec", function () {
         options.activityLevelData.pActivity.allowPoints = false;
         options.activityLevelData.pActivity.allowLine = true;
         var result = enmapify(options);
-        result.viewModel.transients.showCentroid() == true;
-        result.viewModel.transients.showPointLatLon() == false;
+        expect(result.viewModel.transients.showCentroid()).toEqual(true);
+        expect(result.viewModel.transients.showPointLatLon()).toEqual(false);
 
         options.activityLevelData.pActivity.surveySiteOption = 'sitecreate';
         options.activityLevelData.pActivity.allowPolygons = false;
         options.activityLevelData.pActivity.allowPoints = true;
         options.activityLevelData.pActivity.allowLine = false;
         result = enmapify(options);
-        result.viewModel.transients.showCentroid() == false;
-        result.viewModel.transients.showPointLatLon() == true;
+        expect(result.viewModel.transients.showCentroid()).toEqual(false);
+        expect(result.viewModel.transients.showPointLatLon()).toEqual(true);
     });
 
+    it("centroid for line should be the first coordinate", function () {
+        var result = enmapify(options);
+        var line = {
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        143.1205701828002930,
+                        -18.3232404604433903
+                    ],
+                    [
+                        143.2633924484252930,
+                        -18.1536815535150886
+                    ],
+                    [
+                        143.6753797531127930,
+                        -18.0414212218919410
+                    ],
+                    [
+                        143.8676404953002930,
+                        -18.0884226646362016
+                    ]
+                ]
+            }
+        }
 
+        var centroid = result.centroid(line);
+
+        expect(centroid[0]).toEqual(143.1205701828002930);
+        expect(centroid[1]).toEqual(-18.3232404604433903);
+    });
 });
