@@ -48,7 +48,7 @@ function enmapify(args) {
         pointsOnly = allowPoints && !allowPolygons,
         polygonsOnly = !allowPoints && allowPolygons,
         defaultZoomArea = mapConfiguration.defaultZoomArea,
-        addCreatedSiteToListOfSelectedSites = mapConfiguration.addCreatedSiteToListOfSelectedSites || false,
+        addCreatedSiteToListOfSelectedSites = ((mapConfiguration.surveySiteOption == SITE_PICK_CREATE) && mapConfiguration.addCreatedSiteToListOfSelectedSites) || false,
         selectFromSitesOnly = viewModel.selectFromSitesOnly= mapConfiguration.surveySiteOption == SITE_PICK ? true : false,
 
 
@@ -426,13 +426,20 @@ function enmapify(args) {
     viewModel.addMarker = function(data) {
         if (mapOptions && mapOptions.drawOptions && mapOptions.drawOptions.marker) {
             if ( (data.decimalLatitude != undefined) && (data.decimalLongitude != undefined) ) {
+                var isPublicSite;
                 latObservable(data.decimalLatitude);
                 lonObservable(data.decimalLongitude);
-
-                if (addCreatedSiteToListOfSelectedSites)
+                console.log(addCreatedSiteToListOfSelectedSites);
+                if (addCreatedSiteToListOfSelectedSites) {
                     createPublicSite();
-                else
+                    isPublicSite = true;
+                }
+                else {
                     createPrivateSite();
+                    isPublicSite = false;
+                }
+
+                return isPublicSite
             }
         }
     }

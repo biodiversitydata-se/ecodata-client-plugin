@@ -25,6 +25,9 @@ describe("Enmapify Spec", function () {
                         properties: {}
                     }
                 }
+            },
+            "Modals": {
+                "showModal":function(){return $.Deferred()}
             }
         };
 
@@ -289,5 +292,17 @@ describe("Enmapify Spec", function () {
 
         expect(centroid[0]).toEqual(143.1205701828002930);
         expect(centroid[1]).toEqual(-18.3232404604433903);
+    });
+
+    it("addMarker function should create site", function () {
+        var result = enmapify(options);
+        var resp = result.viewModel.addMarker({decimalLatitude: -18.3232404604433903, decimalLongitude: 143.1205701828002930});
+        expect(resp).toEqual(false);
+
+        options.activityLevelData.pActivity.surveySiteOption = 'sitepickcreate';
+        options.activityLevelData.pActivity.addCreatedSiteToListOfSelectedSites = true;
+        result = enmapify(options);
+        resp = result.viewModel.addMarker({decimalLatitude: -18.3232404604433903, decimalLongitude: 143.1205701828002930});
+        expect(resp).toEqual(true);
     });
 });
