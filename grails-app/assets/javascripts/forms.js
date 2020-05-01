@@ -654,6 +654,9 @@ function orEmptyArray(v) {
                     data = self.getNestedValue(context, source['context-path']);
                 }
             }
+            else if (source && source.hasOwnProperty('literal')) {
+                data = source['literal'];
+            }
             deferred.resolve(data);
             return deferred;
         };
