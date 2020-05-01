@@ -618,7 +618,8 @@ class ModelJSTagLib {
     }
 
     def numberViewModel(JSModelRenderContext ctx) {
-        observable(ctx, ["{numericString:2}"])
+        int decimalPlaces = ctx.dataModel.decimalPlaces ?: 2
+        observable(ctx, ["{numericString:${decimalPlaces}}"])
     }
 
     def dateViewModel(JSModelRenderContext ctx) {

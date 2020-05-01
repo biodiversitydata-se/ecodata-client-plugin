@@ -59,6 +59,29 @@ class ModelJSTagLibSpec extends Specification {
         actualOut.toString().trim() == "data['item1'](ecodata.forms.orDefault(data['item1'], undefined));"
     }
 
+    void "number types support a configurable number of decimal places"() {
+        setup:
+        ctx.attrs = [:]
+        ctx.propertyPath = 'data'
+        ctx.dataModel = [dataType:'number',name:'item1']
+
+        when: "no decimal places is specified"
+        tagLib.numberViewModel(ctx)
+
+        then: "the default is 2"
+        actualOut.toString().trim() == "data.item1 = ko.observable().extend({numericString:2});"
+
+        when: "a number of decimal places is specified"
+        ctx.dataModel.decimalPlaces = 3
+        actualOut = new StringWriter()
+        ctx.out = new PrintWriter(actualOut)
+        tagLib.numberViewModel(ctx)
+
+        then:
+        actualOut.toString().trim() == "data.item1 = ko.observable().extend({numericString:3});"
+
+    }
+
     void "the existence of an expression based default value should result in the use of the writableComputed extender"() {
         setup:
         ctx.attrs = [:]
