@@ -56,11 +56,13 @@
     {
       "type": "table",
       "source": "nested",
+      "userAddedRows": true,
       "columns": [
         {
           "type": "number",
           "source": "item3",
-          "title": "Item 3"
+          "title": "Item 3",
+          "readonly": true
         },
         {
           "type": "number",
