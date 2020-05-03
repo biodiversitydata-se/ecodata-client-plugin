@@ -934,7 +934,7 @@
         var valueHolder = ko.pureComputed({
             read: function() {
                 var val = value();
-                return val ? val : ev.evaluate(options.expression, options.context);
+                return val ? val : ev.evaluate(options.expression, options.context, options.decimalPlaces);
             },
             write:function(newValue) {
                 value(newValue);
