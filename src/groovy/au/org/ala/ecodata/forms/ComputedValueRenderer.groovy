@@ -9,17 +9,34 @@ class ComputedValueRenderer {
 
     private final static operators = ['sum':'+', 'times':'*', 'divide':'/','difference':'-']
 
-    private void renderJSExpression(Map computed, String dependantContext, out) {
+    private final static int DEFAULT_DECIMAL_PLACES = 2
+
+    private void renderJSExpression(Map model, String dependantContext, out) {
+        Map computed = model.computed
+
         String expression = computed.expression
-        int decimalPlaces = computed.rounding != null ? computed.rounding : 2
+        int decimalPlaces = getNumberOfDecimalPlaces(model, computed)
+
         out << "return ecodata.forms.expressionEvaluator.evaluate('${expression}', ${dependantContext}, ${decimalPlaces});\n";
+    }
+
+    private int getNumberOfDecimalPlaces(Map model, Map computed) {
+        // Check first if the computed section defines the rounding, fall back to the model definition
+        Integer decimalPlaces = computed.rounding
+        if (decimalPlaces == null) {
+            decimalPlaces = model.decimalPlaces
+        }
+        if (decimalPlaces == null) {
+            decimalPlaces = DEFAULT_DECIMAL_PLACES
+        }
+        decimalPlaces
     }
 
     def computedObservable(model, propertyContext, dependantContext, out) {
         out << INDENT*5 << "${propertyContext}.${model.name} = ko.computed(function () {\n"
 
         if (model.computed.expression) {
-            renderJSExpression(model.computed, "self", out)
+            renderJSExpression(model, "self", out)
         }
         else {
             // must be at least one dependant
@@ -93,7 +110,7 @@ class ComputedValueRenderer {
             out << INDENT*4 << "return ${dependantContext}.${model.computed.dependents.source}().length;\n"
         }
         else if (model.computed.expression) {
-            renderJSExpression(model.computed, dependantContext, out)
+            renderJSExpression(model, dependantContext, out)
         }
         else if (model.computed.dependents.fromList) {
             out << INDENT*4 << "var total = 0;\n"

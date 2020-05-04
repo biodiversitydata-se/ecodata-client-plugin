@@ -563,7 +563,8 @@ class ModelJSTagLib {
         String extenderJS = ''
         if (requiresWritableComputed(ctx.dataModel)) {
             String expression = ctx.dataModel.defaultValue.expression
-            extenderJS += ".extend({writableComputed:{expression:'${expression}', context:${ctx.propertyPath}}})"
+            String decimalPlaces = ctx.dataModel.decimalPlaces ?: 'undefined'
+            extenderJS += ".extend({writableComputed:{expression:'${expression}', context:${ctx.propertyPath}, decimalPlaces:${decimalPlaces}}})"
         }
         if (requiresMetadataExtender(ctx.dataModel)) {
             extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:self.\$context, config:config}}")

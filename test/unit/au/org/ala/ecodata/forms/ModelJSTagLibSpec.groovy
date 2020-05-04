@@ -92,7 +92,20 @@ class ModelJSTagLibSpec extends Specification {
         String extenders = tagLib.extenderJS(ctx)
 
         then:
-        extenders == ".extend({writableComputed:{expression:'3*4', context:data}})"
+        extenders == ".extend({writableComputed:{expression:'3*4', context:data, decimalPlaces:undefined}})"
+    }
+
+    void "default values derived from an expression should respect the target observable decimalPlaces configuration"() {
+        setup:
+        ctx.attrs = [:]
+        ctx.propertyPath = 'data'
+        ctx.dataModel = [dataType:'number', decimalPlaces: 4, name:'item1',defaultValue:[expression:"3*4"]]
+
+        when:
+        String extenders = tagLib.extenderJS(ctx)
+
+        then:
+        extenders == ".extend({writableComputed:{expression:'3*4', context:data, decimalPlaces:4}})"
     }
 
     def "computed values containing expressions are rendered correctly"() {
@@ -126,6 +139,40 @@ class ModelJSTagLibSpec extends Specification {
 
         compareWithoutWhiteSpace(
                 "data.test = ko.computed(function() { return ecodata.forms.expressionEvaluator.evaluate('test1+1', data, 2); });",
+                actualOut.toString())
+    }
+
+    def "computed values allow the number of decimal places in the result to be specified"() {
+        setup:
+        Map dataModel = [type:'number', name:'test', dataType:'number', computed:[expression:'test1+1', rounding:3]]
+        ctx.dataModel = dataModel
+        ctx.propertyPath = 'data'
+        ctx.attrs = [:]
+
+        when:
+        tagLib.computedModel(ctx)
+
+        then:
+
+        compareWithoutWhiteSpace(
+                "data.test = ko.computed(function() { return ecodata.forms.expressionEvaluator.evaluate('test1+1', data, 3); });",
+                actualOut.toString())
+    }
+
+    def "computed values will use the dataModel decimal places for the result if rounding is not specified"() {
+        setup:
+        Map dataModel = [type:'number', name:'test', dataType:'number', decimalPlaces: 4, computed:[expression:'test1+1']]
+        ctx.dataModel = dataModel
+        ctx.propertyPath = 'data'
+        ctx.attrs = [:]
+
+        when:
+        tagLib.computedModel(ctx)
+
+        then:
+
+        compareWithoutWhiteSpace(
+                "data.test = ko.computed(function() { return ecodata.forms.expressionEvaluator.evaluate('test1+1', data, 4); });",
                 actualOut.toString())
     }
 

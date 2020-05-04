@@ -26,8 +26,10 @@
           "dataType": "number",
           "name": "item4",
           "defaultValue": {
-            "expression": "item3*item2"
-          }
+            "expression": "item3*item2",
+            "decimalPlaces": 4
+          },
+          "decimalPlaces": 4
         }
       ]
     }
@@ -61,8 +63,7 @@
         {
           "type": "number",
           "source": "item3",
-          "title": "Item 3",
-          "readonly": true
+          "title": "Item 3"
         },
         {
           "type": "number",
