@@ -39,7 +39,6 @@ function enmapify(args) {
         uniqueNameUrl = (activityLevelData.uniqueNameUrl || args.uniqueNameUrl) + "/" + ( activityLevelData.pActivity.projectActivityId || activityLevelData.pActivity.projectId),
         // hideSiteSelection is now dependent on survey's mapConfiguration
         // check viewModel.transients.hideSiteSelection
-        hideMyLocation = args.hideMyLocation || false,
         project = args.activityLevelData.project || {},
         mapConfiguration = project.mapConfiguration || args.activityLevelData.pActivity || {},
         allowPolygons = mapConfiguration.allowPolygons == undefined ? false : mapConfiguration.allowPolygons,
@@ -99,6 +98,61 @@ function enmapify(args) {
         new Emitter(viewModel);
     }
 
+    viewModel.transients = viewModel.transients || {};
+    viewModel.transients.hideSiteSelection = ko.computed(function () {
+        if (mapConfiguration && ([SITE_PICK, SITE_PICK_CREATE].indexOf(mapConfiguration.surveySiteOption) >= 0)) {
+            return true;
+        }
+
+        return false;
+    });
+
+    viewModel.transients.showMyLocationAndLocationByAddress = function () {
+        if (readonly) {
+            return true;
+        }
+
+        // only show my location control if user can add point to map
+        if (mapConfiguration && ([SITE_CREATE, SITE_PICK_CREATE].indexOf(mapConfiguration.surveySiteOption) >= 0) && allowPoints) {
+            return true;
+        }
+
+        return false;
+    };
+
+    viewModel.transients.showDataEntryFields = ko.computed(function () {
+        switch (mapConfiguration.surveySiteOption) {
+            case SITE_CREATE:
+            case SITE_PICK_CREATE:
+                return true;
+                break;
+        }
+
+        return false;
+    });
+
+    viewModel.transients.showCentroid = function () {
+        switch (mapConfiguration.surveySiteOption) {
+            case SITE_CREATE:
+            case SITE_PICK_CREATE:
+                return allowPolygons || allowLine;
+                break;
+        }
+
+        return false;
+    };
+
+    viewModel.transients.showPointLatLon = function () {
+        switch (mapConfiguration.surveySiteOption) {
+            case SITE_CREATE:
+            case SITE_PICK_CREATE:
+                return allowPoints;
+                break;
+        }
+
+        return false;
+    };
+
     var mapOptions = {
         wmsFeatureUrl: proxyFeatureUrl + "?featureId=",
         wmsLayerUrl: spatialGeoserverUrl + "/wms/reflect?",
@@ -110,8 +164,8 @@ function enmapify(args) {
         singleDraw: true,
         singleMarker: true,
         markerOrShapeNotBoth: markerOrShapeNotBoth,
-        useMyLocation: !readonly && !hideMyLocation,
-        allowSearchLocationByAddress: !readonly,
+        useMyLocation: viewModel.transients.showMyLocationAndLocationByAddress(),
+        allowSearchLocationByAddress: viewModel.transients.showMyLocationAndLocationByAddress(),
         allowSearchRegionByAddress: false,
         zoomToObject: true,
         markerZoomToMax: true,
@@ -335,48 +389,6 @@ function enmapify(args) {
 
         return L.geoJson(geoJSON, layerOptions);
     }
-
-    viewModel.transients = viewModel.transients || {};
-    viewModel.transients.hideSiteSelection = ko.computed(function () {
-        if (mapConfiguration && ([SITE_PICK, SITE_PICK_CREATE].indexOf(mapConfiguration.surveySiteOption) >= 0)) {
-            return true;
-        }
-
-        return false;
-    });
-
-    viewModel.transients.showDataEntryFields = ko.computed(function () {
-        switch (mapConfiguration.surveySiteOption) {
-            case SITE_CREATE:
-            case SITE_PICK_CREATE:
-                return true;
-                break;
-        }
-
-        return false;
-    });
-
-    viewModel.transients.showCentroid = function () {
-        switch (mapConfiguration.surveySiteOption) {
-            case SITE_CREATE:
-            case SITE_PICK_CREATE:
-                return allowPolygons || allowLine;
-                break;
-        }
-
-        return false;
-    };
-
-    viewModel.transients.showPointLatLon = function () {
-        switch (mapConfiguration.surveySiteOption) {
-            case SITE_CREATE:
-            case SITE_PICK_CREATE:
-                return allowPoints;
-                break;
-        }
-
-        return false;
-    };
 
     function updateMarkerPosition() {
         if ((!siteIdObservable() || !args.markerOrShapeNotBoth) && latObservable() && lonObservable()) {
@@ -782,6 +794,7 @@ function enmapify(args) {
     return {
         mapOptions: mapOptions,
         hideSiteSelection: viewModel.transients.hideSiteSelection,
+        showMyLocationAndLocationByAddress: viewModel.transients.showMyLocationAndLocationByAddress,
         checkMapInfo: checkMapInfo,
         centroid: centroid,
         createPublicSite: createPublicSite,

@@ -305,4 +305,23 @@ describe("Enmapify Spec", function () {
         resp = result.viewModel.addMarker({decimalLatitude: -18.3232404604433903, decimalLongitude: 143.1205701828002930});
         expect(resp).toEqual(true);
     });
+
+    it("showMyLocationAndLocationByAddress should be hidden or shown by map configuration", function () {
+
+        var result = enmapify(options);
+        var resp = result.showMyLocationAndLocationByAddress();
+        expect(resp).toEqual(true);
+
+        options.activityLevelData.pActivity.surveySiteOption = 'sitepickcreate';
+        options.activityLevelData.pActivity.allowPoints = false;
+        result = enmapify(options);
+        resp = result.showMyLocationAndLocationByAddress();
+        expect(resp).toEqual(false);
+
+        options.activityLevelData.pActivity.surveySiteOption = 'sitepick';
+        options.activityLevelData.pActivity.allowPoints = true;
+        result = enmapify(options);
+        resp = result.showMyLocationAndLocationByAddress();
+        expect(resp).toEqual(false);
+    });
 });
