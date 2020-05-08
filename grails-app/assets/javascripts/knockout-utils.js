@@ -157,4 +157,43 @@
 
         return result;
     };
+
+    /**
+     * Restricts the number of decimal places in a number entered into a text field.
+     * @param target the observable storing the number
+     * @param precision the number of decimal places allowed.
+     * @returns {Computed<any>}
+     */
+    ko.extenders.numericString = function(target, precision) {
+        //create a writable computed observable to intercept writes to our observable
+        var result = ko.computed({
+            read: target,  //always return the original observables value
+            write: function(newValue) {
+                var val = newValue;
+                if (typeof val === 'string') {
+                    val = newValue.replace(/,|\$/g, '');
+                }
+                var current = target(),
+                    roundingMultiplier = Math.pow(10, precision),
+                    newValueAsNum = isNaN(val) ? 0 : parseFloat(+val),
+                    valueToWrite = Math.round(newValueAsNum * roundingMultiplier) / roundingMultiplier;
+
+                //only write if it changed
+                if (valueToWrite.toString() !== current || isNaN(val)) {
+                    target(isNaN(val) ? newValue : valueToWrite.toString());
+                }
+                else {
+                    if (newValue !== current) {
+                        target.notifySubscribers(valueToWrite.toString());
+                    }
+                }
+            }
+        }).extend({ notify: 'always' });
+
+        //initialize with current value to make sure it is rounded appropriately
+        result(target());
+
+        //return the new computed observable
+        return result;
+    };
 })();

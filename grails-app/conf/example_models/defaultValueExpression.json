@@ -26,8 +26,10 @@
           "dataType": "number",
           "name": "item4",
           "defaultValue": {
-            "expression": "item3*item2"
-          }
+            "expression": "item3*item2",
+            "decimalPlaces": 4
+          },
+          "decimalPlaces": 4
         }
       ]
     }
@@ -56,6 +58,7 @@
     {
       "type": "table",
       "source": "nested",
+      "userAddedRows": true,
       "columns": [
         {
           "type": "number",
