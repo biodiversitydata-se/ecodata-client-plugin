@@ -161,7 +161,19 @@
             MapUtilities : {
                 getBaseLayerAndOverlayFromMapConfiguration: function () {
                     return {}
+                },
+                featureToValidGeoJson: function (geometry) {
+                    var pointGeoJSON =  {"type":"Feature","geometry":{"type":"Point","coordinates":[1,1]},"properties":{}};
+                    var lineGeoJSON = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[1,1], [1,1]]},"properties":{}};
+                    var polygonGeoJSON = {"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[1,1],[2,2],[3,3]]]},"properties":{}};
+                    if (geometry.type === 'Point')
+                        return pointGeoJSON;
+                    else if (geometry.type === 'LineString')
+                        return lineGeoJSON;
+                    else
+                        return polygonGeoJSON;
                 }
+
             }
         };
         // This is required by any models that use the feature dataType

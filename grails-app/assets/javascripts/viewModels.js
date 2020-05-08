@@ -46,7 +46,6 @@ function enmapify(args) {
         allowLine = mapConfiguration.allowLine || false,
         pointsOnly = allowPoints && !allowPolygons,
         polygonsOnly = !allowPoints && allowPolygons,
-        defaultZoomArea = mapConfiguration.defaultZoomArea,
         addCreatedSiteToListOfSelectedSites = ((mapConfiguration.surveySiteOption == SITE_PICK_CREATE) && mapConfiguration.addCreatedSiteToListOfSelectedSites) || false,
         selectFromSitesOnly = viewModel.selectFromSitesOnly= mapConfiguration.surveySiteOption == SITE_PICK ? true : false,
 
@@ -132,26 +131,31 @@ function enmapify(args) {
     });
 
     viewModel.transients.showCentroid = function () {
-        switch (mapConfiguration.surveySiteOption) {
-            case SITE_CREATE:
-            case SITE_PICK_CREATE:
-                return allowPolygons || allowLine;
-                break;
+        var site = viewModel.transients.getCurrentSite();
+        if (site) {
+            var geoJson  = Biocollect.MapUtilities.featureToValidGeoJson(site.extent.geometry);
+            return [ALA.MapConstants.DRAW_TYPE.CIRCLE_TYPE, ALA.MapConstants.DRAW_TYPE.POLYGON_TYPE, ALA.MapConstants.DRAW_TYPE.LINE_TYPE].indexOf(geoJson.geometry.type) >= 0;
         }
 
         return false;
     };
 
     viewModel.transients.showPointLatLon = function () {
-        switch (mapConfiguration.surveySiteOption) {
-            case SITE_CREATE:
-            case SITE_PICK_CREATE:
-                return allowPoints;
-                break;
+        var site = viewModel.transients.getCurrentSite();
+        if (site) {
+            var geoJson  = Biocollect.MapUtilities.featureToValidGeoJson(site.extent.geometry);
+            return ALA.MapConstants.DRAW_TYPE.POINT_TYPE === geoJson.geometry.type;
         }
 
         return false;
     };
+
+    viewModel.transients.getCurrentSite = function () {
+        var siteId = siteIdObservable();
+        return $.grep(sitesObservable(), function (site) {
+            return siteId == site.siteId;
+        })[0];
+    }
 
     var mapOptions = {
         wmsFeatureUrl: proxyFeatureUrl + "?featureId=",
@@ -764,7 +768,7 @@ function enmapify(args) {
     });
 
     function zoomToDefaultSite(){
-        defaultZoomArea = defaultZoomArea || project.projectSiteId;
+        var defaultZoomArea = project.projectSiteId;
         if (!siteIdObservable()){
             var defaultsite  = $.grep(activityLevelData.pActivity.sites,function(site){
                 if(site.siteId == defaultZoomArea)
@@ -780,10 +784,10 @@ function enmapify(args) {
 
             var geojson;
             if (defaultsite.length>0) {
-                geojson = createGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(defaultsite[0].extent.geometry));
-                var bounds = geojson.getBounds(),
-                    mapImpl = map.getMapImpl();
-                mapImpl.fitBounds(bounds);
+                geojson = Biocollect.MapUtilities.featureToValidGeoJson(defaultsite[0].extent.geometry);
+                map.clearBoundLimits();
+                map.fitToBoundsOf(geojson);
+                return defaultsite[0].siteId;
             }
 
         }
@@ -799,7 +803,8 @@ function enmapify(args) {
         centroid: centroid,
         createPublicSite: createPublicSite,
         createPrivateSite: createPrivateSite,
-        viewModel: viewModel
+        viewModel: viewModel,
+        zoomToDefaultSite: zoomToDefaultSite
     };
 }
 

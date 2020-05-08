@@ -9,7 +9,7 @@ class PreviewController {
     private static String EXAMPLE_MODEL = 'example.json'
     private static String EXAMPLE_MODELS_PATH = '/example_models/'
     private static String EXAMPLE_DATA_PATH = '/example_data/'
-
+    int siteCounter = 1
 
     def index() {
 
@@ -128,7 +128,8 @@ class PreviewController {
      * Stub function for testing geoMap dataType.
      */
     def updateSite() {
-        render text: '{"siteId": "abc"}', contentType: 'application/json'
+        siteCounter ++
+        render text: "{\"id\": \"${siteCounter}\"}", contentType: 'application/json'
     }
 
     /**

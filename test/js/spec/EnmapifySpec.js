@@ -1,5 +1,5 @@
-function resolveSites() {
-    return [];
+function resolveSites(sites) {
+    return sites;
 }
 
 function Emitter(viewModel) {
@@ -18,12 +18,10 @@ describe("Enmapify Spec", function () {
                 "getBaseLayerAndOverlayFromMapConfiguration": function () {
                     return {};
                 },
-                "featureToValidGeoJson": function () {
-                    return {
-                        type: "Feature",
-                        geometry: {},
-                        properties: {}
-                    }
+                "featureToValidGeoJson": function (geometry) {
+                    var pointGeoJSON =  {"type":"Feature","geometry":{"type":"Point","coordinates":[1,1]},"properties":{}};
+                    var lineGeoJSON = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[1,1]]},"properties":{}};
+                    return geometry.type === "point" ? pointGeoJSON : lineGeoJSON;
                 }
             },
             "Modals": {
@@ -50,6 +48,9 @@ describe("Enmapify Spec", function () {
                     startLoading: function(){},
                     finishLoading: function(){},
                     clearLayers: function(){},
+                    clearBoundLimits: function(){},
+                    setGeoJSON: function(){},
+                    fitToBoundsOf: function(){},
                     getGeoJSON: function () {
                         return {
                             features: [{
@@ -120,6 +121,15 @@ describe("Enmapify Spec", function () {
                                 coordinates: [1, 1]
                             }
                         }
+                    },
+                    {
+                        siteId: "site2",
+                        extent: {
+                            geometry: {
+                                type: "linestring",
+                                coordinates: [[1, 1]]
+                            }
+                        }
                     }],
                     allowPolygons: true,
                     allowPoints: true,
@@ -130,11 +140,24 @@ describe("Enmapify Spec", function () {
                 },
                 project: {
                     projectId: 'abc',
+                    projectSiteId: 'ghh',
                     sites: [
                         {
                             siteId: "ghh",
                             extent: {
-                                geometry: {}
+                                geometry: {
+                                    type: "point",
+                                    coordinates: [1, 1]
+                                }
+                            }
+                        },
+                        {
+                            siteId: "site2",
+                            extent: {
+                                geometry: {
+                                    type: "polygon",
+                                    coordinates: [1, 1]
+                                }
                             }
                         }
                     ]
@@ -244,22 +267,17 @@ describe("Enmapify Spec", function () {
         expect(result.checkMapInfo().validation).toEqual(false);
     });
 
-    it("should show latitude, longitude and centroid latitude and centroid longitude depending on project activity config", function () {
-        options.activityLevelData.pActivity.surveySiteOption = 'sitecreate';
-        options.activityLevelData.pActivity.allowPolygons = true;
-        options.activityLevelData.pActivity.allowPoints = false;
-        options.activityLevelData.pActivity.allowLine = true;
+    it("should show latitude, longitude and centroid latitude and centroid longitude depending on current site selected", function () {
         var result = enmapify(options);
-        expect(result.viewModel.transients.showCentroid()).toEqual(true);
-        expect(result.viewModel.transients.showPointLatLon()).toEqual(false);
-
-        options.activityLevelData.pActivity.surveySiteOption = 'sitecreate';
-        options.activityLevelData.pActivity.allowPolygons = false;
-        options.activityLevelData.pActivity.allowPoints = true;
-        options.activityLevelData.pActivity.allowLine = false;
-        result = enmapify(options);
+        result.viewModel.loadActivitySite();
         expect(result.viewModel.transients.showCentroid()).toEqual(false);
         expect(result.viewModel.transients.showPointLatLon()).toEqual(true);
+
+        options.activityLevelData.activity.siteId = "site2";
+        result = enmapify(options);
+        result.viewModel.loadActivitySite();
+        expect(result.viewModel.transients.showCentroid()).toEqual(true);
+        expect(result.viewModel.transients.showPointLatLon()).toEqual(false);
     });
 
     it("centroid for line should be the first coordinate", function () {
@@ -324,4 +342,14 @@ describe("Enmapify Spec", function () {
         resp = result.showMyLocationAndLocationByAddress();
         expect(resp).toEqual(false);
     });
+
+    it("should zoom to project area if no site is selected", function() {
+        result = enmapify(options);
+        expect(result.zoomToDefaultSite()).toEqual(options.activityLevelData.project.projectSiteId);
+
+        options.activityLevelData.activity.siteId = "site2";
+        result = enmapify(options);
+        result.viewModel.loadActivitySite();
+        expect(result.zoomToDefaultSite()).toBe(undefined);
+    }) ;
 });
