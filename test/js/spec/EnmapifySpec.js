@@ -21,7 +21,15 @@ describe("Enmapify Spec", function () {
                 "featureToValidGeoJson": function (geometry) {
                     var pointGeoJSON =  {"type":"Feature","geometry":{"type":"Point","coordinates":[1,1]},"properties":{}};
                     var lineGeoJSON = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[1,1]]},"properties":{}};
-                    return geometry.type === "point" ? pointGeoJSON : lineGeoJSON;
+                    var circleGeoJSON = {"type":"Feature","geometry":{"type":"Point","coordinates":[142.38647371530533,-24.55378515626474]},"properties":{"point_type":"Circle","radius":31597.605228685392}};
+                    switch (geometry.type) {
+                        case "point":
+                            return  pointGeoJSON;
+                        case "linestring":
+                            return lineGeoJSON;
+                        case "circle":
+                            return circleGeoJSON;
+                    }
                 }
             },
             "Modals": {
@@ -130,6 +138,15 @@ describe("Enmapify Spec", function () {
                                 coordinates: [[1, 1]]
                             }
                         }
+                    },
+                    {
+                        siteId: "site3",
+                        extent: {
+                            geometry: {
+                                type: "circle",
+                                coordinates: [1, 1]
+                            }
+                        }
                     }],
                     allowPolygons: true,
                     allowPoints: true,
@@ -156,6 +173,15 @@ describe("Enmapify Spec", function () {
                             extent: {
                                 geometry: {
                                     type: "polygon",
+                                    coordinates: [1, 1]
+                                }
+                            }
+                        },
+                        {
+                            siteId: "site3",
+                            extent: {
+                                geometry: {
+                                    type: "circle",
                                     coordinates: [1, 1]
                                 }
                             }
@@ -274,6 +300,13 @@ describe("Enmapify Spec", function () {
         expect(result.viewModel.transients.showPointLatLon()).toEqual(true);
 
         options.activityLevelData.activity.siteId = "site2";
+        result = enmapify(options);
+        result.viewModel.loadActivitySite();
+        expect(result.viewModel.transients.showCentroid()).toEqual(true);
+        expect(result.viewModel.transients.showPointLatLon()).toEqual(false);
+
+        // test circle
+        options.activityLevelData.activity.siteId = "site3";
         result = enmapify(options);
         result.viewModel.loadActivitySite();
         expect(result.viewModel.transients.showCentroid()).toEqual(true);

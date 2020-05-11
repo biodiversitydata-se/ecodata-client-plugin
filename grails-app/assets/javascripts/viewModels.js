@@ -134,7 +134,11 @@ function enmapify(args) {
         var site = viewModel.transients.getCurrentSite();
         if (site) {
             var geoJson  = Biocollect.MapUtilities.featureToValidGeoJson(site.extent.geometry);
-            return [ALA.MapConstants.DRAW_TYPE.CIRCLE_TYPE, ALA.MapConstants.DRAW_TYPE.POLYGON_TYPE, ALA.MapConstants.DRAW_TYPE.LINE_TYPE].indexOf(geoJson.geometry.type) >= 0;
+            if (geoJson.properties.point_type === ALA.MapConstants.DRAW_TYPE.CIRCLE_TYPE) {
+                return true;
+            } else {
+                return [ALA.MapConstants.DRAW_TYPE.POLYGON_TYPE, ALA.MapConstants.DRAW_TYPE.LINE_TYPE].indexOf(geoJson.geometry.type) >= 0;
+            }
         }
 
         return false;
@@ -144,7 +148,9 @@ function enmapify(args) {
         var site = viewModel.transients.getCurrentSite();
         if (site) {
             var geoJson  = Biocollect.MapUtilities.featureToValidGeoJson(site.extent.geometry);
-            return ALA.MapConstants.DRAW_TYPE.POINT_TYPE === geoJson.geometry.type;
+            if ((geoJson.properties.point_type != ALA.MapConstants.DRAW_TYPE.CIRCLE_TYPE) && (geoJson.geometry.type === ALA.MapConstants.DRAW_TYPE.POINT_TYPE)) {
+                return true;
+            }
         }
 
         return false;
