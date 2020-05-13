@@ -22,6 +22,8 @@ describe("Enmapify Spec", function () {
                     var pointGeoJSON =  {"type":"Feature","geometry":{"type":"Point","coordinates":[1,1]},"properties":{}};
                     var lineGeoJSON = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[1,1]]},"properties":{}};
                     var circleGeoJSON = {"type":"Feature","geometry":{"type":"Point","coordinates":[142.38647371530533,-24.55378515626474]},"properties":{"point_type":"Circle","radius":31597.605228685392}};
+                    var pidPointGeoJSON = {"type":"Feature","geometry":{"type":"Point","coordinates":["143","-35"]},"properties":{"pid":600}};
+                    var pidPolygonGeoJSON = {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"pid":620}};
                     switch (geometry.type) {
                         case "point":
                             return  pointGeoJSON;
@@ -29,6 +31,13 @@ describe("Enmapify Spec", function () {
                             return lineGeoJSON;
                         case "circle":
                             return circleGeoJSON;
+                        case "pid":
+                            switch (geometry.aream2) {
+                                case 0:
+                                    return pidPointGeoJSON;
+                                default:
+                                    return pidPolygonGeoJSON;
+                            }
                     }
                 }
             },
@@ -147,6 +156,32 @@ describe("Enmapify Spec", function () {
                                 coordinates: [1, 1]
                             }
                         }
+                    },
+                    {
+                        extent: {
+                            geometry: {
+                                centre: ["143", "-35"],
+                                aream2: 0,
+                                pid: 600,
+                                type: "pid"
+                            },
+                            source: "pid"
+                        },
+                        name: "site 4",
+                        siteId: "site4",
+                        status: "active"
+                    },
+                    {
+                        extent : {
+                            source : "pid",
+                            geometry : {
+                                pid : 620,
+                                type : "pid",
+                                aream2 : 103
+                            }
+                        },
+                        name : "site 5",
+                        siteId : "site5"
                     }],
                     allowPolygons: true,
                     allowPoints: true,
@@ -185,6 +220,32 @@ describe("Enmapify Spec", function () {
                                     coordinates: [1, 1]
                                 }
                             }
+                        },
+                        {
+                            extent: {
+                                geometry: {
+                                    centre: ["143", "-35"],
+                                    aream2: 0,
+                                    pid: 600,
+                                    type: "pid"
+                                },
+                                source: "pid"
+                            },
+                            name: "site 4",
+                            siteId: "site4",
+                            status: "active"
+                        },
+                        {
+                            extent : {
+                                source : "pid",
+                                geometry : {
+                                    pid : 620,
+                                    type : "pid",
+                                    aream2 : 103
+                                }
+                            },
+                            name : "site 5",
+                            siteId : "site5"
                         }
                     ]
                 },
@@ -311,6 +372,21 @@ describe("Enmapify Spec", function () {
         result.viewModel.loadActivitySite();
         expect(result.viewModel.transients.showCentroid()).toEqual(true);
         expect(result.viewModel.transients.showPointLatLon()).toEqual(false);
+
+        // test point with pid
+        options.activityLevelData.activity.siteId = "site4";
+        result = enmapify(options);
+        result.viewModel.loadActivitySite();
+        expect(result.viewModel.transients.showCentroid()).toEqual(false);
+        expect(result.viewModel.transients.showPointLatLon()).toEqual(true);
+
+        // test polygon with pid
+        options.activityLevelData.activity.siteId = "site5";
+        result = enmapify(options);
+        result.viewModel.loadActivitySite();
+        expect(result.viewModel.transients.showCentroid()).toEqual(true);
+        expect(result.viewModel.transients.showPointLatLon()).toEqual(false);
+
     });
 
     it("centroid for line should be the first coordinate", function () {

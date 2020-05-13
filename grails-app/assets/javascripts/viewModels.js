@@ -224,6 +224,7 @@ function enmapify(args) {
         }
 
         var geo = map.getGeoJSON();
+        var numberOfFeatures = map.countFeatures();
         var feature;
 
         // When removing layers, events can also be fired, we want to avoid processing those
@@ -274,7 +275,12 @@ function enmapify(args) {
                 centroidLonObservable(c[0]);
                 centroidLatObservable(c[1]);
             }
-        } else {
+        }
+        else if (numberOfFeatures > 0) {
+            // Feature with pid will not return a GeoJSON object instantly. GeoJSON object will be returned after an
+            // AJAX request is complete. Therefore, wait for the AJAX to complete. And, do not clear any fields.
+        }
+        else {
             console.log("Clearing location fields");
             //latLonDisabledObservable(false);
             previousLatObservable(null);

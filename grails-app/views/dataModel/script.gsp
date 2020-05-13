@@ -1,6 +1,6 @@
 <%@ page contentType="application/javascript;charset=UTF-8" %>
 <g:set var="outputNameAsIdentifer" value="${md.toSingleWord([name: outputName])}"/>
-ecodata.forms["${outputNameAsIdentifer + 'ViewModel'}"] = function (output, dataModel, context, config) {
+ecodata.forms["${raw(outputNameAsIdentifer + 'ViewModel')}"] = function (output, dataModel, context, config) {
     var self = this;
     var site = context.site || {};
     self.name = output.name;
