@@ -424,12 +424,12 @@ class ModelTagLib {
 
     // convenience method for the above
     def dataTag(attrs, model, context, editable, at) {
-        dataTag(attrs, model, context, editable, at, null, null)
+        dataTag(attrs, model, context, editable, at, null, new AttributeMap())
     }
 
     // convenience method for the above
     def dataTag(attrs, model, context, editable) {
-        dataTag(attrs, model, context, editable, null, null, null)
+        dataTag(attrs, model, context, editable, null, null, new AttributeMap())
     }
 
     // -------- validation declarations --------------------
@@ -872,7 +872,7 @@ class ModelTagLib {
             row.columns.eachWithIndex { col, i ->
                 def attributes = new AttributeMap()
                 if (getAttribute(attrs, col.source, '', 'primaryResult') == 'true') {
-                    attributes.addClass('value');
+                    attributes.addClass('value')
                 }
                 colCount += (col.colspan ? col.colspan.toInteger() : 1)
                 def colspan = col.colspan ? " colspan='${col.colspan}'" : ''
