@@ -106,4 +106,22 @@ describe("Expression Spec", function () {
 
     });
 
+    it("Should be able to sum the values of a field of an object in a list", function() {
+
+        // We are using strings here as we store data as strings to avoid issues
+        // floating point representation issues.
+        var data  = {
+            list:[
+                {val:'1'},{val:'2'},{val:'3'},{val:'4'},{val:'5'},{val:'6'}
+            ]
+        };
+        var result = ecodata.forms.expressionEvaluator.evaluate("sum(list, 'val')", data, 0);
+        expect(result).toEqual(''+(1+2+3+4+5+6));
+
+        data.list[0].val='e';
+        result = ecodata.forms.expressionEvaluator.evaluate("sum(list, 'val')", data, 0);
+        expect(result).toBeNaN();
+
+    });
+
 });

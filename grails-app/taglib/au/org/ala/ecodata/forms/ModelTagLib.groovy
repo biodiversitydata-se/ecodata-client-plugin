@@ -424,12 +424,12 @@ class ModelTagLib {
 
     // convenience method for the above
     def dataTag(attrs, model, context, editable, at) {
-        dataTag(attrs, model, context, editable, at, null, null)
+        dataTag(attrs, model, context, editable, at, null, new AttributeMap())
     }
 
     // convenience method for the above
     def dataTag(attrs, model, context, editable) {
-        dataTag(attrs, model, context, editable, null, null, null)
+        dataTag(attrs, model, context, editable, null, null, new AttributeMap())
     }
 
     // -------- validation declarations --------------------
@@ -869,19 +869,13 @@ class ModelTagLib {
         model.footer?.rows.each { row ->
             colCount = 0
             out << INDENT*4 << "<tr>\n"
+            LayoutRenderContext footerCtx = ctx.createChildContext([:])
             row.columns.eachWithIndex { col, i ->
-                def attributes = new AttributeMap()
-                if (getAttribute(attrs, col.source, '', 'primaryResult') == 'true') {
-                    attributes.addClass('value');
-                }
                 colCount += (col.colspan ? col.colspan.toInteger() : 1)
                 def colspan = col.colspan ? " colspan='${col.colspan}'" : ''
-                // inject type from data model
-                col.type = col.type ?: getType(attrs, col.source, '')
-
-                // inject computed from data model
-                col.computed = col.computed ?: getComputed(attrs, col.source, '')
-                out << INDENT*5 << "<td${colspan}>" << dataTag(attrs, col, 'data', attrs.edit, attributes) << "</td>" << "\n"
+                out << INDENT*5 << "<td${colspan}>"
+                viewModelItems([col], footerCtx)
+                out << INDENT*5 << "</td>" << "\n"
             }
             if (model.type == 'table' && attrs.edit) {
                 out << INDENT*5 << "<td></td>\n"  // to balance the extra column for actions
