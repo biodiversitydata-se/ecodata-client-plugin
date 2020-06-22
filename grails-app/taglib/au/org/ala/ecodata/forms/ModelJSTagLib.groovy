@@ -654,6 +654,7 @@ class ModelJSTagLib {
                 , updateSiteUrl: '${createLink(controller: 'site', action: 'ajaxUpdate')}'
                 , listSitesUrl: '${createLink(controller: 'site', action: 'ajaxList' )}'
                 , getSiteUrl: '${createLink(controller: 'site', action: 'index' )}'
+                , checkPointUrl: '${createLink(controller: 'site', action: 'checkPointInsideProjectAreaAndAddress' )}'
                 , uniqueNameUrl: '${createLink(controller: 'site', action: 'checkSiteName' )}'
                 , activityLevelData: context
                 , hideSiteSelection: ${model.hideSiteSelection}

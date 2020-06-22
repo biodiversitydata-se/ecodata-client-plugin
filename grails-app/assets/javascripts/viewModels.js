@@ -35,8 +35,10 @@ function enmapify(args) {
         updateSiteUrl = activityLevelData.updateSiteUrl || args.updateSiteUrl,
         listSitesUrl = activityLevelData.listSitesUrl || args.listSitesUrl,
         getSiteUrl = activityLevelData.getSiteUrl || args.getSiteUrl,
+        checkPointUrl = activityLevelData.checkPointUrl || args.checkPointUrl,
         context = args.context,
         uniqueNameUrl = (activityLevelData.uniqueNameUrl || args.uniqueNameUrl) + "/" + ( activityLevelData.pActivity.projectActivityId || activityLevelData.pActivity.projectId),
+        projectId = activityLevelData.pActivity.projectId,
         // hideSiteSelection is now dependent on survey's mapConfiguration
         // check viewModel.transients.hideSiteSelection
         project = args.activityLevelData.project || {},
@@ -98,6 +100,68 @@ function enmapify(args) {
     }
 
     viewModel.transients = viewModel.transients || {};
+    var latObservableStaged = viewModel.transients[name + "LatitudeStaged"] = ko.observable(),
+        lonObservableStaged = viewModel.transients[name + "LongitudeStaged"] = ko.observable(),
+        editCoordinates = viewModel.transients["editCoordinates"] = ko.observable(false);
+
+    viewModel.transients.showCoordinateFields = function () {
+        editCoordinates(true);
+    };
+
+    viewModel.transients.hideCoordinateFields = function () {
+        editCoordinates(false);
+    };
+
+    viewModel.transients.saveCoordinates = function () {
+        var lat = latObservableStaged(),
+            lng = lonObservableStaged();
+
+        canAddPointToMap(lat, lng, function (response) {
+            if (response.isPointInsideProjectArea) {
+                addPointToMap(lat, lng);
+            } else {
+                var message;
+                if (response.address) {
+                    message = 'The coordinates are outside the project area. ' +
+                    'Address of the location - ' + response.address + '. ' +
+                    'Do you wish to add it anyway?';
+                } else {
+                    message = 'The coordinates are outside the project area. ' +
+                        'Do you wish to add it anyway?';
+                }
+
+                bootbox.confirm( message, function (result) {
+                    if (result) {
+                        addPointToMap(lat, lng);
+                    }
+                });
+            }
+        });
+    };
+
+    function addPointToMap(lat, lng) {
+        map.addMarker (lat,  lng);
+        editCoordinates(false);
+    }
+
+    function canAddPointToMap (lat, lng, callback) {
+        var url = checkPointUrl + '?lat=' + lat + '&lng=' + lng + '&projectId=' + projectId;
+        $.ajax({
+            url: url,
+            method: 'get',
+            success : function (data) {
+                callback && callback(data);
+            },
+            error: function () {
+                // add the point if error is returned.
+                callback && callback({
+                    isPointInsideProjectArea: true,
+                    address: null
+                });
+            }
+        });
+    }
+
     viewModel.transients.hideSiteSelection = ko.computed(function () {
         if (mapConfiguration && ([SITE_PICK, SITE_PICK_CREATE].indexOf(mapConfiguration.surveySiteOption) >= 0)) {
             return true;
@@ -151,9 +215,9 @@ function enmapify(args) {
             if ((geoJson.properties.point_type != ALA.MapConstants.DRAW_TYPE.CIRCLE_TYPE) && (geoJson.geometry.type === ALA.MapConstants.DRAW_TYPE.POINT_TYPE)) {
                 return true;
             }
+        } else {
+            return  allowPoints;
         }
-
-        return false;
     };
 
     viewModel.transients.getCurrentSite = function () {
@@ -457,7 +521,7 @@ function enmapify(args) {
                 var isPublicSite;
                 latObservable(data.decimalLatitude);
                 lonObservable(data.decimalLongitude);
-                console.log(addCreatedSiteToListOfSelectedSites);
+
                 if (addCreatedSiteToListOfSelectedSites) {
                     createPublicSite();
                     isPublicSite = true;
