@@ -64,5 +64,14 @@ class GeoMapSpec extends GebReportingSpec {
         page.findById("locationLongitude").displayed == true
         page.findById("locationCentroidLatitude").displayed == false
         page.findById("locationCentroidLongitude").displayed == false
+
+        when:
+        page.geoMap.addCoordinatesManually()
+
+        then:
+        page.findById("locationLatitude").displayed == true
+        page.findById("locationLongitude").displayed == true
+        page.findById("locationLatitude").value() == "-31"
+        page.findById("locationLongitude").value() == "128"
     }
 }

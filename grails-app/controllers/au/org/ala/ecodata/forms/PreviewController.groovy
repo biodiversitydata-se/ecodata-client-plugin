@@ -165,4 +165,11 @@ class PreviewController {
     def uniqueName() {
         render text: '', contentType: 'text/plain'
     }
+
+    /**
+     * Stub function for testing geoMap dataType.
+     */
+    def checkPoint() {
+        render text: '{ "isPointInsideProjectArea": true, "address": null }', contentType: 'application/json'
+    }
 }

@@ -140,7 +140,7 @@ function enmapify(args) {
     };
 
     function addPointToMap(lat, lng) {
-        if( lat && lng) {
+        if (lat && lng) {
             map.addMarker (lat,  lng);
             editCoordinates(false);
         }
@@ -150,7 +150,7 @@ function enmapify(args) {
         var url = checkPointUrl + '?lat=' + lat + '&lng=' + lng + '&projectId=' + projectId;
         $.ajax({
             url: url,
-            method: 'get',
+            method: 'GET',
             success : function (data) {
                 callback && callback(data);
             },

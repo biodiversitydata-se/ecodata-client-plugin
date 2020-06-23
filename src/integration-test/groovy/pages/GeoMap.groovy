@@ -138,6 +138,18 @@ class GeoMap extends Module {
 //        waitFor { $("#locationLatitude").getAt(0).displayed }
     }
 
+    def addCoordinatesManually() {
+
+        def addBtn = $('.manual-point-add-btn')
+        addBtn.click()
+
+        waitFor{$('.manual-point-lng-input').getAt(0).displayed}
+        $('.manual-point-lng-input').value(128)
+        $('.manual-point-lat-input').value(-31)
+
+        $('.manual-point-save-btn').click()
+    }
+
     def selectExistingSite() {
 
     }

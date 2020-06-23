@@ -124,8 +124,8 @@
                     </div>
 
                     <div class="span9">
-                        <input placeholder="Use map tools to get coordinates" id="${source}LatitudeStaged" type="number" min="-90" max="90" data-bind="value: transients.${source}LatitudeStaged"
-                            ${latValidation} class="form-control full-width-input">
+                        <input placeholder="Decimal latitude" id="${source}LatitudeStaged" type="number" min="-90" max="90" data-bind="value: transients.${source}LatitudeStaged"
+                            ${latValidation} class="form-control full-width-input manual-point-lat-input">
                     </div>
                 </div>
 
@@ -135,21 +135,21 @@
                     </div>
 
                     <div class="span9">
-                        <input placeholder="Use map tools to get coordinates" id="${source}LongitudeStaged" type="number" min="-180" max="180" data-bind="value: transients.${source}LongitudeStaged"
-                                ${lngValidation} class="form-control full-width-input">
+                        <input placeholder="Decimal longitude" id="${source}LongitudeStaged" type="number" min="-180" max="180" data-bind="value: transients.${source}LongitudeStaged"
+                                ${lngValidation} class="form-control full-width-input manual-point-lng-input">
                     </div>
                 </div>
 
-                <div class="row-fluid">
+                <div class="row-fluid margin-bottom-10">
                     <div class="span3">
                     </div>
                     <div class="span9">
                         <!-- ko if: !transients.editCoordinates() -->
-                        <button class="btn btn-default" data-bind="click: transients.showCoordinateFields"><i class="icon-plus"></i> Add coordinates manually</button>
+                        <button class="btn btn-default manual-point-add-btn" data-bind="click: transients.showCoordinateFields"><i class="icon-plus"></i> Add coordinates manually</button>
                         <!-- /ko -->
                         <!-- ko if: transients.editCoordinates() -->
-                        <button class="btn btn-default" data-bind="click: transients.saveCoordinates"><i class="icon-hdd"></i> Save coordinates</button>
-                        <button class="btn btn-default" data-bind="click: transients.hideCoordinateFields"><i class="icon-arrow-right"></i> Cancel</button>
+                        <button class="btn btn-default manual-point-save-btn" data-bind="click: transients.saveCoordinates"><i class="icon-hdd"></i> Save coordinates</button>
+                        <button class="btn btn-default manual-point-cancel-btn" data-bind="click: transients.hideCoordinateFields"><i class="icon-arrow-right"></i> Cancel</button>
                         <!-- /ko -->
                     </div>
                 </div>

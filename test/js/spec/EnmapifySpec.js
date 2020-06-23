@@ -109,7 +109,7 @@ describe("Enmapify Spec", function () {
 
         window.blockUIWithMessage = function() {}
         window.$.unblockUI = function(){}
-        window.bootbox = {alert: function(){}}
+        window.bootbox = {alert: function(){},confirm: function(){}}
 
         options = {
             viewModel: {mapElementId: "map"}
@@ -123,6 +123,7 @@ describe("Enmapify Spec", function () {
             , updateSiteUrl: ''
             , listSitesUrl: ''
             , getSiteUrl: ''
+            , checkPointUrl: ''
             , uniqueNameUrl: ''
             , activityLevelData: {
                 pActivity: {
@@ -230,6 +231,10 @@ describe("Enmapify Spec", function () {
                                     type: "pid"
                                 },
                                 source: "pid"
+                            },
+                            geoIndex: {
+                                type: "Point",
+                                coordinates: [143, -35]
                             },
                             name: "site 4",
                             siteId: "site4",
@@ -461,4 +466,65 @@ describe("Enmapify Spec", function () {
         result.viewModel.loadActivitySite();
         expect(result.zoomToDefaultSite()).toBe(undefined);
     }) ;
+
+    it("should show manual entry button/form with appropriate project activity configuration", function () {
+        var result;
+
+        // test point with pid
+        options.activityLevelData.activity.siteId = "site4";
+        result = enmapify(options);
+        result.viewModel.loadActivitySite();
+        expect(result.viewModel.transients.showManualCoordinateForm()).toEqual(true);
+
+        // do not show form field or button when user has to pick site from dropdown list
+        options.activityLevelData.activity.siteId = "site4";
+        options.activityLevelData.pActivity.surveySiteOption = "sitepick";
+        result = enmapify(options);
+        result.viewModel.loadActivitySite();
+        expect(result.viewModel.transients.showManualCoordinateForm()).toEqual(false);
+    });
+
+    describe("Test ajax call to manual create point", function() {
+        var request, result;
+        jasmine.Ajax.install();
+
+        beforeEach(function() {
+            result = enmapify(options);
+            result.viewModel.transients.editCoordinates(true);
+            result.viewModel.transients[options.name + "LatitudeStaged"](10);
+            result.viewModel.transients[options.name + "LongitudeStaged"](9);
+            result.viewModel.transients.saveCoordinates();
+
+            request = jasmine.Ajax.requests.mostRecent();
+            expect(request.url).toBe('?lat=10&lng=9&projectId=abc');
+            expect(request.method).toBe('GET');
+        });
+
+        it("should add point to map and dismiss coordinate fields", function() {
+            request.respondWith({
+                status: 200,
+                responseJSON: { "isPointInsideProjectArea": true, "address": null }
+            });
+
+            expect(result.viewModel.transients.editCoordinates()).toBe(false);
+        });
+
+        it("should prompt user to add point to map and coordinate fields is still visible", function() {
+
+            request.respondWith({
+                status: 200,
+                responseJSON: { "isPointInsideProjectArea": false, "address": null }
+            });
+
+            expect(result.viewModel.transients.editCoordinates()).toBe(true);
+        });
+
+        it("should add point if ajax request failed", function() {
+            request.respondWith({
+                status: 404
+            });
+
+            expect(result.viewModel.transients.editCoordinates()).toBe(false);
+        });
+    });
 });

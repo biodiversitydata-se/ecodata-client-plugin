@@ -149,7 +149,8 @@
             listSitesUrl: "${createLink(action: 'listSites')}",
             spatialGeoserverUrl: "${createLink(action: 'spatialGeoserver')}",
             proxyFeatureUrl: "${createLink(action: 'proxyFeature')}",
-            uniqueNameUrl: "${createLink(action: 'uniqueName')}"
+            uniqueNameUrl: "${createLink(action: 'uniqueName')}",
+            checkPointUrl: "${createLink(action: 'checkPoint')}"
         };
 
         // geoMap dependent functions
