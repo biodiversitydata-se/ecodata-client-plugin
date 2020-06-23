@@ -122,11 +122,11 @@ function enmapify(args) {
             } else {
                 var message;
                 if (response.address) {
-                    message = 'The coordinates are outside the project area. ' +
-                    'Address of the location - ' + response.address + '. ' +
+                    message = 'The coordinates are outside the project area.<br/>' +
+                    'Address of the location is "' + response.address + '".<br/>' +
                     'Do you wish to add it anyway?';
                 } else {
-                    message = 'The coordinates are outside the project area. ' +
+                    message = 'The coordinates are outside the project area.<br/>' +
                         'Do you wish to add it anyway?';
                 }
 
@@ -140,8 +140,10 @@ function enmapify(args) {
     };
 
     function addPointToMap(lat, lng) {
-        map.addMarker (lat,  lng);
-        editCoordinates(false);
+        if( lat && lng) {
+            map.addMarker (lat,  lng);
+            editCoordinates(false);
+        }
     }
 
     function canAddPointToMap (lat, lng, callback) {
@@ -188,7 +190,6 @@ function enmapify(args) {
             case SITE_CREATE:
             case SITE_PICK_CREATE:
                 return true;
-                break;
         }
 
         return false;
@@ -215,9 +216,17 @@ function enmapify(args) {
             if ((geoJson.properties.point_type != ALA.MapConstants.DRAW_TYPE.CIRCLE_TYPE) && (geoJson.geometry.type === ALA.MapConstants.DRAW_TYPE.POINT_TYPE)) {
                 return true;
             }
-        } else {
-            return  allowPoints;
         }
+
+        return false;
+    };
+
+    viewModel.transients.showManualCoordinateForm = function () {
+        if (mapConfiguration && ([SITE_CREATE, SITE_PICK_CREATE].indexOf(mapConfiguration.surveySiteOption) >= 0) && allowPoints) {
+            return true;
+        }
+
+        return false;
     };
 
     viewModel.transients.getCurrentSite = function () {

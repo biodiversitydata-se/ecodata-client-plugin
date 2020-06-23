@@ -74,7 +74,7 @@
 
             <!-- ko if: transients.showPointLatLon() -->
 
-            <div class="row-fluid">
+            <div class="row-fluid" data-bind="slideVisible: !transients.editCoordinates()">
                 <div class="span3">
                     <label for="${source}Latitude">Latitude
                         <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.latLon"/>', content:'<g:message code="record.edit.map.latLon.content"/>'}">
@@ -88,19 +88,13 @@
                         <span data-bind="text: data.${source}Latitude"></span>
                     </g:if>
                     <g:else>
-                        <!-- ko if: !transients.editCoordinates() -->
                         <input placeholder="Use map tools to get coordinates" id="${source}Latitude" type="number" min="-90" max="90" data-bind="value: data.${source}Latitude" disabled
                             ${latValidation} class="form-control full-width-input">
-                        <!-- /ko -->
-                        <!-- ko if: transients.editCoordinates() -->
-                        <input placeholder="Use map tools to get coordinates" id="${source}LatitudeStaged" type="number" min="-90" max="90" data-bind="value: transients.${source}LatitudeStaged"
-                            ${latValidation} class="form-control full-width-input">
-                        <!-- /ko -->
                     </g:else>
                 </div>
             </div>
 
-            <div class="row-fluid">
+            <div class="row-fluid" data-bind="slideVisible: !transients.editCoordinates()">
                 <div class="span3">
                     <label for="${source}Longitude">Longitude</label>
                 </div>
@@ -110,36 +104,58 @@
                         <span data-bind="text: data.${source}Longitude"></span>
                     </g:if>
                     <g:else>
-                        <!-- ko if: !transients.editCoordinates() -->
                         <input placeholder="Use map tools to get coordinates" id="${source}Longitude" type="number" min="-180" max="180" data-bind="value: data.${source}Longitude" disabled
                             ${lngValidation} class="form-control full-width-input">
-                        <!-- /ko -->
-                        <!-- ko if: transients.editCoordinates() -->
-                        <input placeholder="Use map tools to get coordinates" id="${source}LongitudeStaged" type="number" min="-180" max="180" data-bind="value: transients.${source}LongitudeStaged"
-                            ${lngValidation} class="form-control full-width-input">
-                        <!-- /ko -->
                     </g:else>
                 </div>
             </div>
 
-            <g:if test="${!readonly}">
-            <div class="row-fluid">
-                <div class="span3">
-                </div>
-                <div class="span9">
-                    <!-- ko if: !transients.editCoordinates() -->
-                    <button class="btn btn-default" data-bind="click: function() {console.log('init call'); transients.editCoordinates(true);}"><i class="icon-edit"></i> Add coordinates manually</button>
-                    <!-- /ko -->
-                    <!-- ko if: transients.editCoordinates() -->
-                    <button class="btn btn-default" data-bind="click: transients.saveCoordinates"><i class="icon-hdd"></i> Save coordinates</button>
-                    <button class="btn btn-default" data-bind="click: transients.hideCoordinateFields"><i class="icon-arrow-right"></i> Cancel</button>
-                    <!-- /ko -->
-                </div>
-            </div>
-            </g:if>
-
             <!-- /ko -->
-            <!-- Try to pass geo info of map to ko -->
+
+            <!-- ko if: transients.showManualCoordinateForm -->
+            <g:if test="${!readonly}">
+                <div class="row-fluid" data-bind="slideVisible: transients.editCoordinates">
+                    <div class="span3">
+                        <label for="${source}Latitude">Enter latitude
+                            <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.latLon"/>', content:'<g:message code="record.edit.map.latLon.content"/>'}">
+                                <i class="icon-question-sign"></i>
+                            </a>
+                        </label>
+                    </div>
+
+                    <div class="span9">
+                        <input placeholder="Use map tools to get coordinates" id="${source}LatitudeStaged" type="number" min="-90" max="90" data-bind="value: transients.${source}LatitudeStaged"
+                            ${latValidation} class="form-control full-width-input">
+                    </div>
+                </div>
+
+                <div class="row-fluid" data-bind="slideVisible: transients.editCoordinates">
+                    <div class="span3">
+                        <label for="${source}Longitude">Enter longitude</label>
+                    </div>
+
+                    <div class="span9">
+                        <input placeholder="Use map tools to get coordinates" id="${source}LongitudeStaged" type="number" min="-180" max="180" data-bind="value: transients.${source}LongitudeStaged"
+                                ${lngValidation} class="form-control full-width-input">
+                    </div>
+                </div>
+
+                <div class="row-fluid">
+                    <div class="span3">
+                    </div>
+                    <div class="span9">
+                        <!-- ko if: !transients.editCoordinates() -->
+                        <button class="btn btn-default" data-bind="click: transients.showCoordinateFields"><i class="icon-plus"></i> Add coordinates manually</button>
+                        <!-- /ko -->
+                        <!-- ko if: transients.editCoordinates() -->
+                        <button class="btn btn-default" data-bind="click: transients.saveCoordinates"><i class="icon-hdd"></i> Save coordinates</button>
+                        <button class="btn btn-default" data-bind="click: transients.hideCoordinateFields"><i class="icon-arrow-right"></i> Cancel</button>
+                        <!-- /ko -->
+                    </div>
+                </div>
+            </g:if>
+            <!-- /ko -->
+        <!-- Try to pass geo info of map to ko -->
             <input id = "${source}geoInfo" hidden="true">
 
             <g:if test="${includeAccuracy}">
