@@ -25,6 +25,7 @@ function enmapify(args) {
     var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate';
     var viewModel = args.viewModel,
         container = args.container,
+        validationContainer = args.validationContainer || '#validation-container',
         name = args.name,
         edit = args.edit,
         readonly = args.readonly,
@@ -879,6 +880,12 @@ function enmapify(args) {
     }
 
     zoomToDefaultSite();
+
+    // Redraw map since it was created on a hidden element.
+    $(validationContainer).on('knockout-visible', function () {
+        map && map.getMapImpl().invalidateSize();
+    });
+
     // returning variables to help test this method
     return {
         mapOptions: mapOptions,
