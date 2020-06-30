@@ -331,12 +331,7 @@
 
         // automatically update map location if image uploaded had location data
         $(document).on('imagelocation', function(event, data) {
-            var el = document.getElementById("${source}Map"),
-                viewModel = ko.dataFor(el);
-
-            if (isGeoMapPresentInViewModel(viewModel)) {
-                viewModel.addMarker(data);
-            }
+            addPoint(data);
         });
 
         // listen to marker movement. update source information and look up locality
@@ -404,7 +399,7 @@
                 });
 
                 if (location) {
-                    updateLocation(location.decimalLatitude, location.decimalLongitude, location.locality)
+                    addPoint({decimalLatitude: location.decimalLatitude, decimalLongitude: location.decimalLongitude});
                 } else {
                     bootbox.alert("Error: bookmark could not be loaded.");
                 }
@@ -437,13 +432,13 @@
             });
         }
 
-        function updateLocation(lat, lng, locality, keepView) {
-            $('#${source}Locality').val(locality)
-            $('#${source}Latitude').val(lat)
-            $('#${source}Longitude').val(lng)
-            $('#${source}Locality').change()
-            $('#${source}Latitude').change()
-            $('#${source}Longitude').change()
+        function addPoint (data) {
+            var el = document.getElementById("${source}Map"),
+                viewModel = ko.dataFor(el);
+
+            if (isGeoMapPresentInViewModel(viewModel)) {
+                viewModel.addMarker(data);
+            }
         }
 
         function isGeoMapPresentInViewModel (viewModel) {
