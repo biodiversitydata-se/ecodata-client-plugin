@@ -288,8 +288,7 @@ function enmapify(args) {
     };
 
     function updateFieldsForMap(params) {
-        latSubscriber.dispose();
-        lngSubscriber.dispose();
+        subscribeOrDisposeLatLonObservables(false);
 
         var markerLocation = null;
         var markerLocations = map.getMarkerLocations();
@@ -366,8 +365,18 @@ function enmapify(args) {
             siteIdObservable(null);
         }
 
-        latSubscriber = latObservable.subscribe(updateMarkerPosition);
-        lngSubscriber = lonObservable.subscribe(updateMarkerPosition);
+        subscribeOrDisposeLatLonObservables(true);
+    }
+
+    function subscribeOrDisposeLatLonObservables (state) {
+        // destroy existing subscription before creating new subscription
+        latSubscriber && latSubscriber.dispose();
+        lngSubscriber && lngSubscriber.dispose();
+
+        if (state) {
+            latSubscriber = latObservable.subscribe(updateMarkerPosition);
+            lngSubscriber = lonObservable.subscribe(updateMarkerPosition);
+        }
     }
 
     function centroid(feature) {
@@ -481,12 +490,18 @@ function enmapify(args) {
     }
 
     function updateMarkerPosition() {
-        if ((!siteIdObservable() || !args.markerOrShapeNotBoth) && latObservable() && lonObservable()) {
-            console.log("Displaying new marker")
+        if (shouldMarkerMove()) {
+            console.log("Enmapify: Displaying new marker");
             map.addMarker(latObservable(), lonObservable());
-            previousLatObservable(latObservable())
-            previousLonObservable(lonObservable())
+            previousLatObservable(latObservable());
+            previousLonObservable(lonObservable());
         }
+    }
+
+    function shouldMarkerMove () {
+        var emptyValues = [null, undefined, ''];
+        return ((latObservable() != previousLatObservable()) || (lonObservable() != previousLonObservable())) &&
+            (emptyValues.indexOf(latObservable()) === -1) && (emptyValues.indexOf(lonObservable()) === -1);
     }
 
     viewModel.selectManyCombo = function (obj, event) {
@@ -529,8 +544,10 @@ function enmapify(args) {
         if (mapOptions && mapOptions.drawOptions && mapOptions.drawOptions.marker) {
             if ( (data.decimalLatitude != undefined) && (data.decimalLongitude != undefined) ) {
                 var isPublicSite;
+                subscribeOrDisposeLatLonObservables(false);
                 latObservable(data.decimalLatitude);
                 lonObservable(data.decimalLongitude);
+                updateMarkerPosition();
 
                 if (addCreatedSiteToListOfSelectedSites) {
                     createPublicSite();
@@ -541,6 +558,7 @@ function enmapify(args) {
                     isPublicSite = false;
                 }
 
+                subscribeOrDisposeLatLonObservables(true);
                 return isPublicSite
             }
         }
@@ -896,7 +914,8 @@ function enmapify(args) {
         createPublicSite: createPublicSite,
         createPrivateSite: createPrivateSite,
         viewModel: viewModel,
-        zoomToDefaultSite: zoomToDefaultSite
+        zoomToDefaultSite: zoomToDefaultSite,
+        shouldMarkerMove: shouldMarkerMove
     };
 }
 
