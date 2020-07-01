@@ -459,6 +459,9 @@
                     $.ajax({
                         url: 'https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&addressdetails=1' + '&lat=' + lat + '&lon=' + lng,
                         dataType: 'json',
+                        xhrFields: {
+                            withCredentials: false
+                        }
                     }).done(function (data) {
                         console.log(data)
                         if (!data.error) {
