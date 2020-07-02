@@ -461,6 +461,10 @@
                         dataType: 'json',
                         xhrFields: {
                             withCredentials: false
+                        },
+                        beforeSend: function(xhr){
+                            xhr.setRequestHeader('authKey', '');
+                            xhr.setRequestHeader('userName', '');
                         }
                     }).done(function (data) {
                         console.log(data)
