@@ -29,7 +29,7 @@ repositories {
     maven { url "https://nexus.ala.org.au/content/groups/public/" }
 }
 
-boolean inplace = false
+boolean inplace = true
 
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
