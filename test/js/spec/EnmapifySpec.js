@@ -491,6 +491,8 @@ describe("Enmapify Spec", function () {
         beforeEach(function() {
             result = enmapify(options);
             result.viewModel.transients.editCoordinates(true);
+            options.container["TestLatitude"](0);
+            options.container["TestLongitude"](0);
             result.viewModel.transients[options.name + "LatitudeStaged"](10);
             result.viewModel.transients[options.name + "LongitudeStaged"](9);
             result.viewModel.transients.saveCoordinates();
@@ -507,6 +509,8 @@ describe("Enmapify Spec", function () {
             });
 
             expect(result.viewModel.transients.editCoordinates()).toBe(false);
+            expect(options.container["TestLatitude"]()).toBe(10);
+            expect(options.container["TestLongitude"]()).toBe(9);
         });
 
         it("should prompt user to add point to map and coordinate fields is still visible", function() {
@@ -517,6 +521,8 @@ describe("Enmapify Spec", function () {
             });
 
             expect(result.viewModel.transients.editCoordinates()).toBe(true);
+            expect(options.container["TestLatitude"]()).toBe(0);
+            expect(options.container["TestLongitude"]()).toBe(0);
         });
 
         it("should add point if ajax request failed", function() {
@@ -525,6 +531,8 @@ describe("Enmapify Spec", function () {
             });
 
             expect(result.viewModel.transients.editCoordinates()).toBe(false);
+            expect(options.container["TestLatitude"]()).toBe(10);
+            expect(options.container["TestLongitude"]()).toBe(9);
         });
     });
 });

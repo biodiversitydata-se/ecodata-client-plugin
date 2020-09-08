@@ -103,7 +103,8 @@ function enmapify(args) {
     viewModel.transients = viewModel.transients || {};
     var latObservableStaged = viewModel.transients[name + "LatitudeStaged"] = ko.observable(),
         lonObservableStaged = viewModel.transients[name + "LongitudeStaged"] = ko.observable(),
-        editCoordinates = viewModel.transients["editCoordinates"] = ko.observable(false);
+        editCoordinates = viewModel.transients["editCoordinates"] = ko.observable(false),
+        showLoadingOnCoordinateCheck = viewModel.transients["showLoadingOnCoordinateCheck"] = ko.observable(false);
 
     viewModel.transients.showCoordinateFields = function () {
         editCoordinates(true);
@@ -142,18 +143,20 @@ function enmapify(args) {
 
     function addPointToMap(lat, lng) {
         if (lat && lng) {
-            map.addMarker (lat,  lng);
+            viewModel.addMarker ({decimalLatitude: lat,  decimalLongitude: lng});
             editCoordinates(false);
         }
     }
 
     function canAddPointToMap (lat, lng, callback) {
         var url = checkPointUrl + '?lat=' + lat + '&lng=' + lng + '&projectId=' + projectId;
+        showLoadingOnCoordinateCheck(true);
         $.ajax({
             url: url,
             method: 'GET',
             success : function (data) {
                 callback && callback(data);
+                showLoadingOnCoordinateCheck(false);
             },
             error: function () {
                 // add the point if error is returned.
@@ -161,6 +164,7 @@ function enmapify(args) {
                     isPointInsideProjectArea: true,
                     address: null
                 });
+                showLoadingOnCoordinateCheck(false);
             }
         });
     }

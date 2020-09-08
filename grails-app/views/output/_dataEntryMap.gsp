@@ -148,7 +148,7 @@
                         <button class="btn btn-default manual-point-add-btn" data-bind="click: transients.showCoordinateFields"><i class="icon-plus"></i> Add coordinates manually</button>
                         <!-- /ko -->
                         <!-- ko if: transients.editCoordinates() -->
-                        <button class="btn btn-default manual-point-save-btn" data-bind="click: transients.saveCoordinates"><i class="icon-hdd"></i> Save coordinates</button>
+                        <button class="btn btn-default manual-point-save-btn" data-bind="click: transients.saveCoordinates"><i class="icon-hdd" data-bind="visible: !transients.showLoadingOnCoordinateCheck()"></i><span class="fa fa-spin fa-spinner" data-bind="visible: transients.showLoadingOnCoordinateCheck"></span> Save coordinates</button>
                         <button class="btn btn-default manual-point-cancel-btn" data-bind="click: transients.hideCoordinateFields"><i class="icon-arrow-right"></i> Cancel</button>
                         <!-- /ko -->
                     </div>
