@@ -90,7 +90,17 @@
         var site = {
             siteId: 'abc',
             projects: ['projectA'],
-            name: 'Test site'
+            name: 'Test site',
+            extent: {
+                geometry: {
+                    coordinates: [134, -21],
+                    type: 'Point'
+                }
+            },
+            geoIndex: {
+                coordinates: [134, -21],
+                type: 'Point'
+            }
         };
 
         var context = {

@@ -148,6 +148,7 @@ class GeoMap extends Module {
         $('.manual-point-lat-input').value(-31)
 
         $('.manual-point-save-btn').click()
+        waitFor{$('#locationLatitude').getAt(0).displayed}
     }
 
     def selectExistingSite() {
