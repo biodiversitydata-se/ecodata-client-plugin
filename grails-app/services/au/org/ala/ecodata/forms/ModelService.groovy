@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat
 class ModelService {
     static DateFormat ISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
 
-    def grailsApplication, webService, cacheService, authService
+    def grailsApplication, webService, cacheService, userInfoService
 
     def activitiesModel() {
         return cacheService.get('activity-model',{
@@ -53,7 +53,7 @@ class ModelService {
                         value = "'${value}'"
                     }
                 } else if(dataModel.name == 'recordedBy' && !value) {
-                    value = "'${authService.userDetails()?.getDisplayName()}'"
+                    value = "'${userInfoService.getCurrentUser()?.displayName?:''}'"
                 }
                 else if (value) {
                     value = JavaScriptCodec.ENCODER.encode(value)

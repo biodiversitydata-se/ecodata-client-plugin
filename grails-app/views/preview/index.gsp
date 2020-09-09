@@ -90,7 +90,17 @@
         var site = {
             siteId: 'abc',
             projects: ['projectA'],
-            name: 'Test site'
+            name: 'Test site',
+            extent: {
+                geometry: {
+                    coordinates: [134, -21],
+                    type: 'Point'
+                }
+            },
+            geoIndex: {
+                coordinates: [134, -21],
+                type: 'Point'
+            }
         };
 
         var context = {
@@ -149,7 +159,8 @@
             listSitesUrl: "${createLink(action: 'listSites')}",
             spatialGeoserverUrl: "${createLink(action: 'spatialGeoserver')}",
             proxyFeatureUrl: "${createLink(action: 'proxyFeature')}",
-            uniqueNameUrl: "${createLink(action: 'uniqueName')}"
+            uniqueNameUrl: "${createLink(action: 'uniqueName')}",
+            checkPointUrl: "${createLink(action: 'checkPoint')}"
         };
 
         // geoMap dependent functions

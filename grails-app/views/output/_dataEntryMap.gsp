@@ -74,7 +74,7 @@
 
             <!-- ko if: transients.showPointLatLon() -->
 
-            <div class="row-fluid" data-bind="if: data.${source}Latitude">
+            <div class="row-fluid" data-bind="slideVisible: !transients.editCoordinates()">
                 <div class="span3">
                     <label for="${source}Latitude">Latitude
                         <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.latLon"/>', content:'<g:message code="record.edit.map.latLon.content"/>'}">
@@ -94,7 +94,7 @@
                 </div>
             </div>
 
-            <div class="row-fluid" data-bind="if: data.${source}Longitude">
+            <div class="row-fluid" data-bind="slideVisible: !transients.editCoordinates()">
                 <div class="span3">
                     <label for="${source}Longitude">Longitude</label>
                 </div>
@@ -111,7 +111,51 @@
             </div>
 
             <!-- /ko -->
-            <!-- Try to pass geo info of map to ko -->
+
+            <!-- ko if: transients.showManualCoordinateForm -->
+            <g:if test="${!readonly}">
+                <div class="row-fluid" data-bind="slideVisible: transients.editCoordinates">
+                    <div class="span3">
+                        <label for="${source}Latitude">Enter latitude
+                            <a href="#" class="helphover" data-bind="popover: {title:'<g:message code="record.edit.map.latLon"/>', content:'<g:message code="record.edit.map.latLon.content"/>'}">
+                                <i class="icon-question-sign"></i>
+                            </a>
+                        </label>
+                    </div>
+
+                    <div class="span9">
+                        <input placeholder="Decimal latitude" id="${source}LatitudeStaged" type="number" min="-90" max="90" data-bind="value: transients.${source}LatitudeStaged"
+                            ${latValidation} class="form-control full-width-input manual-point-lat-input">
+                    </div>
+                </div>
+
+                <div class="row-fluid" data-bind="slideVisible: transients.editCoordinates">
+                    <div class="span3">
+                        <label for="${source}Longitude">Enter longitude</label>
+                    </div>
+
+                    <div class="span9">
+                        <input placeholder="Decimal longitude" id="${source}LongitudeStaged" type="number" min="-180" max="180" data-bind="value: transients.${source}LongitudeStaged"
+                                ${lngValidation} class="form-control full-width-input manual-point-lng-input">
+                    </div>
+                </div>
+
+                <div class="row-fluid margin-bottom-10">
+                    <div class="span3">
+                    </div>
+                    <div class="span9">
+                        <!-- ko if: !transients.editCoordinates() -->
+                        <button class="btn btn-default manual-point-add-btn" data-bind="click: transients.showCoordinateFields"><i class="icon-plus"></i> Add coordinates manually</button>
+                        <!-- /ko -->
+                        <!-- ko if: transients.editCoordinates() -->
+                        <button class="btn btn-default manual-point-save-btn" data-bind="click: transients.saveCoordinates"><i class="icon-hdd" data-bind="visible: !transients.showLoadingOnCoordinateCheck()"></i><span class="fa fa-spin fa-spinner" data-bind="visible: transients.showLoadingOnCoordinateCheck"></span> Save coordinates</button>
+                        <button class="btn btn-default manual-point-cancel-btn" data-bind="click: transients.hideCoordinateFields"><i class="icon-arrow-right"></i> Cancel</button>
+                        <!-- /ko -->
+                    </div>
+                </div>
+            </g:if>
+            <!-- /ko -->
+        <!-- Try to pass geo info of map to ko -->
             <input id = "${source}geoInfo" hidden="true">
 
             <g:if test="${includeAccuracy}">
@@ -287,12 +331,7 @@
 
         // automatically update map location if image uploaded had location data
         $(document).on('imagelocation', function(event, data) {
-            var el = document.getElementById("${source}Map"),
-                viewModel = ko.dataFor(el);
-
-            if (isGeoMapPresentInViewModel(viewModel)) {
-                viewModel.addMarker(data);
-            }
+            addPoint(data);
         });
 
         // listen to marker movement. update source information and look up locality
@@ -360,7 +399,7 @@
                 });
 
                 if (location) {
-                    updateLocation(location.decimalLatitude, location.decimalLongitude, location.locality)
+                    addPoint({decimalLatitude: location.decimalLatitude, decimalLongitude: location.decimalLongitude});
                 } else {
                     bootbox.alert("Error: bookmark could not be loaded.");
                 }
@@ -393,13 +432,13 @@
             });
         }
 
-        function updateLocation(lat, lng, locality, keepView) {
-            $('#${source}Locality').val(locality)
-            $('#${source}Latitude').val(lat)
-            $('#${source}Longitude').val(lng)
-            $('#${source}Locality').change()
-            $('#${source}Latitude').change()
-            $('#${source}Longitude').change()
+        function addPoint (data) {
+            var el = document.getElementById("${source}Map"),
+                viewModel = ko.dataFor(el);
+
+            if (isGeoMapPresentInViewModel(viewModel)) {
+                viewModel.addMarker(data);
+            }
         }
 
         function isGeoMapPresentInViewModel (viewModel) {
@@ -420,6 +459,13 @@
                     $.ajax({
                         url: 'https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&addressdetails=1' + '&lat=' + lat + '&lon=' + lng,
                         dataType: 'json',
+                        xhrFields: {
+                            withCredentials: false
+                        },
+                        beforeSend: function(xhr){
+                            xhr.setRequestHeader('authKey', '');
+                            xhr.setRequestHeader('userName', '');
+                        }
                     }).done(function (data) {
                         console.log(data)
                         if (!data.error) {

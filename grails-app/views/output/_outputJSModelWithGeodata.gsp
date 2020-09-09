@@ -1,4 +1,4 @@
-<%@ page contentType="application/javascript;charset=UTF-8" %>
+<asset:script>
 <g:set var="outputNameAsIdentifer" value="${md.toSingleWord([name: outputName])}"/>
 ecodata.forms["${raw(outputNameAsIdentifer + 'ViewModel')}"] = function (output, dataModel, context, config) {
     var self = this;
@@ -29,3 +29,4 @@ ecodata.forms["${raw(outputNameAsIdentifer + 'ViewModel')}"] = function (output,
         <md:jsReloadGeoModel model="${model}" output="${outputName}"/>
     }
 };
+</asset:script>

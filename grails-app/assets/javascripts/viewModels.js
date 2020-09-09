@@ -25,6 +25,7 @@ function enmapify(args) {
     var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate';
     var viewModel = args.viewModel,
         container = args.container,
+        validationContainer = args.validationContainer || '#validation-container',
         name = args.name,
         edit = args.edit,
         readonly = args.readonly,
@@ -35,8 +36,10 @@ function enmapify(args) {
         updateSiteUrl = activityLevelData.updateSiteUrl || args.updateSiteUrl,
         listSitesUrl = activityLevelData.listSitesUrl || args.listSitesUrl,
         getSiteUrl = activityLevelData.getSiteUrl || args.getSiteUrl,
+        checkPointUrl = activityLevelData.checkPointUrl || args.checkPointUrl,
         context = args.context,
         uniqueNameUrl = (activityLevelData.uniqueNameUrl || args.uniqueNameUrl) + "/" + ( activityLevelData.pActivity.projectActivityId || activityLevelData.pActivity.projectId),
+        projectId = activityLevelData.pActivity.projectId,
         // hideSiteSelection is now dependent on survey's mapConfiguration
         // check viewModel.transients.hideSiteSelection
         project = args.activityLevelData.project || {},
@@ -98,6 +101,74 @@ function enmapify(args) {
     }
 
     viewModel.transients = viewModel.transients || {};
+    var latObservableStaged = viewModel.transients[name + "LatitudeStaged"] = ko.observable(),
+        lonObservableStaged = viewModel.transients[name + "LongitudeStaged"] = ko.observable(),
+        editCoordinates = viewModel.transients["editCoordinates"] = ko.observable(false),
+        showLoadingOnCoordinateCheck = viewModel.transients["showLoadingOnCoordinateCheck"] = ko.observable(false);
+
+    viewModel.transients.showCoordinateFields = function () {
+        editCoordinates(true);
+    };
+
+    viewModel.transients.hideCoordinateFields = function () {
+        editCoordinates(false);
+    };
+
+    viewModel.transients.saveCoordinates = function () {
+        var lat = latObservableStaged(),
+            lng = lonObservableStaged();
+
+        canAddPointToMap(lat, lng, function (response) {
+            if (response.isPointInsideProjectArea) {
+                addPointToMap(lat, lng);
+            } else {
+                var message;
+                if (response.address) {
+                    message = 'The coordinates are outside the project area.<br/>' +
+                    'Address of the location is "' + response.address + '".<br/>' +
+                    'Do you wish to add it anyway?';
+                } else {
+                    message = 'The coordinates are outside the project area.<br/>' +
+                        'Do you wish to add it anyway?';
+                }
+
+                bootbox.confirm( message, function (result) {
+                    if (result) {
+                        addPointToMap(lat, lng);
+                    }
+                });
+            }
+        });
+    };
+
+    function addPointToMap(lat, lng) {
+        if (lat && lng) {
+            viewModel.addMarker ({decimalLatitude: lat,  decimalLongitude: lng});
+            editCoordinates(false);
+        }
+    }
+
+    function canAddPointToMap (lat, lng, callback) {
+        var url = checkPointUrl + '?lat=' + lat + '&lng=' + lng + '&projectId=' + projectId;
+        showLoadingOnCoordinateCheck(true);
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success : function (data) {
+                callback && callback(data);
+                showLoadingOnCoordinateCheck(false);
+            },
+            error: function () {
+                // add the point if error is returned.
+                callback && callback({
+                    isPointInsideProjectArea: true,
+                    address: null
+                });
+                showLoadingOnCoordinateCheck(false);
+            }
+        });
+    }
+
     viewModel.transients.hideSiteSelection = ko.computed(function () {
         if (mapConfiguration && ([SITE_PICK, SITE_PICK_CREATE].indexOf(mapConfiguration.surveySiteOption) >= 0)) {
             return true;
@@ -124,7 +195,6 @@ function enmapify(args) {
             case SITE_CREATE:
             case SITE_PICK_CREATE:
                 return true;
-                break;
         }
 
         return false;
@@ -151,6 +221,14 @@ function enmapify(args) {
             if ((geoJson.properties.point_type != ALA.MapConstants.DRAW_TYPE.CIRCLE_TYPE) && (geoJson.geometry.type === ALA.MapConstants.DRAW_TYPE.POINT_TYPE)) {
                 return true;
             }
+        }
+
+        return false;
+    };
+
+    viewModel.transients.showManualCoordinateForm = function () {
+        if (mapConfiguration && ([SITE_CREATE, SITE_PICK_CREATE].indexOf(mapConfiguration.surveySiteOption) >= 0) && allowPoints) {
+            return true;
         }
 
         return false;
@@ -214,8 +292,7 @@ function enmapify(args) {
     };
 
     function updateFieldsForMap(params) {
-        latSubscriber.dispose();
-        lngSubscriber.dispose();
+        subscribeOrDisposeLatLonObservables(false);
 
         var markerLocation = null;
         var markerLocations = map.getMarkerLocations();
@@ -292,8 +369,18 @@ function enmapify(args) {
             siteIdObservable(null);
         }
 
-        latSubscriber = latObservable.subscribe(updateMarkerPosition);
-        lngSubscriber = lonObservable.subscribe(updateMarkerPosition);
+        subscribeOrDisposeLatLonObservables(true);
+    }
+
+    function subscribeOrDisposeLatLonObservables (state) {
+        // destroy existing subscription before creating new subscription
+        latSubscriber && latSubscriber.dispose();
+        lngSubscriber && lngSubscriber.dispose();
+
+        if (state) {
+            latSubscriber = latObservable.subscribe(updateMarkerPosition);
+            lngSubscriber = lonObservable.subscribe(updateMarkerPosition);
+        }
     }
 
     function centroid(feature) {
@@ -407,12 +494,18 @@ function enmapify(args) {
     }
 
     function updateMarkerPosition() {
-        if ((!siteIdObservable() || !args.markerOrShapeNotBoth) && latObservable() && lonObservable()) {
-            console.log("Displaying new marker")
+        if (shouldMarkerMove()) {
+            console.log("Enmapify: Displaying new marker");
             map.addMarker(latObservable(), lonObservable());
-            previousLatObservable(latObservable())
-            previousLonObservable(lonObservable())
+            previousLatObservable(latObservable());
+            previousLonObservable(lonObservable());
         }
+    }
+
+    function shouldMarkerMove () {
+        var emptyValues = [null, undefined, ''];
+        return ((latObservable() != previousLatObservable()) || (lonObservable() != previousLonObservable())) &&
+            (emptyValues.indexOf(latObservable()) === -1) && (emptyValues.indexOf(lonObservable()) === -1);
     }
 
     viewModel.selectManyCombo = function (obj, event) {
@@ -455,9 +548,11 @@ function enmapify(args) {
         if (mapOptions && mapOptions.drawOptions && mapOptions.drawOptions.marker) {
             if ( (data.decimalLatitude != undefined) && (data.decimalLongitude != undefined) ) {
                 var isPublicSite;
+                subscribeOrDisposeLatLonObservables(false);
                 latObservable(data.decimalLatitude);
                 lonObservable(data.decimalLongitude);
-                console.log(addCreatedSiteToListOfSelectedSites);
+                updateMarkerPosition();
+
                 if (addCreatedSiteToListOfSelectedSites) {
                     createPublicSite();
                     isPublicSite = true;
@@ -467,6 +562,7 @@ function enmapify(args) {
                     isPublicSite = false;
                 }
 
+                subscribeOrDisposeLatLonObservables(true);
                 return isPublicSite
             }
         }
@@ -806,6 +902,12 @@ function enmapify(args) {
     }
 
     zoomToDefaultSite();
+
+    // Redraw map since it was created on a hidden element.
+    $(validationContainer).on('knockout-visible', function () {
+        map && map.getMapImpl().invalidateSize();
+    });
+
     // returning variables to help test this method
     return {
         mapOptions: mapOptions,
@@ -816,7 +918,8 @@ function enmapify(args) {
         createPublicSite: createPublicSite,
         createPrivateSite: createPrivateSite,
         viewModel: viewModel,
-        zoomToDefaultSite: zoomToDefaultSite
+        zoomToDefaultSite: zoomToDefaultSite,
+        shouldMarkerMove: shouldMarkerMove
     };
 }
 
