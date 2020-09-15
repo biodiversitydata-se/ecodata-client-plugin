@@ -118,28 +118,48 @@ function enmapify(args) {
         var lat = latObservableStaged(),
             lng = lonObservableStaged();
 
-        canAddPointToMap(lat, lng, function (response) {
-            if (response.isPointInsideProjectArea) {
-                addPointToMap(lat, lng);
-            } else {
-                var message;
-                if (response.address) {
-                    message = 'The coordinates are outside the project area.<br/>' +
-                    'Address of the location is "' + response.address + '".<br/>' +
-                    'Do you wish to add it anyway?';
+        if(isLatitudeValid(lat) && isLongitudeValid(lng) ) {
+            canAddPointToMap(lat, lng, function (response) {
+                if (response.isPointInsideProjectArea) {
+                    addPointToMap(lat, lng);
                 } else {
-                    message = 'The coordinates are outside the project area.<br/>' +
-                        'Do you wish to add it anyway?';
-                }
-
-                bootbox.confirm( message, function (result) {
-                    if (result) {
-                        addPointToMap(lat, lng);
+                    var message;
+                    if (response.address) {
+                        message = 'The coordinates are outside the project area.<br/>' +
+                            'Address of the location is "' + response.address + '".<br/>' +
+                            'Do you wish to add it anyway?';
+                    } else {
+                        message = 'The coordinates are outside the project area.<br/>' +
+                            'Do you wish to add it anyway?';
                     }
-                });
-            }
-        });
+
+                    bootbox.confirm( message, function (result) {
+                        if (result) {
+                            addPointToMap(lat, lng);
+                        }
+                    });
+                }
+            });
+        } else {
+            bootbox.alert("Latitude or longitude is invlaid.");
+        }
     };
+
+    function isLatitudeValid (lat) {
+        if (typeof lat === "string") {
+            lat = parseFloat(lat);
+        }
+
+        return (lat >= -90) && (lat <= 90);
+    }
+
+    function isLongitudeValid (lng) {
+        if (typeof lng === "string") {
+            lng = parseFloat(lng);
+        }
+
+        return (lng >= -180) && (lng <= 180);
+    }
 
     function addPointToMap(lat, lng) {
         if (lat && lng) {
