@@ -19,9 +19,8 @@ describe("Expression data binding Spec", function () {
     it("The ifexpression binding should behave as an if binding except the argument is an ecodata forms expression to be evaluated against the viewmodel", function() {
         var mockElement = document.createElement('div');
         mockElement.setAttribute('data-bind', 'ifexpression:"x>10"');
-        mockElement.append(document.createElement('span'));
+        $(mockElement).append(document.createElement('span'));
         var x = ko.observable(11);
-        console.log(mockElement);
 
         ko.applyBindings({x:x}, mockElement);
         jasmine.clock().tick(10);
@@ -39,7 +38,7 @@ describe("Expression data binding Spec", function () {
         $(mockElement).css("display", "block");
 
         mockElement.setAttribute('data-bind', 'visibleexpression:"y>10"');
-        mockElement.append(document.createElement('span'));
+        $(mockElement).append(document.createElement('span'));
         var y = ko.observable(11);
         ko.applyBindings({y:y}, mockElement);
         jasmine.clock().tick(100);
