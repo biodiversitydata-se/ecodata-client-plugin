@@ -32,6 +32,10 @@ class ComputedValueRenderer {
         decimalPlaces
     }
 
+    def expressionAsString(String expression) {
+        "\"${expression.replaceAll("\"", "\\\\\"")}\""
+    }
+
     def computedObservable(model, propertyContext, dependantContext, out) {
         out << INDENT*5 << "${propertyContext}.${model.name} = ko.computed(function () {\n"
 

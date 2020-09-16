@@ -898,6 +898,54 @@
     };
 
     /**
+     * Passes the result of evaluating an expression to another binding.  This allows for the reuse of
+     * standard bindings which evaluate expressions against the view model rather than binding directly
+     * against the view model.
+     * @param delegatee the binding to delegate to.
+     * @returns {{init: (function(*=, *, *=, *=, *=): *)}}
+     */
+    function delegatingExpressionBinding(delegatee) {
+        var result = {};
+
+        // This handles a quirk of the output data model that stores the main data we bind against in a "data"
+        // attribute. Nested data structures inside the model do not use the data prefix.
+        var modelTransformer = function(viewModel) {
+            if (viewModel && _.isObject(viewModel.data)) {
+                return viewModel.data;
+            }
+            return viewModel;
+        }
+
+        var valueTransformer = function(valueAccessor, viewModel) {
+            return function() {
+                var result = ecodata.forms.expressionEvaluator.evaluateBoolean(valueAccessor(), modelTransformer(viewModel));
+                return result;
+            };
+        }
+
+        if (_.isFunction(delegatee.init)) {
+            result['init'] = function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                return delegatee.init(element, valueTransformer(valueAccessor, viewModel), allBindings, viewModel, bindingContext);
+            }
+        }
+        if (_.isFunction(delegatee.update)) {
+            result['update'] = function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                return delegatee.update(element, valueTransformer(valueAccessor, viewModel), allBindings, viewModel, bindingContext);
+            }
+        }
+        return result;
+    }
+
+    ko.bindingHandlers['ifexpression'] = delegatingExpressionBinding(ko.bindingHandlers['if']);
+    ko.virtualElements.allowedBindings.ifexpression = true;
+    ko.bindingHandlers['visibleexpression'] = delegatingExpressionBinding(ko.bindingHandlers['visible']);
+    ko.virtualElements.allowedBindings.visibleexpression = true;
+    ko.bindingHandlers['enableexpression'] = delegatingExpressionBinding(ko.bindingHandlers['enable']);
+    ko.bindingHandlers['disableexpression'] = delegatingExpressionBinding(ko.bindingHandlers['disable']);
+    ko.bindingHandlers['enableAndClearExpression'] = delegatingExpressionBinding(ko.bindingHandlers['enableAndClear']);
+
+
+    /**
      * Extends the target as a ecodata.forms.DataModelItem.  This is required to support many of the
      * dynamic behaviour features, including warnings and conditional validation rules.
      * @param target the observable to extend.

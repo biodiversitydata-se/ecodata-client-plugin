@@ -1,0 +1,80 @@
+{
+  "modelName": "Decimal places example",
+  "dataModel": [
+    {
+      "dataType": "number",
+      "name": "item1",
+      "defaultValue": 1,
+      "decimalPlaces": 0
+    },
+    {
+      "defaultValue": {
+        "expression": "item1*2.2"
+      },
+      "dataType": "number",
+      "name": "item2",
+      "decimalPlaces": 1
+    },
+    {
+      "dataType": "list",
+      "name": "nested",
+      "columns": [
+        {
+          "dataType":"number",
+          "name": "item3",
+          "defaultValue": 2
+        },
+        {
+          "dataType": "number",
+          "name": "item4",
+          "defaultValue": {
+            "expression": "item3*item2*0.2331",
+            "decimalPlaces": 4
+          },
+          "decimalPlaces": 4
+        }
+      ]
+    }
+  ],
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "type": "col",
+          "items": [
+            {
+              "preLabel": "Item 1",
+              "source": "item1",
+              "type": "number"
+            },
+            {
+              "preLabel": "Item 2",
+              "source": "item2",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "source": "nested",
+      "userAddedRows": true,
+      "columns": [
+        {
+          "type": "number",
+          "source": "item3",
+          "title": "Item 3"
+        },
+        {
+          "type": "number",
+          "source": "item4",
+          "title": "Item 4"
+        }
+      ]
+
+    }
+  ],
+  "title": "Decimal places example"
+}
