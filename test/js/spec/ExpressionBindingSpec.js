@@ -21,6 +21,7 @@ describe("Expression data binding Spec", function () {
         mockElement.setAttribute('data-bind', 'ifexpression:"x>10"');
         mockElement.append(document.createElement('span'));
         var x = ko.observable(11);
+        console.log(mockElement);
 
         ko.applyBindings({x:x}, mockElement);
         jasmine.clock().tick(10);
@@ -35,17 +36,17 @@ describe("Expression data binding Spec", function () {
 
     it("The visibleexpression binding should behave as an if binding except the argument is an ecodata forms expression to be evaluated against the viewmodel", function() {
         var mockElement = document.createElement('div');
-        mockElement.setAttribute('data-bind', 'visibleexpression:"x>10"');
+        $(mockElement).css("display", "block");
+
+        mockElement.setAttribute('data-bind', 'visibleexpression:"y>10"');
         mockElement.append(document.createElement('span'));
-        var x = ko.observable(11);
-
-        ko.applyBindings({x:x}, mockElement);
+        var y = ko.observable(11);
+        ko.applyBindings({y:y}, mockElement);
         jasmine.clock().tick(100);
-        console.log($(mockElement).attr("display"));
-        expect($(mockElement).is(":visible")).toBeTruthy();
+        expect($(mockElement).css('display')).toBe("block");
 
-        x(9);
+        y(9);
         jasmine.clock().tick(10);
-        expect($(mockElement).is(":visible")).toBeFalsy();
+        expect($(mockElement).css("display")).toBe('none');
     });
 });
