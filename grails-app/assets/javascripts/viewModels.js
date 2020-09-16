@@ -141,7 +141,7 @@ function enmapify(args) {
                 }
             });
         } else {
-            bootbox.alert("Latitude or longitude is invlaid.");
+            bootbox.alert("Latitude or longitude is invalid.");
         }
     };
 
