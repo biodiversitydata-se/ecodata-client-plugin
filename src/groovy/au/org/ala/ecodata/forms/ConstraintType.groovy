@@ -9,7 +9,7 @@ enum ConstraintType {
     IF("if", true, true),
     VISIBLE_EXPRESSION("visibleexpression", true, true),
     IF_EXPRESSION("ifexpression", true, true),
-    ENABLE("enableexpression", true, false),
+    ENABLE("enable", true, false),
     ENABLE_AND_CLEAR("enableAndClearExpression", true, false),
     DISABLE("disableexpression", true, false),
     CONDITIONAL_VALIDATION("conditionalValidation", false, false)
