@@ -301,8 +301,11 @@ function enmapify(args) {
         }
 
         var geo = map.getGeoJSON();
+        console.log("geo" , geo)
         var numberOfFeatures = map.countFeatures();
         var feature;
+        console.log("geo.features.length" , geo.features.length);
+        console.log("numberOfFeatures", numberOfFeatures);
 
         // When removing layers, events can also be fired, we want to avoid processing those
         // otherwise we could override the siteId
@@ -330,6 +333,7 @@ function enmapify(args) {
             console.log("Updating location fields to site");
             //latLonDisabledObservable(true);
             feature = geo.features[0];
+            console.log("feature ", feature)
             if (feature.geometry.type == 'Point'){
                 //circle is also a point
                 if (feature.properties.point_type=="Circle"){
@@ -463,7 +467,19 @@ function enmapify(args) {
             if (matchingSite) {
                 console.log("Clearing map before displaying a new shape")
                 map.clearBoundLimits();
-                map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
+                // map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
+                if (matchingSite.transectParts == undefined){
+                    map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
+                } else {
+                    var transectParts = matchingSite.transectParts;
+                    var transect = {"type": "FeatureCollection", "features": []}
+                    for (var n = 0; n < transectParts.length; n++){
+                        var feature = {"type": "Feature", "geometry": transectParts[n].geometry, "properties": {"popupContent": transectParts[n].name}}; 
+                        transect.features[n] = feature;
+                    }
+                    var layerOptions = {"singleDraw": false, "markerOrShapeNotBoth": false}
+                    map.setGeoJSON(JSON.stringify(transect), layerOptions);
+                }
             }
         } else {
             // Keep the previous code to make compatible with old records
