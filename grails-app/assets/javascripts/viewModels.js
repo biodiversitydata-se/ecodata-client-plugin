@@ -321,8 +321,11 @@ function enmapify(args) {
         }
 
         var geo = map.getGeoJSON();
+        console.log("this is geo" , geo)
         var numberOfFeatures = map.countFeatures();
         var feature;
+        console.log("geo.features.length" , geo.features.length); //what is on the map - if map not cleaned then too many
+        console.log("numberOfFeatures", numberOfFeatures); //same as above
 
         // When removing layers, events can also be fired, we want to avoid processing those
         // otherwise we could override the siteId
@@ -350,6 +353,7 @@ function enmapify(args) {
             console.log("Updating location fields to site");
             //latLonDisabledObservable(true);
             feature = geo.features[0];
+            console.log("feature ", feature)
             if (feature.geometry.type == 'Point'){
                 //circle is also a point
                 if (feature.properties.point_type=="Circle"){
@@ -480,10 +484,24 @@ function enmapify(args) {
                 });
             }
             // TODO: OPTIMISE THE PROCEDUE
+            console.log("matchingSite", matchingSite)
             if (matchingSite) {
                 console.log("Clearing map before displaying a new shape")
                 map.clearBoundLimits();
-                map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
+                if (matchingSite.transectParts == undefined){
+                    map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
+                // } else {
+                //     console.log("via ecodata client")
+
+                //     var transectParts = matchingSite.transectParts;
+                //     var transect = {"type": "FeatureCollection", "features": []}
+                //     for (var n = 0; n < transectParts.length; n++){
+                //         var feature = {"type": "Feature", "geometry": transectParts[n].geometry, "properties": {"popupContent": transectParts[n].name}}; 
+                //         transect.features[n] = feature;
+                //     }
+                //     var layerOptions = {"singleDraw": true, "markerOrShapeNotBoth": false}
+                //     map.setMultipartGeoJSON(JSON.stringify(transect), layerOptions);
+                }
             }
         } else {
             // Keep the previous code to make compatible with old records
