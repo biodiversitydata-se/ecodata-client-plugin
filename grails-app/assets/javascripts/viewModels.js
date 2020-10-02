@@ -468,19 +468,19 @@ function enmapify(args) {
             if (matchingSite) {
                 console.log("Clearing map before displaying a new shape")
                 map.clearBoundLimits();
+                // map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
                 if (matchingSite.transectParts == undefined){
                     map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
-                // } else {
-                //     console.log("via ecodata client")
-
-                //     var transectParts = matchingSite.transectParts;
-                //     var transect = {"type": "FeatureCollection", "features": []}
-                //     for (var n = 0; n < transectParts.length; n++){
-                //         var feature = {"type": "Feature", "geometry": transectParts[n].geometry, "properties": {"popupContent": transectParts[n].name}}; 
-                //         transect.features[n] = feature;
-                //     }
-                //     var layerOptions = {"singleDraw": true, "markerOrShapeNotBoth": false}
-                //     map.setMultipartGeoJSON(JSON.stringify(transect), layerOptions);
+                } else {
+                    console.log("via ecodata client plugin");
+                    var transectParts = matchingSite.transectParts;
+                    var transect = {"type": "FeatureCollection", "features": []}
+                    for (var n = 0; n < transectParts.length; n++){
+                        var feature = {"type": "Feature", "geometry": transectParts[n].geometry, "properties": {"popupContent": transectParts[n].name}}; 
+                        transect.features[n] = feature;
+                    }
+                    var layerOptions = {"singleDraw": false, "markerOrShapeNotBoth": false}
+                    map.setGeoJSON(JSON.stringify(transect), layerOptions);
                 }
             }
         } else {
