@@ -53,3 +53,4 @@ out/
 /.slcache
 
 /.gradle/
+/grails-app/assets/components/compile
