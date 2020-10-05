@@ -296,12 +296,12 @@ function enmapify(args) {
 
         var markerLocation = null;
         var markerLocations = map.getMarkerLocations();
+        console.log("markerLocations", markerLocations);
         if (markerLocations && markerLocations.length > 0) {
             markerLocation = markerLocations[0];
         }
 
         var geo = map.getGeoJSON();
-        console.log("this is geo" , geo)
         var numberOfFeatures = map.countFeatures();
         var feature;
         console.log("geo.features.length" , geo.features.length); //what is on the map - if map not cleaned then too many
@@ -480,7 +480,7 @@ function enmapify(args) {
                         transect.features[n] = feature;
                     }
                     var layerOptions = {"singleDraw": false, "markerOrShapeNotBoth": false}
-                    map.setGeoJSON(JSON.stringify(transect), layerOptions);
+                    map.setMultipartGeoJSON(JSON.stringify(transect), layerOptions);
                 }
             }
         } else {
