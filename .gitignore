@@ -52,3 +52,4 @@ out/
 # spring loaded cache for debugging
 /.slcache
 
+/grails-app/assets/components/compile
