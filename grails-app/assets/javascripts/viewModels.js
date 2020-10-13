@@ -498,7 +498,7 @@ function enmapify(args) {
                         transect.features[n] = feature;
                     }
                     var layerOptions = {"singleDraw": false, "markerOrShapeNotBoth": false}
-                    map.setMultipartGeoJSON(JSON.stringify(transect), layerOptions);
+                    map.setTransectFromGeoJSON(JSON.stringify(transect), layerOptions, true);
                 }
             }
         } else {
