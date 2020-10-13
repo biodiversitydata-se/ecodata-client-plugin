@@ -464,16 +464,14 @@ function enmapify(args) {
                 });
             }
             // TODO: OPTIMISE THE PROCEDUE
-            console.log("matchingSite", matchingSite)
             if (matchingSite) {
                 console.log("Clearing map before displaying a new shape")
                 map.clearBoundLimits();
-                // map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
-                if (matchingSite.transectParts == undefined){
+                var transectParts = matchingSite.transectParts;
+                if (transectParts == undefined || transectParts.length < 1){
                     map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
                 } else {
                     console.log("via ecodata client plugin");
-                    var transectParts = matchingSite.transectParts;
                     var transect = {"type": "FeatureCollection", "features": []}
                     for (var n = 0; n < transectParts.length; n++){
                         var feature = {"type": "Feature", "geometry": transectParts[n].geometry, "properties": {"popupContent": transectParts[n].name}}; 
