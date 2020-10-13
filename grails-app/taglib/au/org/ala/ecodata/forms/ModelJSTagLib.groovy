@@ -1,5 +1,7 @@
 package au.org.ala.ecodata.forms
 
+import grails.converters.JSON
+
 
 class ModelJSTagLib {
 
@@ -87,6 +89,11 @@ class ModelJSTagLib {
 
     }
 
+    def lookupTable(JSModelRenderContext context) {
+        context.out << "var ${context.dataModel.name}Config = ${context.dataModel.config as JSON};\n"
+        context.out << "${context.propertyPath}.${context.dataModel.name} = new ecodata.forms.LookupTable(context, _.extend({}, config, ${context.dataModel.name}Config));\n"
+    }
+
     private insertControllerScripts(Map attrs, List viewModel) {
         viewModel?.each { view ->
             switch (view.type) {
@@ -172,6 +179,9 @@ class ModelJSTagLib {
         }
         else if (mod.dataType == "feature") {
             featureModel(ctx)
+        }
+        else if (mod.dataType == 'lookupTable') {
+            lookupTable(ctx)
         }
     }
 

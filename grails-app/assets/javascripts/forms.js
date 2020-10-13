@@ -927,6 +927,35 @@ function orEmptyArray(v) {
         };
     };
 
+    ecodata.forms.LookupTable = function(context, config) {
+        var self = this;
+
+        self.table = {};
+        var dataLoader = ecodata.forms.dataLoader(context, config);
+
+        self.initialization = dataLoader.prepop(config).done(function (data) {
+            self.table = data;
+        });
+
+        self.lookupRange = function(value) {
+            var input = Number(value);
+            for (var i=0; i<self.table.length; i++) {
+                if (input < self.table[i].inputMin) {
+                    return
+                }
+                else if (input <= self.table[i].inputMax) {
+                    return  self.table[i].output;
+                }
+            }
+            return undefined;
+        }
+
+        self.lookupValue = function(key) {
+            return self.table[key];
+        }
+
+    }
+
     ecodata.forms.NestedModel = function (data, dataModel, context, config) {
         var self = this;
 
