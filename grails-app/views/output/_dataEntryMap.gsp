@@ -5,10 +5,10 @@
 <g:set var="lngValidation" value="data-validation-engine='validate[min[-180],max[180]]'"/>
 
 <h4 data-validation-engine="validate[funcCall[validator_site_check]" data-prompt-position="inline" data-position-type="inline" data-prompt-target="error-info">
-    <g:message code="geomap.heading" default="Location"/>
-    <g:if test="${!readonly}">
+    <g:message default="Lokal"/>
+    <%-- <g:if test="${!readonly}">
         <span class="req-field"></span>
-    </g:if>
+    </g:if> --%>
 </h4>
 <div class="row-fluid">
     <g:if test="${isHorizontal}">
@@ -294,13 +294,14 @@
 <div data-bind="visible: transients.hideSiteSelection">
     <div>
         <g:set var="textOnSiteLocation" value="Create or select a location"/>
-        <g:set var="textOnSiteLocation" value="Select a location"/>
+        <%-- The below was a repetition of the default dropdown text "Select" --%>
+        <g:set var="textOnSiteLocation" value="Välj ruta"/>
 
         <div class="row-fluid">
             <div class="span12">
                 <div class="row-fluid">
                     <span class="span4 preLabel">
-                        <label>${readonly ? 'Location:' : "${textOnSiteLocation}"}</label>
+                        <label>Lokal</label>
                     </span>
                     <div class="span8">
                         <g:if test="${readonly}">
