@@ -111,7 +111,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
         context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
 
-        context.databindAttrs.add 'optionsCaption', '"Please select"'
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         context.writer <<  "<select${context.attributes.toString()} class=\"select\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
     }
 
@@ -121,7 +121,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         // Select one or many view types require that the data model has defined a set of valid options
         // to select from.
         context.databindAttrs.add 'options', context.source + '.constraints'
-        context.databindAttrs.add 'optionsCaption', '""'
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
         context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
 
@@ -146,6 +146,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
         context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
 
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         String options = "{value: ${context.source}, tags:true, allowClear:false}"
         if (context.model.displayOptions) {
             options = "_.extend({value:${context.source}}, ${context.source}.displayOptions)"
@@ -193,7 +194,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderSelectManyCombo(WidgetRenderContext context) {
         context.databindAttrs.add 'options', 'transients.' + context.model.source + 'Constraints'
-        context.databindAttrs.add 'optionsCaption', '"Please select"'
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         context.databindAttrs.add 'event', '{ change: selectManyCombo}'
 
         context.writer <<  "<select${context.attributes.toString()} comboList='${context.source}' data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
@@ -211,7 +212,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderWordCloud(WidgetRenderContext context) {
         context.databindAttrs.add 'options', "${context.source}.constraints"
-        context.databindAttrs.add 'optionsCaption', '"Please select"'
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         context.databindAttrs.add 'value', "${context.source}.addWord"
 
         context.writer <<  "<div class='row-fluid'><div class='span6'><select${context.attributes.toString()} comboList='${context.source}' data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select></div>"
