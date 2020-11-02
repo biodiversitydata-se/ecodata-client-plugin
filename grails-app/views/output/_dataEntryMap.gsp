@@ -284,7 +284,7 @@
         <p class="muted"><small>Cancel this dialog to edit your area.</small></p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn" data-bind="click: cancel">Cancel</button>
+        <button type="button" class="btn" data-bind="click: cancel"><g:message code='g.cancel'/></button>
         <button type="button" class="btn btn-primary" data-bind="click: add, enable: nameStatus() == 'ok' ">Save</button>
     </div>
 </div>
@@ -295,7 +295,7 @@
     <div>
         <g:set var="textOnSiteLocation" value="Create or select a location"/>
         <%-- The below was a repetition of the default dropdown text "Select" --%>
-        <g:set var="textOnSiteLocation" value="Välj ruta"/>
+        <g:set var="textOnSiteLocation" value="${message(code:'g.select')}"/>
 
         <div class="row-fluid">
             <div class="span12">
