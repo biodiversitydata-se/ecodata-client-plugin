@@ -1,6 +1,6 @@
 <tr>
     <td colspan="${colCount}" style="text-align:left;">
-        <button type="button" class="btn btn-small" data-bind="visible:${property}.allowUserAddedRows, click:${property}.addRow"><i class="icon-plus"></i> ${addRowText ?: "Add a row"} </button>
+        <button type="button" class="btn btn-small" data-bind="visible:${property}.allowUserAddedRows, click:${property}.addRow"><i class="icon-plus"></i> ${addRowText ?: message(code: "table.addRow")} </button>
         <g:if test="${!disableTableUpload}">
             <button type="button" class="btn btn-small" data-bind="click:${property}.showTableDataUpload"><i class="icon-upload"></i> ${uploadDataText ?: "Upload data for this table"} </button>
          </g:if>
