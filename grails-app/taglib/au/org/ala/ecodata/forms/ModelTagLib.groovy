@@ -874,9 +874,9 @@ class ModelTagLib {
         }
         if (model.editableRows) {
                 out << INDENT*5 << "<td>\n"
-                out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:\$root.edit${model.source}Row, enable:!\$root.${model.source}Editing()' title='edit'><i class='icon-edit'></i> Edit</button>\n"
+                out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:\$root.edit${model.source}Row, enable:!\$root.${model.source}Editing()' title='edit'><i class='icon-edit'></i> <g:message code='g.edit'/></button>\n"
                 if (allowRowDelete) {
-                    out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:${ctx.property}.removeRow, enable:!\$root.${model.source}Editing()' title='remove'><i class='icon-trash'></i> Remove</button>\n"
+                    out << INDENT*6 << "<button class='btn btn-mini' data-bind='click:${ctx.property}.removeRow, enable:!\$root.${model.source}Editing()' title='remove'><i class='icon-trash'></i> <g:message code='g.remove'/></button>\n"
                 }
                 out << INDENT*5 << "</td>\n"
         } else {
