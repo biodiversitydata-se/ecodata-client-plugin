@@ -284,8 +284,8 @@
         <p class="muted"><small>Cancel this dialog to edit your area.</small></p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn" data-bind="click: cancel">Cancel</button>
-        <button type="button" class="btn btn-primary" data-bind="click: add, enable: nameStatus() == 'ok' ">Save</button>
+        <button type="button" class="btn" data-bind="click: cancel"><g:message code='g.cancel'/></button>
+        <button type="button" class="btn btn-primary" data-bind="click: add, enable: nameStatus() == 'ok' "><g:message code='g.save'/></button>
     </div>
 </div>
 </script>
