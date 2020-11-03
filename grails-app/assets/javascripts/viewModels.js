@@ -80,10 +80,10 @@ function enmapify(args) {
                         msg = "A location is mandatory. Please draw a location on the below map.";
                         break;
                     case SITE_PICK:
-                        msg = "A location is mandatory. Please pick a location from the above drop down list.";
+                        msg = "Du måste ange var dina observationer gjorts. Välj en lokal från menyn ovan";
                         break;
                     case SITE_PICK_CREATE:
-                        msg = "A location is mandatory. Please pick a location from the above drop down list or draw on the below map.";
+                        msg = "Du måste ange var dina observationer gjorts. Välj en lokal från menyn ovan";
                         break;
                 }
 

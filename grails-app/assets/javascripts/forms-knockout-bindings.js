@@ -363,7 +363,7 @@
                 if (!listId) {
                     return 'Atlas of Living Australia';
                 }
-                return 'Species List';
+                return 'Artlista';
             }
             var renderItem = function(row) {
 
@@ -376,10 +376,10 @@
                 lastHeader = title;
                 result+='<a class="speciesAutocompleteRow">';
                 if (row.listId && row.listId === 'unmatched') {
-                    result += '<i>Unlisted or unknown species</i>';
+                    result += '<i>Ej listad eller okänd art</i>';
                 }
                 else if (row.listId && row.listId === 'error-unmatched') {
-                    result += '<i>Offline</i><div>Species:<b>'+row.name+'</b></div>';
+                    result += '<i>Offline</i><div>Art:<b>'+row.name+'</b></div>';
                 }
                 else {
 
