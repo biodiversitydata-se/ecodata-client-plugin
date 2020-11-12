@@ -856,6 +856,20 @@
         }
     };
 
+    ko.bindingHandlers.expandOnValidate = {
+        init: function (element, valueAccessor) {
+
+            var $section = $(element);
+            $(element).closest(".validationEngineContainer").on("jqv.form.validating", function() {
+                console.log("validating");
+                $section.show();
+            });
+
+        }
+    };
+
+
+
     /**
      * Behaves as per the knockoutjs enable binding, but additionally clears the observable associated with the
      * value binding if it is also applied to the same element.
@@ -990,6 +1004,28 @@
         });
         return valueHolder;
     };
+
+    ko.bindingHandlers.validatingCollapse = {
+        'init': function(element, valueAccessor) {
+            $(element).click(function() {
+                var form = $(document).find('.validationEngineContainer');
+                var data = form.data('jqv');
+                var $section = $(element).closest('.repeating-section');
+                $section.data('jqv', data);
+                $section.addClass('validationEngineContainer');
+               try {
+                  var valid = $section.validationEngine('validate');
+               }
+               finally {
+                   $section.data('jqv', null);
+                   $section.removeClass('validationEngineContainer');
+               }
+            });
+        },
+        'update': function(element, valueAccessor) {
+
+        }
+    }
 
 })();
 
