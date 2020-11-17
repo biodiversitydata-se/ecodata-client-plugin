@@ -764,6 +764,9 @@ function orEmptyArray(v) {
                         self.constraints(data);
                     });
                 }
+                else if (metadata.constraints.type == 'literal' || metadata.contraints.literal) {
+                    self.contraints = metadata.constraints.literal;
+                }
             }
 
             self.constraints.value = function (constraint) {
