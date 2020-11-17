@@ -133,17 +133,22 @@ class ModelTagLib {
 
         ctx.out << """<!-- ko foreach:${ctx.property} -->\n"""
         ctx.out << """<div class="repeating-section">\n"""
-        ctx.out << """<div class="section-title">\n"""
+        if (model.collapsable || model.title || model.userAddedRows && ctx.editMode()) {
+            ctx.out << """<div class="section-title">\n"""
 
-        ctx.out << "<button data-bind=\"toggleVisibility:'#${model.source}-content-'+\$index\"></button>"
-        if (model.title) {
-            ctx.out << "<span>${model.title}</span>"
+            if (model.collapsable && ctx.editMode()) {
+                ctx.out << "<button data-bind=\"toggleVisibility:'#${model.source}-content-'+\$index\"></button>"
+
+            }
+            if (model.title) {
+                ctx.out << "<span>${model.title}</span>"
+            }
+            if (model.userAddedRows && ctx.editMode()) {
+                ctx.out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">${model.removeRowText ?: "Remove Section"}</button>\n"""
+            }
+            ctx.out << "<hr/>"
+            ctx.out << "</div>\n"
         }
-        if (model.userAddedRows && ctx.editMode()) {
-            ctx.out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">${model.removeRowText ?: "Remove Section"}</button>\n"""
-        }
-        ctx.out << "<hr/>"
-        ctx.out << "</div>\n"
 
         ctx.out << """<div data-bind=\"attr:{id:'${model.source}-content-'+\$index},expandOnValidate:true\"class="section-content">\n"""
         viewModelItems(model.items, childContext)
