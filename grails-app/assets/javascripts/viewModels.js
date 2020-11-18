@@ -22,7 +22,7 @@
 function enmapify(args) {
     "use strict";
 
-    var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate';
+    var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate', SITE_CREATE_SYSTEMATIC = 'sitecreatesystematic';
     var viewModel = args.viewModel,
         container = args.container,
         validationContainer = args.validationContainer || '#validation-container',
@@ -50,7 +50,7 @@ function enmapify(args) {
         pointsOnly = allowPoints && !allowPolygons,
         polygonsOnly = !allowPoints && allowPolygons,
         addCreatedSiteToListOfSelectedSites = ((mapConfiguration.surveySiteOption == SITE_PICK_CREATE) && mapConfiguration.addCreatedSiteToListOfSelectedSites) || false,
-        selectFromSitesOnly = viewModel.selectFromSitesOnly= mapConfiguration.surveySiteOption == SITE_PICK ? true : false,
+        selectFromSitesOnly = viewModel.selectFromSitesOnly= mapConfiguration.surveySiteOption == SITE_PICK || SITE_CREATE_SYSTEMATIC ? true : false,
 
 
         siteIdObservable =activityLevelData.siteId = container[name] = ko.observable(),
@@ -76,8 +76,11 @@ function enmapify(args) {
             if (!siteId ) {
                 var msg;
                 switch (mapConfiguration.surveySiteOption) {
+                    case SITE_CREATE_SYSTEMATIC:
+                        msg = "Du måste ange var dina observationer gjorts. Välj en lokal från menyn ovan";
+                        break; 
                     case SITE_CREATE:
-                        msg = "A location is mandatory. Please draw a location on the below map.";
+                        msg = "Du måste ange var dina observationer gjorts. Välj en lokal från menyn ovan";
                         break;
                     case SITE_PICK:
                         msg = "Du måste ange var dina observationer gjorts. Välj en lokal från menyn ovan";
@@ -118,48 +121,28 @@ function enmapify(args) {
         var lat = latObservableStaged(),
             lng = lonObservableStaged();
 
-        if(isLatitudeValid(lat) && isLongitudeValid(lng) ) {
-            canAddPointToMap(lat, lng, function (response) {
-                if (response.isPointInsideProjectArea) {
-                    addPointToMap(lat, lng);
+        canAddPointToMap(lat, lng, function (response) {
+            if (response.isPointInsideProjectArea) {
+                addPointToMap(lat, lng);
+            } else {
+                var message;
+                if (response.address) {
+                    message = 'The coordinates are outside the project area.<br/>' +
+                    'Address of the location is "' + response.address + '".<br/>' +
+                    'Do you wish to add it anyway?';
                 } else {
-                    var message;
-                    if (response.address) {
-                        message = 'The coordinates are outside the project area.<br/>' +
-                            'Address of the location is "' + response.address + '".<br/>' +
-                            'Do you wish to add it anyway?';
-                    } else {
-                        message = 'The coordinates are outside the project area.<br/>' +
-                            'Do you wish to add it anyway?';
-                    }
-
-                    bootbox.confirm( message, function (result) {
-                        if (result) {
-                            addPointToMap(lat, lng);
-                        }
-                    });
+                    message = 'The coordinates are outside the project area.<br/>' +
+                        'Do you wish to add it anyway?';
                 }
-            });
-        } else {
-            bootbox.alert("Latitude or longitude is invalid.");
-        }
+
+                bootbox.confirm( message, function (result) {
+                    if (result) {
+                        addPointToMap(lat, lng);
+                    }
+                });
+            }
+        });
     };
-
-    function isLatitudeValid (lat) {
-        if (typeof lat === "string") {
-            lat = parseFloat(lat);
-        }
-
-        return (lat >= -90) && (lat <= 90);
-    }
-
-    function isLongitudeValid (lng) {
-        if (typeof lng === "string") {
-            lng = parseFloat(lng);
-        }
-
-        return (lng >= -180) && (lng <= 180);
-    }
 
     function addPointToMap(lat, lng) {
         if (lat && lng) {
@@ -190,7 +173,7 @@ function enmapify(args) {
     }
 
     viewModel.transients.hideSiteSelection = ko.computed(function () {
-        if (mapConfiguration && ([SITE_PICK, SITE_PICK_CREATE].indexOf(mapConfiguration.surveySiteOption) >= 0)) {
+        if (mapConfiguration && ([SITE_PICK, SITE_PICK_CREATE, SITE_CREATE_SYSTEMATIC].indexOf(mapConfiguration.surveySiteOption) >= 0)) {
             return true;
         }
 
@@ -1059,7 +1042,7 @@ var EnmapifyUtils = {
      * @returns {{polygon: boolean, edit: boolean, marker: boolean, rectangle: boolean, circle: boolean, polyline: boolean}}
      */
     getMapOptions : function getMapOptions (activityLevelData, readonly, allowPolygons, allowPoints, allowLine, surveySiteOption) {
-        var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate';
+        var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate', SITE_CREATE_SYSTEMATIC = 'sitecreatesystematic';
         if (activityLevelData.mobile || readonly) {
             return {
                 polyline: false,
@@ -1073,7 +1056,7 @@ var EnmapifyUtils = {
         };
 
         switch (surveySiteOption) {
-            case SITE_PICK:
+            case SITE_PICK || SITE_CREATE_SYSTEMATIC:
                 return {
                     polyline: false,
                     polygon: false,
