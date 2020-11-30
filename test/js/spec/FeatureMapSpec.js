@@ -36,5 +36,4 @@ describe("Feature Map Spec", function () {
         expect(details.properties.name).toEqual(map.editableSites.properties.name)
     });
 });
-qwert
 
