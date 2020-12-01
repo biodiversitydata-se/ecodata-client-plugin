@@ -936,8 +936,20 @@ function orEmptyArray(v) {
         self.table = {};
         var dataLoader = ecodata.forms.dataLoader(context, config);
 
+        // We support both object key/value mapping and an array of objects with input / output keys.
+        // This is both to keep compatibility with the previous syntax and to allow keys with '.' characters
+        // in them, which is not supported by mongo so the object method cannot be used for lookup tables
+        // with '.''s in the keys.
         self.initialization = dataLoader.prepop(config).done(function (data) {
-            self.table = data;
+            if (!_.isArray(data)) {
+                self.table = [];
+                _.each(data, function(value, key) {
+                    self.table.push({input:key, output:value});
+                });
+            }
+            else {
+                self.table = data;
+            }
         });
 
         self.lookupRange = function(value) {
@@ -954,9 +966,19 @@ function orEmptyArray(v) {
         }
 
         self.lookupValue = function(key) {
-            return self.table[key];
-        }
+            var value = null;
+            var match = _.find(self.table, function(entry) {
+                if (key) {
+                    return entry.input.replaceAll(/\s/g, '') == key.replaceAll(/\s/g, '');
+                }
+                return false;
+            });
 
+            if (match) {
+                value = match.output;
+            }
+            return value;
+        }
     }
 
     ecodata.forms.NestedModel = function (data, dataModel, context, config) {
