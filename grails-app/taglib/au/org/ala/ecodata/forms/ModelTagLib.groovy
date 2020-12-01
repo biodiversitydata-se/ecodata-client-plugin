@@ -157,7 +157,7 @@ class ModelTagLib {
         ctx.out << "<!-- /ko -->\n"
 
         if (model.userAddedRows && ctx.editMode()) {
-            ctx.out << """<button type="button" class="btn btn-small add-section" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText ?: 'Add'}</button>\n"""
+            ctx.out << """<button type="button" class="btn btn-success btn-small add-section" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText ?: 'Add'}</button>\n"""
         }
     }
 
