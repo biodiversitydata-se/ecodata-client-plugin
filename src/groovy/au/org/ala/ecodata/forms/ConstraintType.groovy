@@ -10,8 +10,8 @@ enum ConstraintType {
     VISIBLE_EXPRESSION("visibleexpression", true, true),
     IF_EXPRESSION("ifexpression", true, true),
     ENABLE("enable", true, false),
-    ENABLE_AND_CLEAR("enableAndClearExpression", true, false),
-    DISABLE("disableexpression", true, false),
+    ENABLE_AND_CLEAR("enableAndClear", true, false),
+    DISABLE("disable", true, false),
     CONDITIONAL_VALIDATION("conditionalValidation", false, false)
 
     /** The knockout data binding that implements this constraint */
