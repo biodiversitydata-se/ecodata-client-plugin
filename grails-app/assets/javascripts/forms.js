@@ -270,7 +270,7 @@ function orEmptyArray(v) {
             if (!context) {
                 return;
             }
-            var result;
+            var result = null;
 
             var contextVariable = preprocessBindings(variable);
             if (specialBindings[contextVariable]) {
@@ -294,7 +294,7 @@ function orEmptyArray(v) {
                 }
 
             }
-            return result;
+            return _.isUndefined(result) ? null : result;
         }
 
         function bindVariables(variables, context) {
@@ -685,7 +685,7 @@ function orEmptyArray(v) {
 
         self.context = context;
         self.config = config;
-
+console.log(metadata);
         /**
          * Returns the value of the specified metadata property (e.g. validate, constraints etc)
          * @param property the name of the proprety to get.
@@ -728,6 +728,9 @@ function orEmptyArray(v) {
         };
 
         self.evaluateBehaviour = function (type, defaultValue) {
+            if (metadata.name == 'keyThreat') {
+                console.log(metadata);
+            }
             var rule = _.find(metadata.behaviour, function (rule) {
                 return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, context);
             });
