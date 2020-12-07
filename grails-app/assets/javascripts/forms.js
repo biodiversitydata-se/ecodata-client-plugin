@@ -685,7 +685,7 @@ function orEmptyArray(v) {
 
         self.context = context;
         self.config = config;
-console.log(metadata);
+
         /**
          * Returns the value of the specified metadata property (e.g. validate, constraints etc)
          * @param property the name of the proprety to get.
@@ -728,9 +728,6 @@ console.log(metadata);
         };
 
         self.evaluateBehaviour = function (type, defaultValue) {
-            if (metadata.name == 'keyThreat') {
-                console.log(metadata);
-            }
             var rule = _.find(metadata.behaviour, function (rule) {
                 return rule.type === type && ecodata.forms.expressionEvaluator.evaluateBoolean(rule.condition, context);
             });
@@ -971,10 +968,7 @@ console.log(metadata);
         self.lookupValue = function(key) {
             var value = null;
             var match = _.find(self.table, function(entry) {
-                if (key) {
-                    return entry.input.replaceAll(/\s/g, '') == key.replaceAll(/\s/g, '');
-                }
-                return false;
+                return key == entry.input;
             });
 
             if (match) {
