@@ -768,7 +768,7 @@ function orEmptyArray(v) {
                     });
                 }
                 else if (metadata.constraints.type == 'literal' || metadata.contraints.literal) {
-                    self.contraints = metadata.constraints.literal;
+                    self.constraints = metadata.constraints.literal;
                 }
             }
 

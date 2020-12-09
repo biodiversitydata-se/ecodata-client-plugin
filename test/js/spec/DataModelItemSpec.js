@@ -22,26 +22,29 @@ describe("DataModelItem Spec", function () {
         expect(dataItem.getId()).toBe("Feature_Test-"+metadata.name);
     });
 
-    it("Will defer loading if the constraints are pre-populated to avoid a race condition", function() {
+    it("Will defer loading if the constraints are pre-populated to avoid a race condition", function(done) {
         var constraints = ['1', '2', '3'];
         var metadata = {
             name:'item',
             dataType:'text',
             constraints: {
-                type:'pre-populated',
-                source: {
-                    "literal": constraints
-                }
+                type:'literal',
+                literal: constraints
             }
         };
         var dataItem = ko.observable().extend({metadata:{metadata:metadata, context:context, config:config}});
         dataItem.load("3");
 
-        expect(dataItem.constraints()).toEqual(constraints);
+        expect(dataItem.constraints).toEqual(constraints);
         expect(dataItem()).toEqual("3");
 
-        metadata.constraints.source = {
-            url:'/test'
+        metadata.constraints = {
+            type:"pre-populated",
+            config: {
+                source: {
+                    url: '/test'
+                }
+            }
         };
 
         var url = null;
@@ -52,20 +55,22 @@ describe("DataModelItem Spec", function () {
             return deferred;
         });
 
+        dataItem = ko.observable().extend({metadata:{metadata:metadata, context:context, config:config}});
         dataItem.load("2");
-        expect(url).toEqual(metadata.constraints.source.url);
+
+        expect(url.endsWith(metadata.constraints.config.source.url)).toBeTruthy();
         // The load should be deferred until the constraints are populated.
         expect(dataItem()).toBeUndefined();
 
         // Now we fake the return of the ajax call with the constraints.
-        deferred.resolve(constraints);
+        deferred.resolve(constraints).then(function() {
+            // The constraints should be populated
+            expect(dataItem.constraints()).toEqual(constraints);
+            // And the load should proceed.
+            expect(dataItem()).toEqual("2");
 
-        // The constraints should be populated
-        expect(dataItem.constraints).toEqual(constraints);
-
-        // And the load should proceed.
-        expect(dataItem()).toEqual("2");
-
+            done();
+        });
     });
 
 });
