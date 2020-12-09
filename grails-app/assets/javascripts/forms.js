@@ -735,6 +735,7 @@ function orEmptyArray(v) {
             return rule && rule.value || defaultValue;
         };
 
+        var constraintsInititaliser = null;
         if (metadata.constraints) {
             var valueProperty = 'id'; // For compatibility with select2 defaults
             var textProperty = 'text'; // For compatibility with select2 defaults
@@ -759,9 +760,11 @@ function orEmptyArray(v) {
                 }
                 else if (metadata.constraints.type == 'pre-populated') {
                     self.constraints = ko.observableArray();
+                    constraintsInititaliser = $.Deferred();
                     var dataLoader = ecodata.forms.dataLoader(context, config);
                     dataLoader.prepop(metadata.constraints.config).done(function (data) {
                         self.constraints(data);
+                        constraintsInititaliser.resolve();
                     });
                 }
                 else if (metadata.constraints.type == 'literal' || metadata.contraints.literal) {
@@ -786,7 +789,16 @@ function orEmptyArray(v) {
         if (metadata.displayOptions) {
             self.displayOptions = metadata.displayOptions;
         }
-
+        self.load = function(data) {
+            if (constraintsInititaliser) {
+                constraintsInititaliser.always(function() {
+                    self(data);
+                })
+            }
+            else {
+                self(data);
+            }
+        }
     };
 
     ecodata.forms.configManager = function(config, context) {
