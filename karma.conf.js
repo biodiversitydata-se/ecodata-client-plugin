@@ -66,7 +66,7 @@ module.exports = function (config) {
             'type':"text",
             check: {
                 global: {
-                    lines: 36.3
+                    lines: 38.0
                 }
             }
         },
@@ -90,7 +90,7 @@ module.exports = function (config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['Chrome'],
+        browsers: ['ChromeHeadless'],
 
 
         // Continuous Integration mode
