@@ -30,9 +30,6 @@
                 <label>
                     <input type="text" style="width: 90%" data-bind="value:properties.name || 'Unnamed site'">
                 </label>
-%{--                    <label><span data-bind="text:properties.name || 'Unnamed site'"></span>--}%
-%{--                    </label>--}%
-
                     <div class="btn-container">
                         <button class="btn" data-bind="click:$root.deleteFeature"><i
                                 class="fa fa-remove"></i>
