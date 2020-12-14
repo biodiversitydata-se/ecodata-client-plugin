@@ -759,7 +759,9 @@ function orEmptyArray(v) {
                     });
                 }
                 else if (metadata.constraints.type == 'pre-populated') {
-                    self.constraints = ko.observableArray();
+                    var defaultConstraints = metadata.constraints.defaults || [];
+                    self.constraints = ko.observableArray(defaultConstraints);
+
                     constraintsInititaliser = $.Deferred();
                     var dataLoader = ecodata.forms.dataLoader(context, config);
                     dataLoader.prepop(metadata.constraints.config).done(function (data) {
