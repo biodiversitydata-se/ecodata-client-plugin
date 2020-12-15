@@ -231,6 +231,24 @@ class ModelJSTagLibSpec extends Specification {
         compareWithoutWhiteSpace("data['test'].load(ecodata.forms.orDefault(data['test'],undefined));data['test'](ecodata.forms.orDefault(data['test'],undefined));", actualOut.toString())
     }
 
+    def "The lookup table data type is rendered correctly"() {
+        setup:
+        List lookupTable = [[input:'a', output:'1'], [input:'b', output:'2']]
+        Map dataModel = [dataType:'lookupTable', name:'lookupTest', config:[source:'literal', literal:lookupTable]]
+        ctx.dataModel = dataModel
+        ctx.propertyPath = 'data'
+        ctx.attrs = [:]
+
+        when:
+        tagLib.lookupTable(ctx)
+
+        then:
+
+        compareWithoutWhiteSpace(""" var lookupTestConfig = {"source":"literal","literal":[{"input":"a","output":"1"},{"input":"b","output":"2"}]};
+                data.lookupTest = new ecodata.forms.LookupTable(context, _.extend({}, config, lookupTestConfig));""",
+                actualOut.toString())
+    }
+
 
     private void compareWithoutWhiteSpace(String expected, String actual) {
         assert expected.replaceAll(/\s/, "") == actual.replaceAll(/\s/, "")
