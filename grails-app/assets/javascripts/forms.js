@@ -944,6 +944,20 @@ function orEmptyArray(v) {
         };
     };
 
+    /**
+     * The lookup table can take two main forms - a direct map / dictionary style lookup
+     * to generally produce one string value from another, or a numeric range based lookup to
+     * generally produce one string value from a number based on what range the number
+     * falls into.
+     * @param context used for data loading or evaluating expressions
+     * @param config defines the format of the lookup table.  The general format is an array
+     * with each element of the form: {input:<>, output:<>} for the dictionary style lookup
+     * or {inputMin:<>, inputMax:<>, output:<>>} for the numeric style lookup.
+     * A dictionary style lookup table can also be configured as a javascript object
+     * where the attributes will be used as the input keys and the values of the attribute
+     * the associated output.
+     * @constructor
+     */
     ecodata.forms.LookupTable = function(context, config) {
         var self = this;
 
