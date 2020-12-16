@@ -116,8 +116,10 @@ class ModelTagLibSpec extends Specification {
         then:
         expectedOut << "<!-- ko foreach:test -->"
         mb.div(class:"repeating-section") {
-            button(class:"btn btn-warning pull-right", 'data-bind':"click:\$parent.${model.source}.removeRow") {
-                mkp.yield(model.removeRowText)
+            mb.div(class:"section-title") {
+                button(class:"btn btn-warning pull-right", 'data-bind':"click:\$parent.${model.source}.removeRow") {
+                    mkp.yield(model.removeRowText)
+                }
             }
         }
         expectedOut << "<!-- /ko -->"

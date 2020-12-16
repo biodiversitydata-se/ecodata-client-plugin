@@ -274,11 +274,19 @@ ecodata.forms.maps.featureMap = function (options) {
                     layer.setStyle(DRAWN_LAYER_STYLE);
                 }
 
-                var name = 'New works area';
+                var name = ko.observable('New works area');
                 if (layer.feature && layer.feature.properties && layer.feature.properties.name) {
-                    name = layer.feature.properties.name;
+                    name(layer.feature.properties.name);
                 }
                 var feature = {properties: {name: name}, layer: layer};
+                if (!layer.feature){
+                    var geoJson = layer.toGeoJSON();
+                    geoJson.properties.name = name();
+                    layer.feature = geoJson;
+                }
+                name.subscribe(function(){
+                    layer.feature.properties.name = name();
+                });
                 self.editableSites.push(feature);
 
             }

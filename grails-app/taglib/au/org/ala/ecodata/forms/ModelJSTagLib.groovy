@@ -1,5 +1,7 @@
 package au.org.ala.ecodata.forms
 
+import grails.converters.JSON
+
 
 class ModelJSTagLib {
 
@@ -85,6 +87,11 @@ class ModelJSTagLib {
 
         insertControllerScripts(attrs, attrs.model?.viewModel)
 
+    }
+
+    def lookupTable(JSModelRenderContext context) {
+        context.out << "var ${context.dataModel.name}Config = ${context.dataModel.config as JSON};\n"
+        context.out << "${context.propertyPath}.${context.dataModel.name} = new ecodata.forms.LookupTable(context, _.extend({}, config, ${context.dataModel.name}Config));\n"
     }
 
     private insertControllerScripts(Map attrs, List viewModel) {
@@ -173,6 +180,9 @@ class ModelJSTagLib {
         else if (mod.dataType == "feature") {
             featureModel(ctx)
         }
+        else if (mod.dataType == 'lookupTable') {
+            lookupTable(ctx)
+        }
     }
 
     /**
@@ -251,15 +261,15 @@ class ModelJSTagLib {
         }
         String defaultValue = getDefaultValueAsString(ctx)
         String value = "ecodata.forms.orDefault(data['${mod.name}'], ${getDefaultValueAsString(ctx)})"
-        if (mod.dataType in ['text', 'stringList', 'time']) {
+        if (mod.dataType in ['text', 'stringList', 'time', 'number', 'boolean']) {
             if (mod.name == 'recordedBy' && mod.dataType == 'text' && attrs.user?.displayName && !value) {
                 out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'](ecodata.forms.orDefault(data['${mod.name}'], '${attrs.user.displayName}'));\n"
             } else {
+                if (requiresMetadataExtender(mod)) {
+                    out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'].load(${value});\n"
+                }
                 out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'](${value});\n"
             }
-        }
-        else if (mod.dataType in ['number', 'boolean']) {
-            out << INDENT*4 << "${ctx.propertyPath}['${mod.name}'](${value});\n"
         }
         else if (mod.dataType in ['image', 'photoPoints', 'audio', 'set']) {
             out << INDENT*4 << "self.load${mod.name}(${value});\n"
