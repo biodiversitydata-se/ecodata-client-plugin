@@ -856,19 +856,26 @@
         }
     };
 
+    /**
+     * This binding will listen for the start of a validation event,
+     * and expand a collapsed section so data in that section can be
+     * validated.
+     */
     ko.bindingHandlers.expandOnValidate = {
         init: function (element, valueAccessor) {
-
+            var selector = valueAccessor() || ".validationEngineContainer";
+            var event = "jqv.form.validating";
             var $section = $(element);
-            $(element).closest(".validationEngineContainer").on("jqv.form.validating", function() {
-                console.log("validating");
+            var validationListener = function() {
                 $section.show();
-            });
+            };
+            $section.closest(selector).on(event, validationListener);
 
+            ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+                $section.closest(selector).off(event, validationListener);
+            });
         }
     };
-
-
 
     /**
      * Behaves as per the knockoutjs enable binding, but additionally clears the observable associated with the
@@ -1004,28 +1011,6 @@
         });
         return valueHolder;
     };
-
-    ko.bindingHandlers.validatingCollapse = {
-        'init': function(element, valueAccessor) {
-            $(element).click(function() {
-                var form = $(document).find('.validationEngineContainer');
-                var data = form.data('jqv');
-                var $section = $(element).closest('.repeating-section');
-                $section.data('jqv', data);
-                $section.addClass('validationEngineContainer');
-               try {
-                  var valid = $section.validationEngine('validate');
-               }
-               finally {
-                   $section.data('jqv', null);
-                   $section.removeClass('validationEngineContainer');
-               }
-            });
-        },
-        'update': function(element, valueAccessor) {
-
-        }
-    }
 
 })();
 
