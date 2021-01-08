@@ -363,7 +363,9 @@
                 if (!listId) {
                     return 'Atlas of Living Australia';
                 }
-                return 'Artlista';
+                // for LU don't print the word 'Artlista'
+                // return 'Artlista';
+                return '';
             }
             var renderItem = function(row) {
 
