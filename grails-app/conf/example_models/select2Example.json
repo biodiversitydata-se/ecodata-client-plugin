@@ -33,7 +33,7 @@
       "name": "nested",
       "columns": [
         {
-          "dataType":"text",
+          "dataType": "text",
           "name": "item4",
           "constraints": [
             "value 1",
@@ -45,13 +45,31 @@
         {
           "dataType": "text",
           "name": "item5",
-          "constraints": [
-            "value 1",
-            "value 2",
-            "value 3",
-            "this is a much longer value"
-          ]
-        },{
+          "constraints": {
+            "type": "literal",
+            "textProperty": "label",
+            "valueProperty": "value",
+            "literal": [
+              {
+                "label": "Value 1",
+                "value": "value 1"
+              },
+              {
+                "value": "value 2",
+                "label": "Value 2"
+              },
+              {
+                "label": "Value 3",
+                "value": "value 3"
+              },
+              {
+                "label": "This is a much longer label",
+                "value": "this is a much longer value"
+              }
+            ]
+          }
+        },
+        {
           "dataType": "stringList",
           "name": "item6",
           "constraints": [
@@ -61,7 +79,6 @@
             "this is a much longer value"
           ]
         }
-
       ]
     }
   ],
@@ -126,7 +143,6 @@
           "width": "40%"
         }
       ]
-
     }
   ],
   "title": "Select2 example"
