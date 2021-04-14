@@ -73,4 +73,62 @@ describe("DataModelItem Spec", function () {
         });
     });
 
+    it("Can return the label associated with a selected value for a DataModelItem with constraints", function(done) {
+        var constraints = ['1', '2', '3'];
+        var metadata = {
+            name:'item',
+            dataType:'text',
+            constraints: {
+                type:'literal',
+                literal: constraints
+            }
+        };
+        var dataItem = ko.observable().extend({metadata:{metadata:metadata, context:context, config:config}});
+        dataItem('2');
+        expect(dataItem.constraints.label()).toEqual('2')
+        expect(dataItem.constraints.label('3')).toEqual('3')
+        expect(dataItem.constraints.label("does not exist")).toEqual('');
+
+        var objectConstraints = [{text:'label 1', value:'1'}, {text:'label 2', value:'2'}, {text:'label 3', value:'3'}];
+        metadata.constraints = {
+            valueProperty:'value',
+            textProperty: 'text',
+            type:'literal',
+            literal:objectConstraints
+        };
+
+        dataItem = ko.observable().extend({metadata:{metadata:metadata, context:context, config:config}});
+        dataItem('2');
+        expect(dataItem.constraints.label()).toEqual('label 2')
+        expect(dataItem.constraints.label('3')).toEqual('label 3')
+        expect(dataItem.constraints.label("does not exist")).toEqual('');
+
+        metadata.constraints = {
+            type:"pre-populated",
+            config: {
+                source: {
+                    url: '/test'
+                }
+            },
+            valueProperty:'value',
+            textProperty: 'text'
+        };
+        var deferred = null;
+        spyOn($, 'ajax').and.callFake(function(p1,p2) {
+            deferred = $.Deferred();
+            return deferred;
+        });
+
+        dataItem = ko.observable().extend({metadata:{metadata:metadata, context:context, config:config}});
+        dataItem('2');
+
+        deferred.resolve(objectConstraints).then(function() {
+            expect(dataItem.constraints.label()).toEqual('label 2')
+            expect(dataItem.constraints.label('3')).toEqual('label 3')
+            expect(dataItem.constraints.label("does not exist")).toEqual('');
+
+            done();
+        });
+    });
+
 });

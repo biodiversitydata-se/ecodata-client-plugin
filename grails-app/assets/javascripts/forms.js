@@ -786,6 +786,21 @@ function orEmptyArray(v) {
                 }
                 return constraint;
             };
+            self.constraints.label = function(value) {
+
+                if (!value && ko.isObservable(self))  {
+                    value = self();
+                }
+                var constraints = ko.utils.unwrapObservable(self.constraints);
+
+                var match = _.find(constraints, function(constraint) {
+                    return self.constraints.value(constraint) == value;
+                });
+                if (match) {
+                    return self.constraints.text(match);
+                }
+                return '';
+            }
         }
 
         if (metadata.displayOptions) {
