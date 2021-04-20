@@ -747,7 +747,7 @@ function orEmptyArray(v) {
             self.constraints = [];
             // Support existing configuration style.
             if (_.isArray(metadata.constraints)) {
-                self.constraints = metadata.constraints;
+                self.constraints = [].concat(metadata.constraints);
             }
             else if (_.isObject(metadata.constraints)) {
                 if (metadata.constraints.type == 'computed') {
@@ -770,7 +770,7 @@ function orEmptyArray(v) {
                     });
                 }
                 else if (metadata.constraints.type == 'literal' || metadata.contraints.literal) {
-                    self.constraints = metadata.constraints.literal;
+                    self.constraints = [].concat(metadata.constraints.literal);
                 }
             }
 
