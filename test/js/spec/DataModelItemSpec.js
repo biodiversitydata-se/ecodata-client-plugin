@@ -35,7 +35,10 @@ describe("DataModelItem Spec", function () {
         var dataItem = ko.observable().extend({metadata:{metadata:metadata, context:context, config:config}});
         dataItem.load("3");
 
-        expect(dataItem.constraints).toEqual(constraints);
+        expect(dataItem.constraints.length).toEqual(constraints.length);
+        for (var i=0; i<constraints.length; i++) {
+            expect(dataItem.constraints[i]).toEqual(constraints[i]);
+        }
         expect(dataItem()).toEqual("3");
 
         metadata.constraints = {
