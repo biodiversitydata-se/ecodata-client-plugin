@@ -1,57 +1,89 @@
 {
-    "dataModel": [
-      {
-        "name": "textFieldWithConstraints",
-        "dataType": "text",
-        "description": "Description for textFieldWithConstraints",
-        "constraints": [
-          "value1",
-          "value2",
-          "value3"
-        ],
-        "defaultValue": 1
-      },
-      {
-        "name": "textFieldWithLabelValueConstraints",
-        "dataType": "text",
-        "constraints": {
-          "type": "literal",
-          "textProperty": "label",
-          "valueProperty": "value",
-          "literal": [{
+  "dataModel": [
+    {
+      "name": "textFieldWithConstraints",
+      "dataType": "text",
+      "description": "Description for textFieldWithConstraints",
+      "constraints": [
+        "value1",
+        "value2",
+        "value3"
+      ],
+      "defaultValue": 1
+    },
+    {
+      "name": "textFieldWithLabelValueConstraints",
+      "dataType": "text",
+      "constraints": {
+        "type": "literal",
+        "textProperty": "label",
+        "valueProperty": "value",
+        "literal": [
+          {
             "value": "value1",
             "label": "Value 1"
-          }, {
+          },
+          {
             "value": "value2",
             "label": "Value 2"
-          }, {
+          },
+          {
             "value": "value3",
             "label": "Value 3"
-          }]
+          }
+        ]
+      }
+    },
+    {
+      "dataType": "list",
+      "name": "nested",
+      "columns": [
+        {
+          "dataType": "text",
+          "name": "item3",
+          "constraints": [
+            "value 1",
+            "value 2",
+            "value 3",
+            "this is a much longer value"
+          ]
         }
-      }
-    ],
-    "modelName": "SelectOne View Type Example",
-    "viewModel": [
-      {
-        "type": "row",
-        "items": [
-          {
-            "source": "textFieldWithConstraints",
-            "type": "selectOne",
-            "preLabel": "selectOne control"
-          }
-        ]
-      },
-      {
-        "type": "row",
-        "items": [
-          {
-            "source": "textFieldWithLabelValueConstraints",
-            "type": "selectOne",
-            "preLabel": "This field has constraints with a label and value"
-          }
-        ]
-      }
-    ]
+      ]
+    }
+  ],
+  "modelName": "SelectOne View Type Example",
+  "viewModel": [
+    {
+      "type": "row",
+      "items": [
+        {
+          "source": "textFieldWithConstraints",
+          "type": "selectOne",
+          "preLabel": "selectOne control"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "items": [
+        {
+          "source": "textFieldWithLabelValueConstraints",
+          "type": "selectOne",
+          "preLabel": "This field has constraints with a label and value"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "source": "nested",
+      "columns": [
+        {
+          "type": "selectOne",
+          "source": "item3",
+          "title": "Item 3",
+          "width": "100%"
+        }
+      ]
+    }
+  ]
 }
