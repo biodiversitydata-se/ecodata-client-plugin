@@ -1,6 +1,6 @@
 //= require emitter/emitter
 //= require validatejs/0.11.1/validate.js
-//= require expr-eval/1.2.1/bundle
+//= require expr-eval/2.0.2/bundle
 //= require forms-knockout-bindings.js
 //= require ecodata-components.js
 //= require speciesModel.js
