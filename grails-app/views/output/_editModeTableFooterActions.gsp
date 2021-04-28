@@ -1,4 +1,4 @@
-<tr>
+<tr data-bind="visible:${property}.allowUserAddedRows || ${property}.showTableDataUpload()">
     <td colspan="${colCount}" style="text-align:left;">
         <button type="button" class="btn btn-small" data-bind="visible:${property}.allowUserAddedRows, click:${property}.addRow"><i class="icon-plus"></i> ${addRowText ?: "Add a row"} </button>
         <g:if test="${!disableTableUpload}">

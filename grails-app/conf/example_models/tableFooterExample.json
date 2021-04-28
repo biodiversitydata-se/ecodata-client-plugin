@@ -24,6 +24,32 @@
       "computed": {
         "expression": "sum(exampleList, \"value3\")"
       }
+    },
+    {
+      "dataType": "list",
+      "name": "exampleList2",
+      "allowRowDelete": "false",
+      "columns": [
+        {
+          "dataType": "text",
+          "name": "value4"
+        },
+        {
+          "dataType": "text",
+          "name": "value5"
+        },
+        {
+          "dataType": "number",
+          "name": "value6"
+        }
+      ]
+    },
+    {
+      "type": "number",
+      "name": "totalValue6",
+      "computed": {
+        "expression": "sum(exampleList, \"value6\")"
+      }
     }
   ],
   "modelName": "Table footer example",
@@ -75,6 +101,57 @@
                 "noEdit": true,
                 "type": "number",
                 "source": "totalValue3"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "source": "exampleList2",
+      "disableTableUpload": true,
+      "columns": [
+        {
+          "title": "Value4 and Value5",
+          "width": "50%",
+          "type": "col",
+          "helpText": "Both value 4 and value 5 values can be entered into this column",
+          "items": [
+            {
+              "type": "text",
+              "source": "value4",
+              "css": "span12",
+              "preLabel": "Value4"
+            },
+            {
+              "type": "text",
+              "source": "value5",
+              "css": "span12",
+              "preLabel": "Value5"
+            }
+          ]
+        },
+        {
+          "title": "Value6",
+          "source": "value6",
+          "width": "50%",
+          "type": "number"
+        }
+      ],
+      "type": "table",
+      "footer": {
+        "rows": [
+          {
+            "columns": [
+              {
+                "type": "literal",
+                "source": ""
+              },
+              {
+                "preLabel": "Total:",
+                "noEdit": true,
+                "type": "number",
+                "source": "totalValue6"
               }
             ]
           }

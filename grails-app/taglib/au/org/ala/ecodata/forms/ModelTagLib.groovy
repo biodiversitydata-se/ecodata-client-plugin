@@ -921,6 +921,7 @@ class ModelTagLib {
         def colCount = 0
         def containsSpecies = model.columns.find{it.type == 'autocomplete'}
         out << INDENT*4 << "<tfoot>\n"
+        def allowRowDelete = getAllowRowDelete(attrs, model.source, null)
         model.footer?.rows.each { row ->
             colCount = 0
             out << INDENT*4 << "<tr>\n"
@@ -932,7 +933,7 @@ class ModelTagLib {
                 viewModelItems([col], footerCtx)
                 out << INDENT*5 << "</td>" << "\n"
             }
-            if (model.type == 'table' && attrs.edit) {
+            if (model.type == 'table' && attrs.edit && allowRowDelete) {
                 out << INDENT*5 << "<td></td>\n"  // to balance the extra column for actions
                 colCount++
             }
