@@ -1,3 +1,4 @@
+<g:if test="${name}">
 <tr data-bind="visible:${property}.allowUserAddedRows || ${property}.showTableDataUpload()">
     <td colspan="${colCount}" style="text-align:left;">
         <button type="button" class="btn btn-small" data-bind="visible:${property}.allowUserAddedRows, click:${property}.addRow"><i class="icon-plus"></i> ${addRowText ?: "Add a row"} </button>
@@ -6,7 +7,8 @@
          </g:if>
     </td>
 </tr>
-<g:if test="${!disableTableUpload}">
+</g:if>
+<g:if test="${name && !disableTableUpload}">
 <tr data-bind="visible:${property}.tableDataUploadVisible">
     <td colspan="${colCount}">
         <g:if test="${containsSpecies}">

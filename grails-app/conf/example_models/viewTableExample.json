@@ -1,162 +1,206 @@
 {
-    "dataModel": [
+  "dataModel": [
+    {
+      "dataType": "list",
+      "name": "adminActions",
+      "columns": [
         {
-            "dataType": "list",
-            "name": "adminActions",
-            "columns": [
-                {
-                    "dataType": "text",
-                    "noTotal": "true",
-                    "description": "The type of administration activity undertaken. Add more rows for different admin activities as required.",
-                    "name": "adminActionType",
-                    "constraints": [
-                        "Assess EOI applications and EOI site visits",
-                        "Development / call for applications",
-                        "Data analysis",
-                        "Desktop information gathering",
-                        "Develop monitoring protocols",
-                        "Communications plan",
-                        "Establish contractor agreements",
-                        "Establish landholder agreements",
-                        "Financial audits",
-                        "Financial planning",
-                        "GIS / spatial data",
-                        "Meeting / meeting administration",
-                        "Modelling",
-                        "Order / purchase equipment, plants, seed, wire, posts etc",
-                        "Partnership building",
-                        "Prepare EOI process / criteria",
-                        "Record Keeping",
-                        "Site selection",
-                        "Steering group / working group established",
-                        "Submit project progress / annual / final report",
-                        "Technical support",
-                        "Update / submit Project MERI Plan",
-                        "Works approvals",
-                        "Other (specify in notes)"
-                    ],
-                    "validate": "required"
-                },
-                {
-                    "dataType": "number",
-                    "description": "Number of people involved in the administration activity. An individual can be involved in more than one activity.",
-                    "name": "numberInvolved"
-                },
-                {
-                    "dataType": "number",
-                    "description": "The average number of hours per person spent on each administration activity",
-                    "name": "hoursPerPerson"
-                },
-                {
-                    "dataType": "number",
-                    "description": "The total estimated person hours spent on each administration activity.",
-                    "computed": {
-                        "operation": "times",
-                        "dependents": [
-                            "numberInvolved",
-                            "hoursPerPerson"
-                        ]
-                    },
-                    "name": "hoursActionTotal"
-                },
-                {
-                    "dataType": "text",
-                    "description": "",
-                    "name": "activityNotes"
-                }
+          "dataType": "text",
+          "noTotal": "true",
+          "description": "The type of administration activity undertaken. Add more rows for different admin activities as required.",
+          "name": "adminActionType",
+          "constraints": [
+            "Assess EOI applications and EOI site visits",
+            "Development / call for applications",
+            "Data analysis",
+            "Desktop information gathering",
+            "Develop monitoring protocols",
+            "Communications plan",
+            "Establish contractor agreements",
+            "Establish landholder agreements",
+            "Financial audits",
+            "Financial planning",
+            "GIS / spatial data",
+            "Meeting / meeting administration",
+            "Modelling",
+            "Order / purchase equipment, plants, seed, wire, posts etc",
+            "Partnership building",
+            "Prepare EOI process / criteria",
+            "Record Keeping",
+            "Site selection",
+            "Steering group / working group established",
+            "Submit project progress / annual / final report",
+            "Technical support",
+            "Update / submit Project MERI Plan",
+            "Works approvals",
+            "Other (specify in notes)"
+          ],
+          "validate": "required"
+        },
+        {
+          "dataType": "number",
+          "description": "Number of people involved in the administration activity. An individual can be involved in more than one activity.",
+          "name": "numberInvolved"
+        },
+        {
+          "dataType": "number",
+          "description": "The average number of hours per person spent on each administration activity",
+          "name": "hoursPerPerson"
+        },
+        {
+          "dataType": "number",
+          "description": "The total estimated person hours spent on each administration activity.",
+          "computed": {
+            "operation": "times",
+            "dependents": [
+              "numberInvolved",
+              "hoursPerPerson"
             ]
+          },
+          "name": "hoursActionTotal"
         },
         {
-            "dataType": "number",
-            "description": "Aggregate total of hours spent undertaking administration activities.",
-            "primaryResult": "true",
-            "computed": {
-                "operation": "sum",
-                "dependents": {
-                    "source": "hoursActionTotal",
-                    "fromList": "adminActions"
-                }
-            },
-            "name": "hoursAdminTotal"
-        },
-        {
-            "dataType": "text",
-            "description": "",
-            "name": "notes"
+          "dataType": "text",
+          "description": "",
+          "name": "activityNotes"
         }
-    ],
-    "modelName": "Table View Type Example",
-    "viewModel": [
+      ]
+    },
+    {
+      "dataType": "number",
+      "description": "Aggregate total of hours spent undertaking administration activities.",
+      "primaryResult": "true",
+      "computed": {
+        "operation": "sum",
+        "dependents": {
+          "source": "hoursActionTotal",
+          "fromList": "adminActions"
+        }
+      },
+      "name": "hoursAdminTotal"
+    },
+    {
+      "dataType": "text",
+      "description": "",
+      "name": "notes"
+    },
+    {
+      "dataType": "text",
+      "description": "",
+      "name": "value1"
+    },
+    {
+      "dataType": "text",
+      "description": "",
+      "name": "value2"
+    },
+    {
+      "dataType": "text",
+      "description": "",
+      "name": "value3"
+    }
+  ],
+  "modelName": "Table View Type Example",
+  "viewModel": [
+    {
+      "items": [
         {
-            "items": [{
-                "source": "Please list the numbers of people involved in undertaking each relevant type of administration activity and the average time spent per person:",
+          "source": "Please list the numbers of people involved in undertaking each relevant type of administration activity and the average time spent per person:",
+          "computed": null,
+          "type": "literal"
+        }
+      ],
+      "type": "row"
+    },
+    {
+      "source": "adminActions",
+      "columns": [
+        {
+          "title": "Type of administration activity:",
+          "source": "adminActionType",
+          "width": "25%",
+          "computed": null,
+          "type": "selectOne"
+        },
+        {
+          "title": "No. of people:",
+          "source": "numberInvolved",
+          "width": "10%",
+          "computed": null,
+          "type": "number"
+        },
+        {
+          "title": "Ave. time per person (Hrs):",
+          "source": "hoursPerPerson",
+          "width": "10%",
+          "computed": null,
+          "type": "number"
+        },
+        {
+          "title": "Ave. total time spent (Hrs):",
+          "source": "hoursActionTotal",
+          "width": "10%",
+          "computed": "{\"operation\":\"product\",\"dependents\":[\"numberInvolved\",\"hoursPerPerson\"]}",
+          "type": "number"
+        },
+        {
+          "title": "Notes:",
+          "source": "activityNotes",
+          "width": "40%",
+          "computed": null,
+          "type": "textarea"
+        }
+      ],
+      "userAddedRows": true,
+      "class": "output-section",
+      "type": "table",
+      "footer": {
+        "rows": [
+          {
+            "columns": [
+              {
+                "colspan": 2,
+                "source": "",
                 "computed": null,
                 "type": "literal"
-            }],
-            "type": "row"
+              },
+              {
+                "source": "Total time spent undertaking project administration activities (Hrs)",
+                "computed": null,
+                "type": "literal"
+              },
+              {
+                "source": "hoursAdminTotal",
+                "computed": "{\"operation\":\"sum\",\"dependents\":{\"source\":\"hoursActionTotal\",\"fromList\":\"adminActions\"}}",
+                "type": "number"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "table",
+      "columns": [
+        {
+          "title": "Value 1",
+          "source": "value1",
+          "width": "33%",
+          "type": "text"
         },
         {
-            "footer":
-            {"rows":
-            [{"columns": [
-                {
-                    "colspan": 2,
-                    "source": "",
-                    "computed": null,
-                    "type": "literal"
-                },
-                {
-                    "source": "Total time spent undertaking project administration activities (Hrs)",
-                    "computed": null,
-                    "type": "literal"
-                },
-                {
-                    "source": "hoursAdminTotal",
-                    "computed": "{\"operation\":\"sum\",\"dependents\":{\"source\":\"hoursActionTotal\",\"fromList\":\"adminActions\"}}",
-                    "type": "number"
-                }
-            ]}]},
-            "source": "adminActions",
-            "columns": [
-                {
-                    "title": "Type of administration activity:",
-                    "source": "adminActionType",
-                    "width": "25%",
-                    "computed": null,
-                    "type": "selectOne"
-                },
-                {
-                    "title": "No. of people:",
-                    "source": "numberInvolved",
-                    "width": "10%",
-                    "computed": null,
-                    "type": "number"
-                },
-                {
-                    "title": "Ave. time per person (Hrs):",
-                    "source": "hoursPerPerson",
-                    "width": "10%",
-                    "computed": null,
-                    "type": "number"
-                },
-                {
-                    "title": "Ave. total time spent (Hrs):",
-                    "source": "hoursActionTotal",
-                    "width": "10%",
-                    "computed": "{\"operation\":\"product\",\"dependents\":[\"numberInvolved\",\"hoursPerPerson\"]}",
-                    "type": "number"
-                },
-                {
-                    "title": "Notes:",
-                    "source": "activityNotes",
-                    "width": "40%",
-                    "computed": null,
-                    "type": "textarea"
-                }
-            ],
-            "userAddedRows": true,
-            "class": "output-section",
-            "type": "table"
+          "title": "Value 2",
+          "source": "value2",
+          "width": "33%",
+          "type": "text"
+        },
+        {
+          "title": "Value 3",
+          "source": "value3",
+          "width": "33%",
+          "type": "text"
         }
-    ]
+      ]
+    }
+  ]
 }
