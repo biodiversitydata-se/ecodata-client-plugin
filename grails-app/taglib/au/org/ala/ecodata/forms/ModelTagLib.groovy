@@ -812,9 +812,16 @@ class ModelTagLib {
                 tableViewTemplate(ctx, attrs.edit)
             }
         } else {
-            out << INDENT*4 << "<tbody data-bind=\"foreach: ${ctx.property}\"><tr>\n"
+            String dataBind = ""
+            String childDataContext = ctx.dataContext
+            // Tables don't have to be bound to a list dataType, they can also be used for formatting related values
+            if (table.source) {
+                dataBind = "data-bind=\"foreach: ${ctx.property}\""
+                childDataContext = ''
+            }
+            out << INDENT*4 << "<tbody ${dataBind}><tr>\n"
 
-            LayoutRenderContext tableCtx = ctx.createChildContext([dataContext: '', parentView: 'table'])
+            LayoutRenderContext tableCtx = ctx.createChildContext([dataContext: childDataContext, parentView: 'table'])
             table.columns.eachWithIndex { col, i ->
 
                 out << INDENT*5 << "<td>"

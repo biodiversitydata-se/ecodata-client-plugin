@@ -173,6 +173,11 @@
                 "source": "hoursAdminTotal",
                 "computed": "{\"operation\":\"sum\",\"dependents\":{\"source\":\"hoursActionTotal\",\"fromList\":\"adminActions\"}}",
                 "type": "number"
+              },
+              {
+                "source": "",
+                "computed": null,
+                "type": "literal"
               }
             ]
           }
