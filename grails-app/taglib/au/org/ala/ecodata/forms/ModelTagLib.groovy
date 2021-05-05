@@ -611,7 +611,7 @@ class ModelTagLib {
 
     def grid(out, attrs, model) {
         out << "<div class=\"row-fluid\">\n"
-        out << INDENT*3 << "<table class=\"table table-bordered ${model.source}\">\n"
+        out << INDENT*3 << "<table class=\"table table-bordered ${model.source?:''}\">\n"
         gridHeader out, attrs, model
         if (attrs.edit) {
             gridBodyEdit out, attrs, model
@@ -729,7 +729,7 @@ class ModelTagLib {
         if (model.title) {
             out << model.title
         }
-        out << INDENT*3 << "<table class=\"table table-bordered ${model.source} ${tableClass}\" ${validation}>\n"
+        out << INDENT*3 << "<table class=\"table table-bordered ${model.source?:''} ${tableClass}\" ${validation}>\n"
         tableHeader ctx
         if (isprintblankform) {
             tableBodyPrint ctx
@@ -786,7 +786,7 @@ class ModelTagLib {
         // body elements for main rows
         if (attrs.edit) {
 
-            def dataBind
+            String dataBind
             if (table.source) {
                 def templateName = table.editableRows ? "${table.source}templateToUse" : "'${table.source}viewTmpl'"
                 dataBind = "template:{name:${templateName}, foreach: ${ctx.property}}"
@@ -794,7 +794,11 @@ class ModelTagLib {
             else {
                 def count = getUnnamedTableCount(true)
                 def templateName = table.editableRows ? "${count}templateToUse" : "'${count}viewTmpl'"
-                dataBind = "template:{name:${templateName}, data: data}"
+                dataBind = "template:{name:${templateName}"
+                if (ctx.dataContext) {
+                    dataBind += ", data:${ctx.dataContext}"
+                }
+                dataBind += "}"
             }
 
             out << INDENT*4 << "<tbody data-bind=\"${dataBind}\"></tbody>\n"
@@ -808,9 +812,16 @@ class ModelTagLib {
                 tableViewTemplate(ctx, attrs.edit)
             }
         } else {
-            out << INDENT*4 << "<tbody data-bind=\"foreach: ${ctx.property}\"><tr>\n"
+            String dataBind = ""
+            String childDataContext = ctx.dataContext
+            // Tables don't have to be bound to a list dataType, they can also be used for formatting related values
+            if (table.source) {
+                dataBind = "data-bind=\"foreach: ${ctx.property}\""
+                childDataContext = ''
+            }
+            out << INDENT*4 << "<tbody ${dataBind}><tr>\n"
 
-            LayoutRenderContext tableCtx = ctx.createChildContext([dataContext: '', parentView: 'table'])
+            LayoutRenderContext tableCtx = ctx.createChildContext([dataContext: childDataContext, parentView: 'table'])
             table.columns.eachWithIndex { col, i ->
 
                 out << INDENT*5 << "<td>"
@@ -921,6 +932,7 @@ class ModelTagLib {
         def colCount = 0
         def containsSpecies = model.columns.find{it.type == 'autocomplete'}
         out << INDENT*4 << "<tfoot>\n"
+        def allowRowDelete = getAllowRowDelete(attrs, model.source, null)
         model.footer?.rows.each { row ->
             colCount = 0
             out << INDENT*4 << "<tr>\n"
@@ -932,7 +944,7 @@ class ModelTagLib {
                 viewModelItems([col], footerCtx)
                 out << INDENT*5 << "</td>" << "\n"
             }
-            if (model.type == 'table' && attrs.edit) {
+            if (model.type == 'table' && attrs.edit && allowRowDelete) {
                 out << INDENT*5 << "<td></td>\n"  // to balance the extra column for actions
                 colCount++
             }

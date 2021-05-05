@@ -25,7 +25,7 @@ module.exports = function (config) {
         files: [
             'grails-app/assets/vendor/knockout/3.5.0/knockout.debug.js',
             'grails-app/assets/vendor/knockout/3.5.0/knockout.mapping-latest.js',
-            'grails-app/assets/vendor/expr-eval/1.2.1/bundle.js',
+            'grails-app/assets/vendor/expr-eval/2.0.2/bundle.js',
             'grails-app/assets/vendor/select2/4.0.3/js/select2.full.js',
             'grails-app/assets/vendor/underscorejs/1.8.3/underscore.js',
             'grails-app/assets/vendor/typeahead/0.11.1/bloodhound.js',
