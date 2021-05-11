@@ -24,11 +24,10 @@ module.exports = function (config) {
             'grails-app/assets/vendor/knockout/3.5.0/knockout.debug.js',
             'grails-app/assets/vendor/knockout/3.5.0/knockout.mapping-latest.js',
             'node_modules/jasmine-ajax/lib/mock-ajax.js',
-            'grails-app/assets/vendor/expr-eval/1.2.1/bundle.js',
             'grails-app/assets/vendor/select2/4.0.3/js/select2.full.js',
             'grails-app/assets/vendor/underscorejs/1.8.3/underscore.js',
             'grails-app/assets/vendor/typeahead/0.11.1/bloodhound.js',
-            'grails-app/assets/vendor/expr-eval/2.0.2/bundle.js',,
+            'grails-app/assets/vendor/expr-eval/2.0.2/bundle.js',
             'grails-app/assets/vendor/jquery.validationEngine/jquery.validationEngine.js',
             'grails-app/assets/vendor/jquery.validationEngine/jquery.validationEngine-en.js',
             'grails-app/assets/vendor/momentjs/2.24.0/moment.min.js',
@@ -67,7 +66,7 @@ module.exports = function (config) {
             'type':"text",
             check: {
                 global: {
-                    lines: 37.6
+                    lines: 46.7
                 }
             }
         },

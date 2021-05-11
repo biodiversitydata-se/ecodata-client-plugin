@@ -2,8 +2,10 @@ package au.org.ala.ecodata.forms
 
 import geb.module.Select
 import geb.spock.GebReportingSpec
+import grails.testing.mixin.integration.Integration
 import pages.PreviewPage
 
+@Integration
 class SelectOneSpec extends GebReportingSpec {
 
     def "We can enter data in selectOne widgets"() {

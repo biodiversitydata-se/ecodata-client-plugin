@@ -1,8 +1,10 @@
 package au.org.ala.ecodata.forms
 
 import geb.spock.GebReportingSpec
+import grails.testing.mixin.integration.Integration
 import pages.PreviewPage
 
+@Integration
 class TableSpec extends GebReportingSpec {
 
     def "Tables can be displayed correctly in edit mode"() {

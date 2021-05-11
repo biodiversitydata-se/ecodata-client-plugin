@@ -1,10 +1,9 @@
 package au.org.ala.ecodata.forms
 
-//import grails.test.mixin.TestFor
 import grails.testing.web.taglib.TagLibUnitTest
+import org.grails.buffer.GrailsPrintWriter
 import spock.lang.Specification
 
-//@TestFor(ModelJSTagLib)
 class ModelJSTagLibSpec extends Specification implements TagLibUnitTest<ModelJSTagLib> {
 
     StringWriter actualOut
@@ -15,8 +14,8 @@ class ModelJSTagLibSpec extends Specification implements TagLibUnitTest<ModelJST
         ctx = new ModelJSTagLib.JSModelRenderContext(tagLib)
         ctx.attrs = [:]
         actualOut = new StringWriter()
-        ctx.out = new PrintWriter(actualOut)
-        tagLib.out = actualOut
+        ctx.out = new GrailsPrintWriter(actualOut)
+        tagLib.out = ctx.out
         tagLib.modelService = modelService
     }
 
@@ -243,6 +242,7 @@ class ModelJSTagLibSpec extends Specification implements TagLibUnitTest<ModelJST
 
         when:
         tagLib.lookupTable(ctx)
+        ctx.out.flush()
 
         then:
 
