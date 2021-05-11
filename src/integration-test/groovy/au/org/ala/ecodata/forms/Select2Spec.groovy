@@ -9,7 +9,7 @@ class Select2Spec extends GebReportingSpec {
 
     def "We can enter data into select2 dropdowns"() {
         when:
-        to ([name:'select2Example'], PreviewPage)
+        to ([name:'select2Example', data:'none'], PreviewPage)
 
         then:
         title == "Preview Select2 example"
@@ -49,7 +49,7 @@ class Select2Spec extends GebReportingSpec {
 
     def "Select2 components will display existing data in the model when the page loads"() {
         when:
-        to ([name:'select2Example', data:'select2-view-data'], PreviewPage)
+        to ([name:'select2Example', data:'select2Example'], PreviewPage)
 
         then:
         title == "Preview Select2 example"
@@ -61,7 +61,7 @@ class Select2Spec extends GebReportingSpec {
         page.findFieldByModelName("item2").next().find("span.select2-selection__rendered").text().contains("value 2")
         page.findFieldByModelName("item3").next().find("li.select2-selection__choice")*.attr("title") == ["value 1", "value 3"]
         page.findFieldByModelName("item4").next().find("span.select2-selection__rendered")*.attr("title") == ["this is a much longer value", "value 3"]
-        page.findFieldByModelName("item5").next().find("span.select2-selection__rendered")*.attr("title") == ["value 2", "value 1"]
+        page.findFieldByModelName("item5").next().find("span.select2-selection__rendered")*.attr("title") == ["Value 2", "Value 1"]
         page.findFieldByModelName("item6").next().find("li.select2-selection__choice")*.attr("title") == ["value 3", "value 1", "value 2", "value 3", "tag"]
 
 
@@ -80,7 +80,7 @@ class Select2Spec extends GebReportingSpec {
 
     def "Model data is displayed in view mode for select2 view types"() {
         when:
-        to ([name:'select2Example', mode:'view', data:'select2-view-data'], PreviewPage)
+        to ([name:'select2Example', mode:'view', data:'select2Example'], PreviewPage)
 
         then:
         title == "Preview Select2 example"
@@ -90,7 +90,7 @@ class Select2Spec extends GebReportingSpec {
         $("span[data-bind*=item2").text() == "value 2"
         $("span[data-bind*=item3").text() == "value 1, value 3"
         $("span[data-bind*=item4")*.text() == ["this is a much longer value", "value 3"]
-        $("span[data-bind*=item5")*.text() == ["value 2", "value 1"]
+        $("span[data-bind*=item5")*.text() == ["Value 2", "Value 1"]
         $("span[data-bind*=item6")*.text() ==  ["value 3", "value 1, value 2, value 3, tag"]
 
     }

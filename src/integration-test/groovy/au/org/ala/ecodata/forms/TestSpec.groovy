@@ -108,7 +108,7 @@ class TestSpec extends GebReportingSpec {
         and: "the default value for item 2 has been evaluated at 2 * item1"
         page.findFieldByModelName("item2").getAt(0).value() == "2.00"
         and: "the default value for item 4 has been evaluated at item2 * item3"
-        page.findFieldByModelName("item4").getAt(0).value() == "4.00"
+        page.findFieldByModelName("item4").getAt(0).value() == "4.0000"
 
         when: "item 1 is changed"
         page.findFieldByModelName("item1").getAt(0).value("3")
@@ -116,7 +116,7 @@ class TestSpec extends GebReportingSpec {
 
         then: "the default values for item2 and item4 are updated"
         page.findFieldByModelName("item2").getAt(0).value() == "6.00"
-        page.findFieldByModelName("item4").getAt(0).value() == "12.00"
+        page.findFieldByModelName("item4").getAt(0).value() == "12.0000"
 
 
         when: "The value for item2 is manually overwritten"

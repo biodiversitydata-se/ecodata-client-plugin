@@ -7,6 +7,8 @@ package au.org.ala.ecodata.forms
 enum ConstraintType {
     VISIBLE("visible", true, true),
     IF("if", true, true),
+    VISIBLE_EXPRESSION("visibleexpression", true, true),
+    IF_EXPRESSION("ifexpression", true, true),
     ENABLE("enable", true, false),
     ENABLE_AND_CLEAR("enableAndClear", true, false),
     DISABLE("disable", true, false),
@@ -16,12 +18,12 @@ enum ConstraintType {
     String binding
     /** True if this constraint should be evaluated as a boolean */
     boolean isBoolean
-    /** True if this constraint applies to a label and input field (otherwise it will just be applied to input fields) */
-    boolean appliesToLabel
+    /** True if this constraint applies to a container field (or label and input field) (otherwise it will just be applied to input fields) */
+    boolean appliesToContainer
 
-    private ConstraintType(String binding, boolean isBoolean, boolean appliesToLabel) {
+    private ConstraintType(String binding, boolean isBoolean, boolean appliesToContainer) {
         this.binding = binding
         this.isBoolean = isBoolean
-        this.appliesToLabel = appliesToLabel
+        this.appliesToContainer = appliesToContainer
     }
 }

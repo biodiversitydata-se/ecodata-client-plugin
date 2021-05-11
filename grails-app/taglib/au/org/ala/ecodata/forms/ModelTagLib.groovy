@@ -19,6 +19,8 @@ class ModelTagLib {
 
     private ValidationHelper validationHelper = new ValidationHelper()
 
+    private ComputedValueRenderer computedValueRenderer = new ComputedValueRenderer()
+
     /** Context for view layout (rows, columns etc). */
     class LayoutRenderContext {
         String parentView
@@ -87,6 +89,7 @@ class ModelTagLib {
         def attrs = ctx.attrs
         items?.eachWithIndex { mod, index ->
             ctx.model = mod
+            beforeItem(ctx)
             switch (mod.type) {
                 case 'table':
                     table ctx
@@ -112,16 +115,16 @@ class ModelTagLib {
                 default:
                     layoutDataItem(out, attrs, mod, ctx)
                     break
-
-
             }
+            afterItem(ctx)
         }
     }
 
     def repeatingLayout(LayoutRenderContext ctx) {
 
         Map model = ctx.model
-        String sourceType = getType(ctx.attrs, model.source, null)
+        Map dataModel = getAttribute(ctx.attrs.model.dataModel, model.source)
+        String sourceType = dataModel?.dataType
         if (sourceType != "list") {
             throw new Exception("Only model elements with a list data type can be the source for a repeating layout")
         }
@@ -130,16 +133,66 @@ class ModelTagLib {
 
         ctx.out << """<!-- ko foreach:${ctx.property} -->\n"""
         ctx.out << """<div class="repeating-section">\n"""
-        if (model.userAddedRows && ctx.editMode()) {
-            ctx.out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">${model.removeRowText ?: "Remove Section"}</button>\n"""
-        }
-        viewModelItems(model.items, childContext)
+        if (model.collapsable || model.title || model.userAddedRows && ctx.editMode()) {
+            ctx.out << """<div class="section-title">\n"""
 
+            if (model.collapsable && ctx.editMode()) {
+                ctx.out << "<button data-bind=\"toggleVisibility:'#${model.source}-content-'+\$index\"></button>"
+
+            }
+            if (model.title) {
+                ctx.out << "<span>${model.title}</span>"
+            }
+            if (model.userAddedRows && ctx.editMode()) {
+                ctx.out << """<button class="btn btn-warning pull-right" data-bind="click:\$parent.${ctx.property}.removeRow">${model.removeRowText ?: "Remove Section"}</button>\n"""
+            }
+            ctx.out << "<hr/>"
+            ctx.out << "</div>\n"
+        }
+
+        ctx.out << """<div data-bind=\"attr:{id:'${model.source}-content-'+\$index},expandOnValidate:true\"class="section-content">\n"""
+        viewModelItems(model.items, childContext)
+        ctx.out << "</div>\n"
         ctx.out << "</div>\n"
         ctx.out << "<!-- /ko -->\n"
 
         if (model.userAddedRows && ctx.editMode()) {
-            ctx.out << """<button type="button" class="btn btn-small add-section" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText?:'Add'}</button>\n"""
+            ctx.out << """<button type="button" class="btn btn-success btn-small add-section" data-bind="click:${ctx.property}.addRow"><i class="fa fa-plus"></i> ${model.addRowText ?: 'Add'}</button>\n"""
+        }
+    }
+
+    private void beforeItem(LayoutRenderContext ctx) {
+        Map model = ctx.model
+        if (model.behaviour) {
+            renderTagBehaviourOpen(model, ctx)
+        }
+    }
+
+    private  void afterItem(LayoutRenderContext ctx) {
+        Map model = ctx.model
+        if (model.behaviour) {
+            renderTagBehaviourClose(model, ctx)
+        }
+    }
+
+    private void renderTagBehaviourOpen(Map model, LayoutRenderContext ctx) {
+        model.behaviour.each {
+            ConstraintType type = ConstraintType.valueOf(it.type.toUpperCase())
+            if (type.appliesToContainer) {
+                // Renders a virtual node to enclose contents.  Supports "visible" / "if" bindings to hide / show
+                // whole sections.
+                String escapedExpression = computedValueRenderer.expressionAsString(it.condition)
+                ctx.out << "<!-- ko ${type.binding}:'${it.condition}' -->"
+            }
+        }
+    }
+
+    private void renderTagBehaviourClose(Map model, LayoutRenderContext ctx) {
+        model.behaviour.each {
+            ConstraintType type = ConstraintType.valueOf(it.type.toUpperCase())
+            if (type.appliesToContainer) {
+                ctx.out << "<!-- /ko -->"
+            }
         }
     }
 
@@ -186,7 +239,9 @@ class ModelTagLib {
             source.behaviour.each { constraint ->
                 ConstraintType type = ConstraintType.valueOf(constraint.type.toUpperCase())
                 String bindingValue = type.isBoolean ? "${renderContext.source}.${constraint.type}Constraint" : renderContext.source
-                if (!type.appliesToLabel) {
+
+                //String bindingValue = type.isBoolean ? computedValueRenderer.expressionAsString(constraint.condition) : renderContext.source
+                if (!type.appliesToContainer) {
                     renderContext.databindAttrs.add type.binding, bindingValue
                 }
                 else {
@@ -424,12 +479,12 @@ class ModelTagLib {
 
     // convenience method for the above
     def dataTag(attrs, model, context, editable, at) {
-        dataTag(attrs, model, context, editable, at, null, null)
+        dataTag(attrs, model, context, editable, at, null, new AttributeMap())
     }
 
     // convenience method for the above
     def dataTag(attrs, model, context, editable) {
-        dataTag(attrs, model, context, editable, null, null, null)
+        dataTag(attrs, model, context, editable, null, null, new AttributeMap())
     }
 
     // -------- validation declarations --------------------
@@ -556,7 +611,7 @@ class ModelTagLib {
 
     def grid(out, attrs, model) {
         out << "<div class=\"row-fluid\">\n"
-        out << INDENT*3 << "<table class=\"table table-bordered ${model.source}\">\n"
+        out << INDENT*3 << "<table class=\"table table-bordered ${model.source?:''}\">\n"
         gridHeader out, attrs, model
         if (attrs.edit) {
             gridBodyEdit out, attrs, model
@@ -674,7 +729,7 @@ class ModelTagLib {
         if (model.title) {
             out << model.title
         }
-        out << INDENT*3 << "<table class=\"table table-bordered ${model.source} ${tableClass}\" ${validation}>\n"
+        out << INDENT*3 << "<table class=\"table table-bordered ${model.source?:''} ${tableClass}\" ${validation}>\n"
         tableHeader ctx
         if (isprintblankform) {
             tableBodyPrint ctx
@@ -731,7 +786,7 @@ class ModelTagLib {
         // body elements for main rows
         if (attrs.edit) {
 
-            def dataBind
+            String dataBind
             if (table.source) {
                 def templateName = table.editableRows ? "${table.source}templateToUse" : "'${table.source}viewTmpl'"
                 dataBind = "template:{name:${templateName}, foreach: ${ctx.property}}"
@@ -739,7 +794,11 @@ class ModelTagLib {
             else {
                 def count = getUnnamedTableCount(true)
                 def templateName = table.editableRows ? "${count}templateToUse" : "'${count}viewTmpl'"
-                dataBind = "template:{name:${templateName}, data: data}"
+                dataBind = "template:{name:${templateName}"
+                if (ctx.dataContext) {
+                    dataBind += ", data:${ctx.dataContext}"
+                }
+                dataBind += "}"
             }
 
             out << INDENT*4 << "<tbody data-bind=\"${dataBind}\"></tbody>\n"
@@ -753,9 +812,16 @@ class ModelTagLib {
                 tableViewTemplate(ctx, attrs.edit)
             }
         } else {
-            out << INDENT*4 << "<tbody data-bind=\"foreach: ${ctx.property}\"><tr>\n"
+            String dataBind = ""
+            String childDataContext = ctx.dataContext
+            // Tables don't have to be bound to a list dataType, they can also be used for formatting related values
+            if (table.source) {
+                dataBind = "data-bind=\"foreach: ${ctx.property}\""
+                childDataContext = ''
+            }
+            out << INDENT*4 << "<tbody ${dataBind}><tr>\n"
 
-            LayoutRenderContext tableCtx = ctx.createChildContext([dataContext: '', parentView: 'table'])
+            LayoutRenderContext tableCtx = ctx.createChildContext([dataContext: childDataContext, parentView: 'table'])
             table.columns.eachWithIndex { col, i ->
 
                 out << INDENT*5 << "<td>"
@@ -866,24 +932,19 @@ class ModelTagLib {
         def colCount = 0
         def containsSpecies = model.columns.find{it.type == 'autocomplete'}
         out << INDENT*4 << "<tfoot>\n"
+        def allowRowDelete = getAllowRowDelete(attrs, model.source, null)
         model.footer?.rows.each { row ->
             colCount = 0
             out << INDENT*4 << "<tr>\n"
+            LayoutRenderContext footerCtx = ctx.createChildContext([:])
             row.columns.eachWithIndex { col, i ->
-                def attributes = new AttributeMap()
-                if (getAttribute(attrs, col.source, '', 'primaryResult') == 'true') {
-                    attributes.addClass('value');
-                }
                 colCount += (col.colspan ? col.colspan.toInteger() : 1)
                 def colspan = col.colspan ? " colspan='${col.colspan}'" : ''
-                // inject type from data model
-                col.type = col.type ?: getType(attrs, col.source, '')
-
-                // inject computed from data model
-                col.computed = col.computed ?: getComputed(attrs, col.source, '')
-                out << INDENT*5 << "<td${colspan}>" << dataTag(attrs, col, 'data', attrs.edit, attributes) << "</td>" << "\n"
+                out << INDENT*5 << "<td${colspan}>"
+                viewModelItems([col], footerCtx)
+                out << INDENT*5 << "</td>" << "\n"
             }
-            if (model.type == 'table' && attrs.edit) {
+            if (model.type == 'table' && attrs.edit && allowRowDelete) {
                 out << INDENT*5 << "<td></td>\n"  // to balance the extra column for actions
                 colCount++
             }
@@ -957,11 +1018,14 @@ class ModelTagLib {
     def getAttribute(model, name) {
         return model.findResult( {
 
-            if (it?.dataType == 'list') {
+            if (it.name == name) {
+                return it
+            }
+            else if (it?.dataType == 'list') {
                 return getAttribute(it.columns, name)
             }
             else {
-                return (it.name == name)?it:null
+                return null
             }
 
         })
