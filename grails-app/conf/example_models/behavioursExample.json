@@ -1,35 +1,34 @@
 {
-  "modelName": "Default value expression example",
+  "modelName": "Behaviours example",
   "dataModel": [
     {
       "dataType": "number",
-      "name": "item1",
-      "defaultValue": 1
+      "name": "item1"
     },
     {
-      "defaultValue": {
-        "expression": "item1*2"
-      },
       "dataType": "number",
-      "name": "item2"
+      "name": "item2",
+      "behaviour": [
+        {
+          "condition": "item1 > 3",
+          "type": "enable"
+        }
+      ]
     },
     {
       "dataType": "list",
       "name": "nested",
       "columns": [
         {
-          "dataType":"number",
-          "name": "item3",
-          "defaultValue": 2
+          "dataType": "number",
+          "name": "item3"
         },
         {
           "dataType": "number",
           "name": "item4",
-          "defaultValue": {
-            "expression": "item3*item2",
-            "decimalPlaces": 4
-          },
-          "decimalPlaces": 4
+          "computed": {
+            "expression": "item3*item2"
+          }
         }
       ]
     }
@@ -49,7 +48,7 @@
             {
               "preLabel": "Item 2",
               "source": "item2",
-              "type": "text"
+              "type": "number"
             }
           ]
         }
@@ -58,7 +57,6 @@
     {
       "type": "table",
       "source": "nested",
-      "userAddedRows": true,
       "columns": [
         {
           "type": "number",
@@ -74,5 +72,5 @@
 
     }
   ],
-  "title": "Default value expression example"
+  "title": "Behaviours example"
 }

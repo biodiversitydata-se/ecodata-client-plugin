@@ -1,17 +1,19 @@
 {
-  "modelName": "Default value expression example",
+  "modelName": "Decimal places example",
   "dataModel": [
     {
       "dataType": "number",
       "name": "item1",
-      "defaultValue": 1
+      "defaultValue": 1,
+      "decimalPlaces": 0
     },
     {
       "defaultValue": {
-        "expression": "item1*2"
+        "expression": "item1*2.2"
       },
       "dataType": "number",
-      "name": "item2"
+      "name": "item2",
+      "decimalPlaces": 1
     },
     {
       "dataType": "list",
@@ -26,7 +28,7 @@
           "dataType": "number",
           "name": "item4",
           "defaultValue": {
-            "expression": "item3*item2",
+            "expression": "item3*item2*0.2331",
             "decimalPlaces": 4
           },
           "decimalPlaces": 4
@@ -74,5 +76,5 @@
 
     }
   ],
-  "title": "Default value expression example"
+  "title": "Decimal places example"
 }

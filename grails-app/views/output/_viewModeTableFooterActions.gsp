@@ -1,4 +1,4 @@
-<g:if test="${!disableTableDownload}">
+<g:if test="${name && !disableTableDownload}">
 <script id="${name}template-download" type="text/x-tmpl">{% %}</script>
 
 <tr>

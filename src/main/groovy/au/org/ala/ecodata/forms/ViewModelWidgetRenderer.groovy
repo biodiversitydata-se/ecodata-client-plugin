@@ -62,13 +62,13 @@ class ViewModelWidgetRenderer implements ModelWidgetRenderer {
 
     @Override
     void renderSelectOne(WidgetRenderContext context) {
-        context.databindAttrs.add 'text', context.source
+        context.databindAttrs.add 'text', context.source + ".constraints.label(${context.source}())"
         context.writer << "<span ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>"
     }
 
     @Override
     void renderSelect2(WidgetRenderContext context) {
-        context.databindAttrs.add 'text', context.source
+        context.databindAttrs.add 'text', context.source + ".constraints.label(${context.source}())"
         context.writer << "<span ${context.attributes.toString()} data-bind='${context.databindAttrs.toString()}'></span>"
     }
 
