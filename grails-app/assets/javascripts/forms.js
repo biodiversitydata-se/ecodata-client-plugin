@@ -347,8 +347,9 @@ function orEmptyArray(v) {
                 }
 
             }
-
-            return result;
+            // have to change this because of kustfaglar scheme - it should be a string but for kustfaglar 
+            // because it uses a default compted value, it has to be a number. otherwise records aren't saved
+            return numericResult ? numericResult : result;
         }
 
         function evaluateBoolean(expression, context) {
