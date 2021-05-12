@@ -1,3 +1,24 @@
+<style>
+.overflow-table {
+    overflow-x: visible;
+    width:99%;
+}
+table .observations {
+    position: relative;
+    height:400px;
+    overflow-x: visible;
+}
+table.observations tr td:nth-child(odd), thead th:nth-child(odd) {
+    width: 5%;
+    background:#f5f5f5;
+}
+
+th {
+    position: sticky;
+    top:0;
+    background-color: white;
+}
+</style>
 <asset:script>
 <g:set var="outputNameAsIdentifer" value="${md.toSingleWord([name: outputName])}"/>
 ecodata.forms["${raw(outputNameAsIdentifer + 'ViewModel')}"] = function (output, dataModel, context, config) {
