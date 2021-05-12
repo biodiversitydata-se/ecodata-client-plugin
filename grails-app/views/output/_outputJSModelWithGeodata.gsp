@@ -9,7 +9,6 @@ table .observations {
     overflow-x: visible;
 }
 table.observations tr td:nth-child(odd), thead th:nth-child(odd) {
-    width: 5%;
     background:#f5f5f5;
 }
 
