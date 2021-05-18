@@ -8,7 +8,7 @@ table .observations {
     height:400px;
     overflow-x: visible;
 }
-table.observations tr td:nth-child(odd), thead th:nth-child(odd) {
+table.observations tr:nth-child(odd) {
     background:#f5f5f5;
 }
 
