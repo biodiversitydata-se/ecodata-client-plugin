@@ -351,11 +351,12 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.attributes.addClass("species-select2")
         context.writer << """<div${context.attributes.toString()}>
                                 <span data-bind="with:${context.source}" class="input-append"">
-                                <select data-bind="speciesSelect2:\$data" ${context.validationAttr}></select>
-                                <span class="add-on">
-                                    <a data-bind="visible:name(), popover: {title: transients.speciesTitle, content: transients.speciesInformation}"><i class="icon-info-sign"></i></a>
-                                </span>
-                             </span></div>"""
+                                <select data-bind="speciesSelect2:\$data" ${context.validationAttr}></select>""" +
+                                // At LU no one wants the info icon that has more species info coming from somewhere else
+                                // <span class="add-on">
+                                //     <a data-bind="visible:name(), popover: {title: transients.speciesTitle, content: transients.speciesInformation}"><i class="icon-info-sign"></i></a>
+                                // </span>
+                             """</span></div>"""
     }
 
     @Override
