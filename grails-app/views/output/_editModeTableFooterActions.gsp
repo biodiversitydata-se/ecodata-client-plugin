@@ -2,6 +2,9 @@
 <tr data-bind="visible:${property}.allowUserAddedRows || ${property}.showTableDataUpload()">
     <td colspan="${colCount}" style="text-align:left;">
         <button type="button" class="btn btn-small" data-bind="visible:${property}.allowUserAddedRows, click:${property}.addRow"><i class="icon-plus"></i> ${addRowText ?: message(code: "table.addRow")} </button>
+        <button type="button" class="btn btn-small" data-bind="click:${property}.sortBySpecies">
+            <i class="fa fa-sort"></i> ${message(code: "g.sort")}
+        </button> 
         <g:if test="${!disableTableUpload}">
             <button type="button" class="btn btn-small" data-bind="click:${property}.showTableDataUpload"><i class="icon-upload"></i> ${uploadDataText ?: "Upload data for this table"} </button>
          </g:if>
