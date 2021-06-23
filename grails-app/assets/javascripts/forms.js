@@ -870,8 +870,25 @@ function orEmptyArray(v) {
             return self().length;
         };
 
+        self.getRank = function(inputValue){
+            console.log("value to change : ", inputValue)
+            var rank;
+            if (inputValue.indexOf('(') > 0) {
+                if (inputValue.indexOf('(') == inputValue.lastIndexOf('(')) {
+                    rank = parseInt(inputValue.slice(inputValue.indexOf('(') + 1, inputValue.indexOf(')')));
+                    if (rank) inputValue = rank; 
+                } else {
+                    rank = parseInt(inputValue.slice(inputValue.lastIndexOf('(') + 1, inputValue.lastIndexOf(')')));
+                    if (rank) inputValue = rank;
+                }
+            }
+            console.log("value changed : ", inputValue)
+
+            return inputValue;
+        }
+
         self.sortBySpecies = function(){
-            var table, rows, switching, i, x, y, shouldSwitch, tableClass;
+            var table, rows, switching, i, rowValue, nextRowValue, shouldSwitch, tableClass;
             tableClass = "." + context.listName
             table = $(tableClass);
             switching = true;
@@ -883,25 +900,32 @@ function orEmptyArray(v) {
                 rows = table.find('tr');
                 /*Loop through all table rows (except the
                 first, which contains table headers):*/
-                for (i = 1; i < (rows.length - 1); i++) {
-                //start by saying there should be no switching:
-                shouldSwitch = false;
-                /*Get the two elements you want to compare,
-                one from current row and one from the next:*/
-                x = rows[i].getElementsByTagName("input")[0];
-                y = rows[i + 1].getElementsByTagName("input")[0];
-                //check if the two rows should switch place:
-                if (x.value.toLowerCase() > y.value.toLowerCase()) {
-                    //if so, mark as a switch and break the loop:
-                    shouldSwitch = true;
-                    break;
-                }
+                for (i = 1; i < (rows.length - 2); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    rowValue = rows[i].getElementsByTagName("input")[0].value;
+                    nextRowValue = rows[i + 1].getElementsByTagName("input")[0].value;
+                    
+                    // check if the species name displayed in the input field has a rank - SFT-specific
+                    // it's a workaround not to modify the lists module, the scientificName field has to be matched with the rank column
+                    // the default display configured in syrvey configuration should be commonName (scientificName)
+                    rowValue = self.getRank(rowValue);
+                    nextRowValue = self.getRank(nextRowValue);
+
+                    //check if the two rows should switch place:
+                    if (rowValue > nextRowValue) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
                 }
                 if (shouldSwitch) {
-                /*If a switch has been marked, make the switch
-                and mark that a switch has been done:*/
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
                 }
             }
         }
