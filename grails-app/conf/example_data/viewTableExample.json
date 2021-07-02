@@ -1,0 +1,14 @@
+{
+  "adminActions": [
+    {
+      "adminActionType": "Data analysis",
+      "numberInvolved": "2",
+      "hoursPerPerson": "3",
+      "hoursActionTotal": "6",
+      "activityNotes": "These as the activity notes"
+    }
+  ],
+  "value1": "value1",
+  "value2": "value2",
+  "value3": "value3"
+}

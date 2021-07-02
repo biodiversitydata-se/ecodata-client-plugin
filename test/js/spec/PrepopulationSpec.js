@@ -42,4 +42,31 @@ describe("Pre-population Spec", function () {
         });
 
     });
+
+    it("Should be able to pre-populated from an object or array literal", function() {
+        var context = {
+            data: {
+                item1: '1',
+                item2: '2'
+            }
+        };
+
+        var prepopConfig = {
+            source: {
+                literal: {
+                    item1:"test"
+                }
+            },
+            mapping: []
+        };
+
+        var config = {
+            prepopUrlPrefix:'/'
+        };
+
+        var dataLoader = ecodata.forms.dataLoader(context, config);
+        dataLoader.getPrepopData(prepopConfig).done(function(result) {
+            expect(result).toEqual({item1:"test"});
+        });
+    });
 });

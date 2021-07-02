@@ -24,7 +24,7 @@ clover {
     testIncludes = ['**/*Spec.groovy']
 
     report {
-        //html = true Causes NPE on mac os / OpenJDK 8, possibly due to missing fonts
+        html = true
         xml = true
         json = true
 
@@ -32,6 +32,6 @@ clover {
         testResultsDir = project.tasks.getByName('test').reports.junitXml.destination
         testResultsInclude = 'TEST-*.xml'
 
-        targetPercentage = 53
+        targetPercentage = 60
     }
 }

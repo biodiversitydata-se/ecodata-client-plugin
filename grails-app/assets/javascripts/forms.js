@@ -1,6 +1,6 @@
 //= require emitter/emitter
 //= require validatejs/0.11.1/validate.js
-//= require expr-eval/1.2.1/bundle
+//= require expr-eval/2.0.2/bundle
 //= require forms-knockout-bindings.js
 //= require ecodata-components.js
 //= require speciesModel.js
@@ -186,7 +186,7 @@ function orEmptyArray(v) {
         }
         parser.functions.sum = function(list, expression) {
             function add(val1, val2) {
-                return val1+val2;
+                return Number(val1)+Number(val2);
             }
             return arrayFunction(list, expression, add, 0);
         };
@@ -270,7 +270,7 @@ function orEmptyArray(v) {
             if (!context) {
                 return;
             }
-            var result;
+            var result = null;
 
             var contextVariable = preprocessBindings(variable);
             if (specialBindings[contextVariable]) {
@@ -294,7 +294,7 @@ function orEmptyArray(v) {
                 }
 
             }
-            return result;
+            return _.isUndefined(result) ? null : result;
         }
 
         function bindVariables(variables, context) {
@@ -654,6 +654,9 @@ function orEmptyArray(v) {
                     data = self.getNestedValue(context, source['context-path']);
                 }
             }
+            else if (source && source.hasOwnProperty('literal')) {
+                data = source['literal'];
+            }
             deferred.resolve(data);
             return deferred;
         };
@@ -732,6 +735,7 @@ function orEmptyArray(v) {
             return rule && rule.value || defaultValue;
         };
 
+        var constraintsInititaliser = null;
         if (metadata.constraints) {
             var valueProperty = 'id'; // For compatibility with select2 defaults
             var textProperty = 'text'; // For compatibility with select2 defaults
@@ -743,7 +747,7 @@ function orEmptyArray(v) {
             self.constraints = [];
             // Support existing configuration style.
             if (_.isArray(metadata.constraints)) {
-                self.constraints = metadata.constraints;
+                self.constraints = [].concat(metadata.constraints);
             }
             else if (_.isObject(metadata.constraints)) {
                 if (metadata.constraints.type == 'computed') {
@@ -755,11 +759,18 @@ function orEmptyArray(v) {
                     });
                 }
                 else if (metadata.constraints.type == 'pre-populated') {
-                    self.constraints = ko.observableArray();
+                    var defaultConstraints = metadata.constraints.defaults || [];
+                    self.constraints = ko.observableArray(defaultConstraints);
+
+                    constraintsInititaliser = $.Deferred();
                     var dataLoader = ecodata.forms.dataLoader(context, config);
                     dataLoader.prepop(metadata.constraints.config).done(function (data) {
                         self.constraints(data);
+                        constraintsInititaliser.resolve();
                     });
+                }
+                else if (metadata.constraints.type == 'literal' || metadata.contraints.literal) {
+                    self.constraints = [].concat(metadata.constraints.literal);
                 }
             }
 
@@ -775,12 +786,36 @@ function orEmptyArray(v) {
                 }
                 return constraint;
             };
+            self.constraints.label = function(value) {
+
+                if (!value && ko.isObservable(self))  {
+                    value = self();
+                }
+                var constraints = ko.utils.unwrapObservable(self.constraints);
+
+                var match = _.find(constraints, function(constraint) {
+                    return self.constraints.value(constraint) == value;
+                });
+                if (match) {
+                    return self.constraints.text(match);
+                }
+                return '';
+            }
         }
 
         if (metadata.displayOptions) {
             self.displayOptions = metadata.displayOptions;
         }
-
+        self.load = function(data) {
+            if (constraintsInititaliser) {
+                constraintsInititaliser.always(function() {
+                    self(data);
+                })
+            }
+            else {
+                self(data);
+            }
+        }
     };
 
     ecodata.forms.configManager = function(config, context) {
@@ -923,6 +958,68 @@ function orEmptyArray(v) {
             }
         };
     };
+
+    /**
+     * The lookup table can take two main forms - a direct map / dictionary style lookup
+     * to generally produce one string value from another, or a numeric range based lookup to
+     * generally produce one string value from a number based on what range the number
+     * falls into.
+     * @param context used for data loading or evaluating expressions
+     * @param config defines the format of the lookup table.  The general format is an array
+     * with each element of the form: {input:<>, output:<>} for the dictionary style lookup
+     * or {inputMin:<>, inputMax:<>, output:<>>} for the numeric style lookup.
+     * A dictionary style lookup table can also be configured as a javascript object
+     * where the attributes will be used as the input keys and the values of the attribute
+     * the associated output.
+     * @constructor
+     */
+    ecodata.forms.LookupTable = function(context, config) {
+        var self = this;
+
+        self.table = {};
+        var dataLoader = ecodata.forms.dataLoader(context, config);
+
+        // We support both object key/value mapping and an array of objects with input / output keys.
+        // This is both to keep compatibility with the previous syntax and to allow keys with '.' characters
+        // in them, which is not supported by mongo so the object method cannot be used for lookup tables
+        // with '.''s in the keys.
+        self.initialization = dataLoader.prepop(config).done(function (data) {
+            if (!_.isArray(data)) {
+                self.table = [];
+                _.each(data, function(value, key) {
+                    self.table.push({input:key, output:value});
+                });
+            }
+            else {
+                self.table = data;
+            }
+        });
+
+        self.lookupRange = function(value) {
+            var input = Number(value);
+            for (var i=0; i<self.table.length; i++) {
+                if (input < self.table[i].inputMin) {
+                    return
+                }
+                else if (input <= self.table[i].inputMax) {
+                    return  self.table[i].output;
+                }
+            }
+            return undefined;
+        }
+
+        self.lookupValue = function(key) {
+            var value = null;
+            var match = _.find(self.table, function(entry) {
+                return key == entry.input;
+            });
+
+            if (match) {
+                value = match.output;
+            }
+            return value;
+        }
+    }
 
     ecodata.forms.NestedModel = function (data, dataModel, context, config) {
         var self = this;

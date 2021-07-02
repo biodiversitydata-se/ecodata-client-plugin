@@ -27,9 +27,9 @@
                 <!-- ko foreach:editableSites -->
                 <li class="clearfix site-label"
                     data-bind="event:{mouseover:$root.highlightFeature, mouseout:$root.unhighlightFeature}">
-                    <label><span data-bind="text:properties.name || 'Unnamed site'"></span>
-                    </label>
-
+                <label>
+                    <input type="text" style="width: 90%" data-bind="value:properties.name || 'Unnamed site'">
+                </label>
                     <div class="btn-container">
                         <button class="btn" data-bind="click:$root.deleteFeature"><i
                                 class="fa fa-remove"></i>
@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <div data-bind="attr:{id:'sites-category-'+$index()}" class="accordion-body collapse in">
+                <div data-bind="attr:{id:'sites-category-'+$index()}" class="accordion-body collapse in" style="display: none">
                     <div class="accordion-inner">
                         <ul class="sites-category unstyled" data-bind="foreach:features">
                             <li class="clearfix site-label"
