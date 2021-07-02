@@ -871,7 +871,6 @@ function orEmptyArray(v) {
         };
 
         self.getRank = function(inputValue){
-            console.log("value to change : ", inputValue)
             var rank;
             if (inputValue.indexOf('(') > 0) {
                 if (inputValue.indexOf('(') == inputValue.lastIndexOf('(')) {
@@ -882,7 +881,6 @@ function orEmptyArray(v) {
                     if (rank) inputValue = rank;
                 }
             }
-            console.log("value changed : ", inputValue)
 
             return inputValue;
         }
