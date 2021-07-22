@@ -346,6 +346,40 @@
         }
     };
 
+    var checkForDuplicate = function(){
+        var speciesField = this;
+        var speciesName = this.value;
+        var table = $(".observations");
+        var rows = table.find('tr');
+        /*Loop through all table rows (except the
+        first, which contains table headers):*/
+        for (i = 1; i < (rows.length - 2); i++) {
+            var message = speciesName + " har redan lagts till. Är du säker på att du vill lägga till det igen?";
+            if (rows[i].getElementsByTagName("input")[0].value == speciesName){
+                bootbox.confirm({
+                    message: message,
+                    buttons: {
+                        confirm: {
+                            label: 'Ja',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: 'Nej',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (!result){
+                            speciesField.value = "";
+                        } else {
+                            rows[i].getElementsByTagName("input")[0].style.color = "red";
+                        }
+                    }
+                });
+            }
+        }
+    } 
+
     ko.bindingHandlers.speciesAutocomplete = {
         init: function (element, params, allBindings, viewModel, bindingContext) {
             var param = params();
@@ -397,6 +431,11 @@
                     }
                 }
                 result += '</a>';
+
+                document.querySelectorAll("input.ui-autocomplete-input")
+                        .forEach(function(it){ 
+                            it.addEventListener("blur", checkForDuplicate);
+                        })
                 return result;
             };
 
@@ -1015,7 +1054,7 @@
         target.globalConfig = config;
     };
 
-    /**
+    /**index
      * The writableComputed extender will continuously update the value of an observable from a supplied expression
      * until such time as the value is explicitly set (for example by the user typing something into the field).
      * @param target
