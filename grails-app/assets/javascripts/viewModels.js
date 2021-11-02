@@ -299,7 +299,6 @@ function enmapify(args) {
 
         var markerLocation = null;
         var markerLocations = map.getMarkerLocations();
-        console.log("markerLocations", markerLocations);
         if (markerLocations && markerLocations.length > 0) {
             markerLocation = markerLocations[0];
         }
@@ -307,8 +306,6 @@ function enmapify(args) {
         var geo = map.getGeoJSON();
         var numberOfFeatures = map.countFeatures();
         var feature;
-        console.log("geo.features.length" , geo.features.length); //what is on the map - if map not cleaned then too many
-        console.log("numberOfFeatures", numberOfFeatures); //same as above
 
         // When removing layers, events can also be fired, we want to avoid processing those
         // otherwise we could override the siteId
@@ -319,7 +316,6 @@ function enmapify(args) {
             if (!isRemoveEvent) {
 
                 siteSubscriber.dispose();
-                console.log("Updating location fields to pin");
                 //siteIdObservable(null);
                 latObservable(markerLocation.lat);
                 lonObservable(markerLocation.lng);
@@ -333,10 +329,8 @@ function enmapify(args) {
             }
 
         } else if (geo && geo.features && geo.features.length > 0) {
-            console.log("Updating location fields to site");
             //latLonDisabledObservable(true);
             feature = geo.features[0];
-            console.log("feature ", feature)
             if (feature.geometry.type == 'Point'){
                 //circle is also a point
                 if (feature.properties.point_type=="Circle"){
@@ -365,7 +359,6 @@ function enmapify(args) {
             // AJAX request is complete. Therefore, wait for the AJAX to complete. And, do not clear any fields.
         }
         else {
-            console.log("Clearing location fields");
             //latLonDisabledObservable(false);
             previousLatObservable(null);
             previousLonObservable(null);
@@ -468,13 +461,11 @@ function enmapify(args) {
             }
             // TODO: OPTIMISE THE PROCEDUE
             if (matchingSite) {
-                console.log("Clearing map before displaying a new shape")
                 map.clearBoundLimits();
                 var transectParts = matchingSite.transectParts;
                 if (transectParts == undefined || transectParts.length < 1){
                     map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
                 } else {
-                    console.log("via ecodata client plugin");
                     var transect = {"type": "FeatureCollection", "features": []}
                     for (var n = 0; n < transectParts.length; n++){
                         var feature = {"type": "Feature", "geometry": transectParts[n].geometry, "properties": {"popupContent": transectParts[n].name}}; 
@@ -514,7 +505,6 @@ function enmapify(args) {
 
     function updateMarkerPosition() {
         if (shouldMarkerMove()) {
-            console.log("Enmapify: Displaying new marker");
             map.addMarker(latObservable(), lonObservable());
             previousLatObservable(latObservable());
             previousLonObservable(lonObservable());
@@ -591,7 +581,6 @@ function enmapify(args) {
 
     //Listen mylocation and search events from the map plugin
     map.registerListener("searchEventFired", function (e) {
-        console.log('Received search event');
         if (addCreatedSiteToListOfSelectedSites)
             createPublicSite();
         else
@@ -601,7 +590,6 @@ function enmapify(args) {
     // make sure the lat/lng fields are cleared when the marker is removed by cancelling a new marker
 
     map.registerListener("draw:created", function (e) {
-        console.log("draw created");
         var type = e.layerType,
             layer = e.layer;
 
