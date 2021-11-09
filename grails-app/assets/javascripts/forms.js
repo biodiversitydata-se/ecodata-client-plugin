@@ -362,7 +362,7 @@ function orEmptyArray(v) {
             return ''.concat(result);
         }
 
-        function countInRow(numbers) {
+        function countNonZeroValuesInRow(numbers) {
             var count = 0;
             numbers.forEach(function(it){
                 count = it > 0 ? count+1 : count;
@@ -374,7 +374,7 @@ function orEmptyArray(v) {
             evaluate: evaluateNumber,
             evaluateBoolean: evaluateBoolean,
             evaluateString: evaluateString, 
-            countInRow: countInRow
+            countNonZeroValuesInRow: countNonZeroValuesInRow
         }
 
     }();

@@ -57,8 +57,8 @@ class ComputedValueRenderer {
                 checkNumberness << "isNaN(Number(${path}.${ref}()))"
             }
             out << INDENT * 6 << "if (" + checkNumberness.join(' || ') + ") { return 0; }\n"
-            if (model.computed.operation == 'countInRow') {
-                out << "return ecodata.forms.expressionEvaluator.countInRow(${numbers})"
+            if (model.computed.operation == 'countNonZeroValuesInRow') {
+                out << "return ecodata.forms.expressionEvaluator.countNonZeroValuesInRow(${numbers})"
             } else {
                 if (model.computed.operation == 'divide') {
                     // can't divide by zero
