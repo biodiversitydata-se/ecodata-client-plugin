@@ -57,15 +57,19 @@ class ComputedValueRenderer {
                 checkNumberness << "isNaN(Number(${path}.${ref}()))"
             }
             out << INDENT * 6 << "if (" + checkNumberness.join(' || ') + ") { return 0; }\n"
-            if (model.computed.operation == 'divide') {
-                // can't divide by zero
-                out << INDENT * 6 << "if (${numbers[-1]} === 0) { return 0; }\n"
+            if (model.computed.operation == 'countInRow') {
+                out << "return ecodata.forms.expressionEvaluator.countInRow(${numbers})"
+            } else {
+                if (model.computed.operation == 'divide') {
+                    // can't divide by zero
+                    out << INDENT * 6 << "if (${numbers[-1]} === 0) { return 0; }\n"
+                }
+                def expression = numbers.join(" ${operators[model.computed.operation]} ")
+                if (model.computed.rounding) {
+                    expression = "neat_number(${expression},${model.computed.rounding})"
+                }
+                out << INDENT * 6 << "return " + expression + ";\n"
             }
-            def expression = numbers.join(" ${operators[model.computed.operation]} ")
-            if (model.computed.rounding) {
-                expression = "neat_number(${expression},${model.computed.rounding})"
-            }
-            out << INDENT * 6 << "return " + expression + ";\n"
         }
         out << INDENT * 5 << "});\n"
 

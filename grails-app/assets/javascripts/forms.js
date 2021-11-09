@@ -362,10 +362,19 @@ function orEmptyArray(v) {
             return ''.concat(result);
         }
 
+        function countInRow(numbers) {
+            var count = 0;
+            numbers.forEach(function(it){
+                count = it > 0 ? count+1 : count;
+            });
+            return count;
+        }
+
         return {
             evaluate: evaluateNumber,
             evaluateBoolean: evaluateBoolean,
-            evaluateString: evaluateString
+            evaluateString: evaluateString, 
+            countInRow: countInRow
         }
 
     }();
