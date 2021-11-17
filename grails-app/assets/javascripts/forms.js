@@ -215,6 +215,20 @@ function orEmptyArray(v) {
         };
 
         /**
+         * 
+         * @param {*} list - the whole output
+         * @param {*} expression - which operation should be performed
+         * @returns integer - total count of non-zero values in the specified column
+         */
+        parser.functions.countNonZeroValuesInColumn = function(list, expression) {
+            function countNonZeroValuesInColumn(val1, val2){
+                val1 = val2 > 0 ? val1 + 1 : val1;
+                return val1;
+            }
+            return arrayFunction(list, expression, countNonZeroValuesInColumn, 0);
+        };
+
+        /**
          * Returns true if the number value1 is within tolerance*value2 of value2.
          */
         parser.functions.within = function(value1, value2, tolerance) {
