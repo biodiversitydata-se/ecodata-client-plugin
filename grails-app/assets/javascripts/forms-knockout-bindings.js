@@ -346,42 +346,39 @@
         }
     };
 
-    // var checkForDuplicate = function(){
-    //     var speciesField = this;
-    //     var speciesName = this.value;
-    //     var table = $(".observations");
-    //     var rows = table.find('tr');
-    //     /*Loop through all table rows (except the
-    //     first, which contains table headers):*/
-    //     var speciesInTable = [];
-    //     rows.each(function(it){
-    //         speciesInTable.push(it.getElementsByTagName("input")[0].value);
-    //     });
-    //     debugger;
-    //     if (speciesInTable.filter(function(it) {return it == speciesName}).length > 1){
-    //         var message = speciesName + " har redan lagts till. Är du säker på att du vill lägga till det igen?";
-    //         bootbox.confirm({
-    //             message: message,
-    //             buttons: {
-    //                 confirm: {
-    //                     label: 'Ja',
-    //                     className: 'btn-success'
-    //                 },
-    //                 cancel: {
-    //                     label: 'Nej',
-    //                     className: 'btn-danger'
-    //                 }
-    //             },
-    //             callback: function (result) {
-    //                 if (!result){
-    //                     speciesField.value = "";
-    //                 } else {
-    //                     this.style.border = "solid 2px red";
-    //                 }
-    //             }
-    //         });
-    //     }
-    // } 
+    var checkForDuplicate = function(){
+        var speciesField = this;
+        var speciesName = this.value;
+        var speciesInTable = [];
+        var rows = document.querySelectorAll("table.observations tbody > tr");
+        rows.forEach(function(row){
+            speciesInTable.push(row.querySelector(".ui-autocomplete-input").value)
+        });
+
+        if (speciesInTable.filter(function(it) {return it == speciesName}).length > 1){
+            var message = speciesName + " har redan lagts till. Är du säker på att du vill lägga till det igen?";
+            bootbox.confirm({
+                message: message,
+                buttons: {
+                    confirm: {
+                        label: 'Ja',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Nej',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (!result){
+                        speciesField.value = "";
+                    } else {
+                        speciesField.style.border = "solid 2px red";
+                    }
+                }
+            });
+        }
+    } 
 
     ko.bindingHandlers.speciesAutocomplete = {
         init: function (element, params, allBindings, viewModel, bindingContext) {
@@ -435,10 +432,10 @@
                 }
                 result += '</a>';
 
-                // document.querySelectorAll("input.ui-autocomplete-input")
-                //         .forEach(function(it){ 
-                //             it.addEventListener("blur", checkForDuplicate);
-                //         })
+                document.querySelectorAll("input.ui-autocomplete-input")
+                        .forEach(function(it){ 
+                            it.addEventListener("blur", checkForDuplicate);
+                        })
                 return result;
             };
 
