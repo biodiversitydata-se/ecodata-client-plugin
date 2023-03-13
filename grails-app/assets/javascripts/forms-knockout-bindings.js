@@ -410,7 +410,8 @@
                 }
                 // We are keeping track of list headers so we only render each one once.
                 lastHeader = title;
-                result+='<a class="speciesAutocompleteRow">';
+                // LU: do not add the link if unmatched
+                //result+='<a class="speciesAutocompleteRow">';
                 if (row.listId && row.listId === 'unmatched') {
                     result += '<i>Ej listad eller okänd art</i>';
                 }
@@ -418,6 +419,8 @@
                     result += '<i>Offline</i><div>Art:<b>'+row.name+'</b></div>';
                 }
                 else {
+                    // LU: add the link only if matched
+                    result+='<a class="speciesAutocompleteRow">';
 
                     var commonNameMatches = row.commonNameMatches !== undefined ? row.commonNameMatches : "";
 
@@ -429,8 +432,11 @@
                     } else {
                         result = result + "<div class='autoLine2'>" + row.name + "</div>";
                     }
+
+                    // add the link only if matched
+                    result += '</a>';
                 }
-                result += '</a>';
+                //result += '</a>';
 
                 document.querySelectorAll("input.ui-autocomplete-input")
                         .forEach(function(it){ 
