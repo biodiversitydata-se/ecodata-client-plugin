@@ -9,10 +9,11 @@
                                                                                    alt="saving icon"/></span>
     </div>
     <input type="text" class="form-control form-control-sm speciesInputTemplates" data-bind="${databindAttrs}" ${validationAttrs}/>
-    <div class="input-group-append">
+    <%-- // At LU no one wants the info icon that has more species info coming from somewhere else --%>
+    <%-- <div class="input-group-append">
         <span class="input-group-text" data-bind="visible: !transients.editing() && name()">
             <a data-bind="popover: {title: name, content: transients.speciesInformation}"><i class="fa fa-info-circle"></i></a>
-        </span>
+        </span> --%>
     </div>
 
 </div>

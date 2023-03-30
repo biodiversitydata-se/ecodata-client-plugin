@@ -22,7 +22,7 @@
 function enmapify(args) {
     "use strict";
 
-    var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate';
+    var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate', SITE_CREATE_SYSTEMATIC = 'sitecreatesystematic';
     var viewModel = args.viewModel,
         container = args.container,
         validationContainer = args.validationContainer || '#validation-container',
@@ -50,7 +50,7 @@ function enmapify(args) {
         pointsOnly = allowPoints && !allowPolygons,
         polygonsOnly = !allowPoints && allowPolygons,
         addCreatedSiteToListOfSelectedSites = ((mapConfiguration.surveySiteOption == SITE_PICK_CREATE) && mapConfiguration.addCreatedSiteToListOfSelectedSites) || false,
-        selectFromSitesOnly = viewModel.selectFromSitesOnly= mapConfiguration.surveySiteOption == SITE_PICK ? true : false,
+        selectFromSitesOnly = viewModel.selectFromSitesOnly= mapConfiguration.surveySiteOption == SITE_PICK || SITE_CREATE_SYSTEMATIC ? true : false,
 
 
         siteIdObservable =activityLevelData.siteId = container[name] = ko.observable(),
@@ -76,14 +76,17 @@ function enmapify(args) {
             if (!siteId ) {
                 var msg;
                 switch (mapConfiguration.surveySiteOption) {
+                    case SITE_CREATE_SYSTEMATIC:
+                        msg = "Du måste ange var dina observationer gjorts. Välj en lokal från menyn ovan";
+                        break; 
                     case SITE_CREATE:
-                        msg = "A location is mandatory. Please draw a location on the below map.";
+                        msg = "Du måste ange var dina observationer gjorts. Välj en lokal från menyn ovan";
                         break;
                     case SITE_PICK:
-                        msg = "A location is mandatory. Please pick a location from the above drop down list.";
+                        msg = "Du måste ange var dina observationer gjorts. Välj en lokal från menyn ovan";
                         break;
                     case SITE_PICK_CREATE:
-                        msg = "A location is mandatory. Please pick a location from the above drop down list or draw on the below map.";
+                        msg = "Du måste ange var dina observationer gjorts. Välj en lokal från menyn ovan";
                         break;
                 }
 
@@ -118,48 +121,28 @@ function enmapify(args) {
         var lat = latObservableStaged(),
             lng = lonObservableStaged();
 
-        if(isLatitudeValid(lat) && isLongitudeValid(lng) ) {
-            canAddPointToMap(lat, lng, function (response) {
-                if (response.isPointInsideProjectArea) {
-                    addPointToMap(lat, lng);
+        canAddPointToMap(lat, lng, function (response) {
+            if (response.isPointInsideProjectArea) {
+                addPointToMap(lat, lng);
+            } else {
+                var message;
+                if (response.address) {
+                    message = 'The coordinates are outside the project area.<br/>' +
+                    'Address of the location is "' + response.address + '".<br/>' +
+                    'Do you wish to add it anyway?';
                 } else {
-                    var message;
-                    if (response.address) {
-                        message = 'The coordinates are outside the project area.<br/>' +
-                            'Address of the location is "' + response.address + '".<br/>' +
-                            'Do you wish to add it anyway?';
-                    } else {
-                        message = 'The coordinates are outside the project area.<br/>' +
-                            'Do you wish to add it anyway?';
-                    }
-
-                    bootbox.confirm( message, function (result) {
-                        if (result) {
-                            addPointToMap(lat, lng);
-                        }
-                    });
+                    message = 'The coordinates are outside the project area.<br/>' +
+                        'Do you wish to add it anyway?';
                 }
-            });
-        } else {
-            bootbox.alert("Latitude or longitude is invalid.");
-        }
+
+                bootbox.confirm( message, function (result) {
+                    if (result) {
+                        addPointToMap(lat, lng);
+                    }
+                });
+            }
+        });
     };
-
-    function isLatitudeValid (lat) {
-        if (typeof lat === "string") {
-            lat = parseFloat(lat);
-        }
-
-        return (lat >= -90) && (lat <= 90);
-    }
-
-    function isLongitudeValid (lng) {
-        if (typeof lng === "string") {
-            lng = parseFloat(lng);
-        }
-
-        return (lng >= -180) && (lng <= 180);
-    }
 
     function addPointToMap(lat, lng) {
         if (lat && lng) {
@@ -190,7 +173,7 @@ function enmapify(args) {
     }
 
     viewModel.transients.hideSiteSelection = ko.computed(function () {
-        if (mapConfiguration && ([SITE_PICK, SITE_PICK_CREATE].indexOf(mapConfiguration.surveySiteOption) >= 0)) {
+        if (mapConfiguration && ([SITE_PICK, SITE_PICK_CREATE, SITE_CREATE_SYSTEMATIC].indexOf(mapConfiguration.surveySiteOption) >= 0)) {
             return true;
         }
 
@@ -333,7 +316,6 @@ function enmapify(args) {
             if (!isRemoveEvent) {
 
                 siteSubscriber.dispose();
-                console.log("Updating location fields to pin");
                 //siteIdObservable(null);
                 latObservable(markerLocation.lat);
                 lonObservable(markerLocation.lng);
@@ -347,7 +329,6 @@ function enmapify(args) {
             }
 
         } else if (geo && geo.features && geo.features.length > 0) {
-            console.log("Updating location fields to site");
             //latLonDisabledObservable(true);
             feature = geo.features[0];
             if (feature.geometry.type == 'Point'){
@@ -378,7 +359,6 @@ function enmapify(args) {
             // AJAX request is complete. Therefore, wait for the AJAX to complete. And, do not clear any fields.
         }
         else {
-            console.log("Clearing location fields");
             //latLonDisabledObservable(false);
             previousLatObservable(null);
             previousLonObservable(null);
@@ -481,9 +461,19 @@ function enmapify(args) {
             }
             // TODO: OPTIMISE THE PROCEDUE
             if (matchingSite) {
-                console.log("Clearing map before displaying a new shape")
                 map.clearBoundLimits();
-                map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
+                var transectParts = matchingSite.transectParts;
+                if (transectParts == undefined || transectParts.length < 1){
+                    map.setGeoJSON(Biocollect.MapUtilities.featureToValidGeoJson(matchingSite.extent.geometry));
+                } else {
+                    var transect = {"type": "FeatureCollection", "features": []}
+                    for (var n = 0; n < transectParts.length; n++){
+                        var feature = {"type": "Feature", "geometry": transectParts[n].geometry, "properties": {"popupContent": transectParts[n].name}}; 
+                        transect.features[n] = feature;
+                    }
+                    var layerOptions = {"singleDraw": false, "markerOrShapeNotBoth": false}
+                    map.setTransectFromGeoJSON(JSON.stringify(transect), layerOptions, true);
+                }
             }
         } else {
             // Keep the previous code to make compatible with old records
@@ -515,7 +505,6 @@ function enmapify(args) {
 
     function updateMarkerPosition() {
         if (shouldMarkerMove()) {
-            console.log("Enmapify: Displaying new marker");
             map.addMarker(latObservable(), lonObservable());
             previousLatObservable(latObservable());
             previousLonObservable(lonObservable());
@@ -592,7 +581,6 @@ function enmapify(args) {
 
     //Listen mylocation and search events from the map plugin
     map.registerListener("searchEventFired", function (e) {
-        console.log('Received search event');
         if (addCreatedSiteToListOfSelectedSites)
             createPublicSite();
         else
@@ -602,7 +590,6 @@ function enmapify(args) {
     // make sure the lat/lng fields are cleared when the marker is removed by cancelling a new marker
 
     map.registerListener("draw:created", function (e) {
-        console.log("draw created");
         var type = e.layerType,
             layer = e.layer;
 
@@ -1043,7 +1030,7 @@ var EnmapifyUtils = {
      * @returns {{polygon: boolean, edit: boolean, marker: boolean, rectangle: boolean, circle: boolean, polyline: boolean}}
      */
     getMapOptions : function getMapOptions (activityLevelData, readonly, allowPolygons, allowPoints, allowLine, surveySiteOption) {
-        var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate';
+        var SITE_CREATE = 'sitecreate', SITE_PICK = 'sitepick', SITE_PICK_CREATE = 'sitepickcreate', SITE_CREATE_SYSTEMATIC = 'sitecreatesystematic';
         if (activityLevelData.mobile || readonly) {
             return {
                 polyline: false,
@@ -1057,7 +1044,7 @@ var EnmapifyUtils = {
         };
 
         switch (surveySiteOption) {
-            case SITE_PICK:
+            case SITE_PICK || SITE_CREATE_SYSTEMATIC:
                 return {
                     polyline: false,
                     polygon: false,

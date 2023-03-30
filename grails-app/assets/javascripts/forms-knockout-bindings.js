@@ -346,6 +346,40 @@
         }
     };
 
+    var checkForDuplicate = function(){
+        var speciesField = this;
+        var speciesName = this.value;
+        var speciesInTable = [];
+        var rows = document.querySelectorAll("table.observations tbody > tr");
+        rows.forEach(function(row){
+            speciesInTable.push(row.querySelector(".ui-autocomplete-input").value)
+        });
+
+        if (speciesInTable.filter(function(it) {return it == speciesName}).length > 1){
+            var message = speciesName + " har redan lagts till. Är du säker på att du vill lägga till det igen?";
+            bootbox.confirm({
+                message: message,
+                buttons: {
+                    confirm: {
+                        label: 'Ja',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Nej',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (!result){
+                        speciesField.value = "";
+                    } else {
+                        speciesField.style.border = "solid 2px red";
+                    }
+                }
+            });
+        }
+    } 
+
     ko.bindingHandlers.speciesAutocomplete = {
         init: function (element, params, allBindings, viewModel, bindingContext) {
             var param = params();
@@ -363,7 +397,9 @@
                 if (!listId) {
                     return 'Atlas of Living Australia';
                 }
-                return 'Species List';
+                // for LU don't print the word 'Artlista'
+                // return 'Artlista';
+                return '';
             }
             var renderItem = function(row) {
 
@@ -374,14 +410,17 @@
                 }
                 // We are keeping track of list headers so we only render each one once.
                 lastHeader = title;
-                result+='<a class="speciesAutocompleteRow">';
+                // LU: do not add the link if unmatched
+                //result+='<a class="speciesAutocompleteRow">';
                 if (row.listId && row.listId === 'unmatched') {
-                    result += '<i>Unlisted or unknown species</i>';
+                    result += '<i>Ej listad eller okänd art</i>';
                 }
                 else if (row.listId && row.listId === 'error-unmatched') {
-                    result += '<i>Offline</i><div>Species:<b>'+row.name+'</b></div>';
+                    result += '<i>Offline</i><div>Art:<b>'+row.name+'</b></div>';
                 }
                 else {
+                    // LU: add the link only if matched
+                    result+='<a class="speciesAutocompleteRow">';
 
                     var commonNameMatches = row.commonNameMatches !== undefined ? row.commonNameMatches : "";
 
@@ -393,8 +432,16 @@
                     } else {
                         result = result + "<div class='autoLine2'>" + row.name + "</div>";
                     }
+
+                    // add the link only if matched
+                    result += '</a>';
                 }
-                result += '</a>';
+                //result += '</a>';
+
+                document.querySelectorAll("input.ui-autocomplete-input")
+                        .forEach(function(it){ 
+                            it.addEventListener("blur", checkForDuplicate);
+                        })
                 return result;
             };
 
@@ -1036,7 +1083,7 @@
         target.globalConfig = config;
     };
 
-    /**
+    /**index
      * The writableComputed extender will continuously update the value of an observable from a supplied expression
      * until such time as the value is explicitly set (for example by the user typing something into the field).
      * @param target

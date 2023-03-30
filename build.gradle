@@ -37,7 +37,7 @@ repositories {
     maven { url "https://nexus.ala.org.au/content/groups/public/" }
 }
 
-boolean inplace = false
+boolean inplace = true
 
 configurations {
     developmentOnly

@@ -215,6 +215,20 @@ function orEmptyArray(v) {
         };
 
         /**
+         * 
+         * @param {*} list - the whole output
+         * @param {*} expression - which operation should be performed
+         * @returns integer - total count of non-zero values in the specified column
+         */
+        parser.functions.countNonZeroValuesInColumn = function(list, expression) {
+            function countNonZeroValuesInColumn(val1, val2){
+                val1 = val2 > 0 ? val1 + 1 : val1;
+                return val1;
+            }
+            return arrayFunction(list, expression, countNonZeroValuesInColumn, 0);
+        };
+
+        /**
          * Returns true if the number value1 is within tolerance*value2 of value2.
          */
         parser.functions.within = function(value1, value2, tolerance) {
@@ -347,8 +361,9 @@ function orEmptyArray(v) {
                 }
 
             }
-
-            return result;
+            // have to change this because of kustfaglar scheme - it should be a string but for kustfaglar 
+            // because it uses a default compted value, it has to be a number. otherwise records aren't saved
+            return numericResult ? numericResult : result;
         }
 
         function evaluateBoolean(expression, context) {
@@ -361,10 +376,19 @@ function orEmptyArray(v) {
             return ''.concat(result);
         }
 
+        function countNonZeroValuesInRow(numbers) {
+            var count = 0;
+            numbers.forEach(function(it){
+                count = it > 0 ? count+1 : count;
+            });
+            return count;
+        }
+
         return {
             evaluate: evaluateNumber,
             evaluateBoolean: evaluateBoolean,
-            evaluateString: evaluateString
+            evaluateString: evaluateString, 
+            countNonZeroValuesInRow: countNonZeroValuesInRow
         }
 
     }();
@@ -856,6 +880,9 @@ function orEmptyArray(v) {
         self.addRow = function (data) {
             var newItem = self.newItem(data, self.rowCount());
             self.push(newItem);
+            $("td > input").click(function(){$("[data-bind='" + this.getAttribute("data-bind") + "']").css("background" , "#ffa")});
+            $("td > input").blur(function(){$("[data-bind='" + this.getAttribute("data-bind") + "']").css("background" , "white")});
+            self.sortBySpeciesRank();          
         };
         self.newItem = function (data, index) {
             var itemDataModel = _.indexBy(dataModel[listName].columns, 'name');
@@ -868,6 +895,107 @@ function orEmptyArray(v) {
         self.rowCount = function () {
             return self().length;
         };
+
+        self.getRank = function(inputValue){
+            var rank;
+            if (inputValue.indexOf('(') > 0) {
+                if (inputValue.indexOf('(') == inputValue.lastIndexOf('(')) {
+                    rank = parseInt(inputValue.slice(inputValue.indexOf('(') + 1, inputValue.indexOf(')')));
+                    if (rank) inputValue = rank; 
+                } else {
+                    rank = parseInt(inputValue.slice(inputValue.lastIndexOf('(') + 1, inputValue.lastIndexOf(')')));
+                    if (rank) inputValue = rank;
+                }
+            }
+
+            return inputValue;
+        }
+
+        self.sortBySpeciesRank = function(){
+            var table, rows, switching, i, speciesRank, nextSpeciesRank, shouldSwitch, tableClass;
+            tableClass = "." + context.listName
+            table = document.querySelector("table.observations tbody");
+            switching = true;
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.querySelectorAll("tr");
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 0; i < (rows.length - 1); i++) {
+
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    speciesRank = self.getRank(rows[i].getElementsByTagName("input")[1].value);
+                    nextSpeciesRank = self.getRank(rows[i + 1].getElementsByTagName("input")[1].value);
+
+                    // check if the species name displayed in the input field has a rank - SFT-specific
+                    // it's a workaround not to modify the lists module, the scientificName field has to be matched with the rank column
+                    // the default display configured in syrvey configuration should be commonName (scientificName)
+                
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+
+                    if (typeof speciesRank != "number"){
+                        speciesRank = parseInt(rows[i].getElementsByTagName("td")[1].firstElementChild.value);
+                        nextSpeciesRank = parseInt(rows[i + 1].getElementsByTagName("td")[1].firstElementChild.value);
+                    }
+                    //check if the two rows should switch place:
+                    if (speciesRank > nextSpeciesRank) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+
+        self.sortBySpeciesName = function(){
+            var table, rows, switching, i, speciesName, nextSpeciesName, shouldSwitch, tableClass;
+            tableClass = "." + context.listName
+            table = $(tableClass);
+            switching = true;
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.find('tr');
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 2); i++) {
+
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    speciesName = rows[i].getElementsByTagName("input")[0].value;
+                    nextSpeciesName = rows[i + 1].getElementsByTagName("input")[0].value;
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+
+                    //check if the two rows should switch place:
+                    if (speciesName > nextSpeciesName) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+
         self.appendTableRows = ko.observable(userAddedRows);
         self.tableDataUploadVisible = ko.observable(false);
         self.showTableDataUpload = function () {

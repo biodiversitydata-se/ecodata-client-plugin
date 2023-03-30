@@ -1,7 +1,13 @@
 <g:if test="${name}">
 <tr data-bind="visible:${property}.allowUserAddedRows || ${property}.showTableDataUpload()">
     <td colspan="${colCount}" style="text-align:left;">
-        <button type="button" class="btn btn-primary-dark btn-sm" data-bind="visible:${property}.allowUserAddedRows, click:${property}.addRow"><i class="fa fa-plus"></i> ${addRowText ?: "Add a row"} </button>
+        <button type="button" class="btn btn-primary-dark btn-sm" data-bind="visible:${property}.allowUserAddedRows, click:${property}.addRow"><i class="fa fa-plus"></i> ${addRowText ?: message(code: "table.addRow")} </button>
+        <button type="button" class="btn btn-small" data-bind="click:${property}.sortBySpeciesRank">
+            <i class="fa fa-sort"></i> ${message(code: "table.sortByRank")}
+        </button> 
+        <button type="button" class="btn btn-small" data-bind="click:${property}.sortBySpeciesName">
+            <i class="fa fa-sort"></i> ${message(code: "table.sortBySpeciesName")}
+        </button>
         <g:if test="${!disableTableUpload}">
             <button type="button" class="btn btn-sm" data-bind="click:${property}.showTableDataUpload"><i class="fa fa-upload"></i> ${uploadDataText ?: "Upload data for this table"} </button>
          </g:if>

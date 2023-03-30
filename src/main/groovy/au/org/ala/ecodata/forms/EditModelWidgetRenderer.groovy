@@ -114,7 +114,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
         context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
 
-        context.databindAttrs.add 'optionsCaption', '"Please select"'
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         context.attributes.addSpan("form-control form-control-sm")
 
         context.writer <<  "<select${context.attributes.toString()} class=\"select form-control form-control-sm\" data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
@@ -126,7 +126,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         // Select one or many view types require that the data model has defined a set of valid options
         // to select from.
         context.databindAttrs.add 'options', context.source + '.constraints'
-        context.databindAttrs.add 'optionsCaption', '""'
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
         context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
 
@@ -151,6 +151,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
         context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
 
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         String options = "{value: ${context.source}, tags:true, allowClear:false}"
         if (context.model.displayOptions) {
             options = "_.extend({value:${context.source}}, ${context.source}.displayOptions)"
@@ -200,7 +201,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderSelectManyCombo(WidgetRenderContext context) {
         context.databindAttrs.add 'options', 'transients.' + context.model.source + 'Constraints'
-        context.databindAttrs.add 'optionsCaption', '"Please select"'
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         context.databindAttrs.add 'event', '{ change: selectManyCombo}'
 
         context.writer <<  "<select${context.attributes.toString()} comboList='${context.source}' data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select>"
@@ -218,7 +219,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
     @Override
     void renderWordCloud(WidgetRenderContext context) {
         context.databindAttrs.add 'options', "${context.source}.constraints"
-        context.databindAttrs.add 'optionsCaption', '"Please select"'
+        context.databindAttrs.add 'optionsCaption', '"Välj"'
         context.databindAttrs.add 'value', "${context.source}.addWord"
 
         context.writer <<  "<div class='row'><div class='col-sm-6'><select${context.attributes.toString()} class='form-control' comboList='${context.source}' data-bind='${context.databindAttrs.toString()}'${context.validationAttr}></select></div>"
@@ -358,9 +359,10 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.writer << """<div${context.attributes.toString()}>
                                 <div data-bind="with:${context.source}" class="input-group"">
                                 <select class="form-control form-control-sm" data-bind="speciesSelect2:\$data" ${context.validationAttr}></select>
-                                <div class="input-group-append">
-                                    <span class="input-group-text" data-bind="visible:name(), popover: {title: transients.speciesTitle, content: transients.speciesInformation}"><i class="fa fa-info-circle"></i></span>
-                                </div>
+                                // At LU no one wants the info icon that has more species info coming from somewhere else
+                                //<div class="input-group-append">
+                                    //<span class="input-group-text" data-bind="visible:name(), popover: {title: transients.speciesTitle, content: transients.speciesInformation}"><i class="fa fa-info-circle"></i></span>
+                                //</div>
                              </div></div>"""
     }
 
