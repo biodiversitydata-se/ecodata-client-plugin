@@ -151,7 +151,7 @@ public class EditModelWidgetRenderer implements ModelWidgetRenderer {
         context.databindAttrs.add 'optionsValue', context.source + '.constraints.value'
         context.databindAttrs.add 'optionsText', context.source + '.constraints.text'
 
-        context.databindAttrs.add 'optionsCaption', '"Välj"'
+        //context.databindAttrs.add 'optionsCaption', '"Välj"'
         String options = "{value: ${context.source}, tags:true, allowClear:false}"
         if (context.model.displayOptions) {
             options = "_.extend({value:${context.source}}, ${context.source}.displayOptions)"
