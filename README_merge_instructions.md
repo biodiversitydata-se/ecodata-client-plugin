@@ -15,7 +15,31 @@ git checkout lusm-main
 
 
 then decide which branch the erge will take place :
-git checkout merge_alamaster_230323
+git checkout merge_alamaster_230330
 
 and then merge 
-git merge lusm-grails4-master-test
+git merge lusm-main
+
+
+
+commenter une ligne dans 
+src/main/groovy/au/org/ala/ecodata/forms/EditModelWidgetRenderer.groovy
+
+
+sdk use grails 4.0.10
+java 11
+
+grails test-app to pass at leasst the first tests
+then fails on integration tests (29 ok 29 fails)
+apreil sur la précédente version
+
+grails run-app should work
+
+
+
+
+to use it as a dependency, things should be changed to be used by grails 5
+compile => implementation
+provided => compileOnly
+testRuntime => testRuntimeOnly
+testCompile => testImplementation
