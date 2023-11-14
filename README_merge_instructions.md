@@ -43,3 +43,6 @@ compile => implementation
 provided => compileOnly
 testRuntime => testRuntimeOnly
 testCompile => testImplementation
+
+
+delete grails-app/conf/logback.groovy
