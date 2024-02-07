@@ -356,6 +356,12 @@
         });
 
         if (speciesInTable.filter(function(it) {return it == speciesName}).length > 1){
+
+            // Now it's forbidden to add the same species in a new row.
+            var message = speciesName + " finns redan inlagd i denna sektion av protokollet. Det går inte att lägga till den här igen!";
+            alert(message);
+            speciesField.value = "";
+            /*
             var message = speciesName + " har redan lagts till. Är du säker på att du vill lägga till det igen?";
             bootbox.confirm({
                 message: message,
@@ -377,6 +383,7 @@
                     }
                 }
             });
+            */
         }
     } 
 
