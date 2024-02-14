@@ -346,11 +346,14 @@
         }
     };
 
-    var checkForDuplicate = function(){
+    var checkForDuplicate = function(tableClass){
         var speciesField = this;
         var speciesName = this.value;
         var speciesInTable = [];
-        var rows = document.querySelectorAll("table.observations tbody > tr");
+        var classSpeciesList = "observations"; // default value
+        if (typeof this.classSpeciesList !== 'undefined') classSpeciesList=this.classSpeciesList;
+
+        var rows = document.querySelectorAll("table."+classSpeciesList+" tbody > tr");
         rows.forEach(function(row){
             speciesInTable.push(row.querySelector(".ui-autocomplete-input").value)
         });
@@ -445,9 +448,19 @@
                 }
                 //result += '</a>';
 
+
+                // LU get the class of the parent table, to check the duplicate 
+                var tableClass='observations';
+                if (element.closest('table').classList.contains("youngOwlObservations")) tableClass="youngOwlObservations";
+                else if (element.closest('table').classList.contains("mammalObservations")) tableClass="mammalObservations"; 
+                else if (element.closest('table').classList.contains("mammalObservationsOnRoad")) tableClass="mammalObservationsOnRoad"; 
+                else if (element.closest('table').classList.contains("amphibianObservations")) tableClass="amphibianObservations"; 
+
                 document.querySelectorAll("input.ui-autocomplete-input")
                         .forEach(function(it){ 
                             it.addEventListener("blur", checkForDuplicate);
+                            // LU store the species list
+                            it.classSpeciesList=tableClass;
                         })
                 return result;
             };
