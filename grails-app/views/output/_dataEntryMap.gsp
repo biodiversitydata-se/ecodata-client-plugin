@@ -6,10 +6,10 @@
 <g:set var="orientationMainClass" value="${isHorizontal ? 'row mx-1' : ''}"/>
 
 <h4 data-validation-engine="validate[funcCall[validator_site_check]" data-prompt-position="inline" data-position-type="inline" data-prompt-target="error-info">
-    <g:message code="geomap.heading" default="Location"/>
-    <g:if test="${!readonly}">
+    <g:message default="Lokal"/>
+    <%-- <g:if test="${!readonly}">
         <span class="req-field"></span>
-    </g:if>
+    </g:if> --%>
 </h4>
 <div class="${orientationMainClass}">
     <g:if test="${isHorizontal}">
@@ -289,8 +289,8 @@
                 <p class="muted"><small>Cancel this dialog to edit your area.</small></p>
             </div>
             <div class="modal-footer">
-        <button type="button" class="btn btn-dark" data-bind="click: cancel"><i class="far fa-times-circle"></i> Cancel</button>
-        <button type="button" class="btn btn-primary-dark" data-bind="click: add, enable: nameStatus() == 'ok' "><i class="fa fa-hdd"></i> Save</button>
+        <button type="button" class="btn btn-dark" data-bind="click: cancel"><i class="far fa-times-circle"></i> <g:message code='g.cancel'/></button>
+        <button type="button" class="btn btn-primary-dark" data-bind="click: add, enable: nameStatus() == 'ok' "><i class="fa fa-hdd"></i> <g:message code='g.save'/></button>
     </div>
         </div>
     </div>
@@ -301,13 +301,14 @@
 <div data-bind="visible: transients.hideSiteSelection">
     <div>
         <g:set var="textOnSiteLocation" value="Create or select a location"/>
-        <g:set var="textOnSiteLocation" value="Select a location"/>
+        <%-- The below was a repetition of the default dropdown text "Select" --%>
+        <g:set var="textOnSiteLocation" value="${message(code:'g.select')}"/>
 
         <div class="form-group row">
             <div class="col-sm-12">
                 <div class="row">
                     <span class="col-sm-4 preLabel">
-                        <label>${readonly ? 'Location:' : "${textOnSiteLocation}"}</label>
+                        <label>Lokal</label>
                     </span>
                     <div class="col-sm-8">
                         <g:if test="${readonly}">

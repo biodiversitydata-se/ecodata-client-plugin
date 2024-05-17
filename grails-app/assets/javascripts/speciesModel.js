@@ -81,7 +81,7 @@ var speciesFormatters = function() {
 
         if (!species) return '';
 
-        var result = $("<div class='species-result'/>");;
+        var result = $("<div class='species-result'/>");
         if (config.showImages) {
             result.append(image(species, config));
         }
@@ -267,6 +267,16 @@ var SpeciesViewModel = function(data, options, context) {
     self.transients.speciesSearchUrl = options.speciesSearchUrl + '&' + params.join('&');
 
     self.speciesSelected = function(event, data) {
+        // add rank column to the table - the column has to be called "swedishRank"
+        var speciesField = event.target;
+        var rankField = speciesField.closest('td').nextElementSibling.firstElementChild;
+        if (rankField.getAttribute("data-bind") == "value:swedishRank"){
+            rankField.value = data.swedishRank;
+            rankField.innerText = data.swedishRank;
+            // simulate change event on the input field so that knockout picks up the change
+            var changeEvent = new Event('change');
+            rankField.dispatchEvent(changeEvent);
+        }
         self.loadData(data);
         self.transients.editing(!data.name);
     };
