@@ -44,7 +44,7 @@ ecodata.forms["${raw(outputNameAsIdentifer + 'ViewModel')}"] = function (output,
     };
 
     self.reloadGeodata = function() {
-        console.log('Reloading geo fields')
+        //console.log('Reloading geo fields')
         // load dynamic data
         <md:jsReloadGeoModel model="${model}" output="${outputName}"/>
     }

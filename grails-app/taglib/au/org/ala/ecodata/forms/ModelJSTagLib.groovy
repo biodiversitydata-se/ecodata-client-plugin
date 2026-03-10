@@ -750,7 +750,8 @@ class ModelJSTagLib {
 
         // If there are no default rows, insert a single blank row and make it available for editing.
         if (attrs.edit && model.defaultRows == null) {
-            insertDefaultModel = "${ctx.propertyPath}.${model.name}.addRow();"
+            // modif LU : don't add empty rows as default => comment addRow line below
+            // insertDefaultModel = "${ctx.propertyPath}.${model.name}.addRow();"
         }
 
         out << """var context = _.extend({}, context, {parent:self, listName:'${model.name}'});"""
