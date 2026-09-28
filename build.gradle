@@ -7,8 +7,9 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.15.1"
-        classpath 'com.bmuschko:gradle-clover-plugin:2.2.4'
+        //classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.15.1" // remove for upgrade grails 5
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.4.7" // for grails 5
+        //classpath 'com.bmuschko:gradle-clover-plugin:2.2.4' // remove for grails 5
     }
 }
 
@@ -18,10 +19,10 @@ group "org.grails.plugins"
 apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"org.grails.grails-plugin"
-apply plugin:"org.grails.grails-plugin-publish"
+//apply plugin:"org.grails.grails-plugin-publish"
 apply plugin:"asset-pipeline"
 apply plugin:"org.grails.grails-gsp"
-apply from: "${project.projectDir}/gradle/clover.gradle"
+//apply from: "${project.projectDir}/gradle/clover.gradle"  // remove for grails 5
 
 repositories {
     mavenLocal()
@@ -31,51 +32,56 @@ repositories {
 
 boolean inplace = true
 
-dependencies {
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
-    compile "org.grails:grails-web-boot"
-    compile "org.grails:grails-logging"
-    compile "org.grails:grails-plugin-rest"
-    compile "org.grails:grails-plugin-databinding"
-    compile "org.grails:grails-plugin-i18n"
-    compile "org.grails:grails-plugin-services"
-    compile "org.grails:grails-plugin-url-mappings"
-    compile "org.grails:grails-plugin-interceptors"
-    compile "org.grails.plugins:cache"
-    compile "org.grails.plugins:async"
-    compile "org.grails.plugins:scaffolding"
-    compile "org.grails.plugins:gsp"
-    compile 'commons-io:commons-io:2.6'
-    compile "org.openclover:clover:4.3.1"
+dependencies { // rewritten for grails 5
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.grails:grails-core"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "org.grails:grails-web-boot"
+    implementation "org.grails:grails-logging"
+    implementation "org.grails:grails-plugin-rest"
+    implementation "org.grails:grails-plugin-databinding"
+    implementation "org.grails:grails-plugin-i18n"
+    implementation "org.grails:grails-plugin-services"
+    implementation "org.grails:grails-plugin-url-mappings"
+    implementation "org.grails:grails-plugin-interceptors"
+    implementation "org.grails.plugins:cache"
+    implementation "org.grails.plugins:async"
+    implementation "org.grails.plugins:scaffolding"
+    implementation "org.grails.plugins:gsp"
+    implementation 'commons-io:commons-io:2.6'
+    implementation "org.openclover:clover:4.3.1"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web-plugin"
-    provided "org.grails:grails-plugin-services"
-    provided "org.grails:grails-plugin-domain-class"
-    compile "com.bertramlabs.plugins:asset-pipeline-grails:2.15.1"
-    testCompile "org.grails:grails-gorm-testing-support"
-    testCompile "org.grails:grails-plugin-testing"
-    testCompile "org.grails:grails-web-testing-support"
-    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+    compileOnly "org.grails:grails-plugin-services"
+    compileOnly "org.grails:grails-plugin-domain-class"
+    //compile "com.bertramlabs.plugins:asset-pipeline-grails:2.15.1" // remove for grails 5
+    //runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.4.7" // for grails 5
+    implementation "com.bertramlabs.plugins:asset-pipeline-grails:3.4.7" // for grails 5
+    implementation "com.bertramlabs.plugins:asset-pipeline-core:3.4.7" // for grails 5
 
-    testCompile 'com.codeborne:phantomjsdriver:1.3.0'
+    testImplementation "org.grails:grails-gorm-testing-support"
+    //testImplementation "org.grails:grails-plugin-testing" // remove for grails 5
+    testImplementation "org.grails:grails-web-testing-support"
 
-    testCompile "org.grails.plugins:geb"
+    testRuntimeOnly "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
+    testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:2.18"
 
-    testCompile "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-    testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    testImplementation 'com.codeborne:phantomjsdriver:1.3.0'
+
+    testImplementation "org.grails.plugins:geb"
+
+    testImplementation "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
 //  testRuntime "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
 
-    testCompile "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
-    testCompile "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
-    testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 
     if (!inplace) {
-        compile ("org.grails.plugins:ala-map-plugin:3.0") {
+        implementation ("org.grails.plugins:ala-map-plugin:3.0") {
             exclude group: 'com.bertramlabs.plugins', module: 'asset-pipeline-grails'
         }
     }
@@ -93,18 +99,22 @@ tasks.withType(Test) {
 
 bootRun {
     jvmArgs('-Dspring.output.ansi.enabled=always')
-    addResources = true
+    // addResources = true // remove for grails 5
     String springProfilesActive = 'spring.profiles.active'
     systemProperty springProfilesActive, System.getProperty(springProfilesActive)
 }
 // enable if you wish to package this plugin as a standalone application
-bootRepackage.enabled = false
+//bootRepackage.enabled = false // remove for grails 5
 
 assets {
     packagePlugin = true
+
+    excludes = [ // for grails 5 to work
+        'regex:.*hintrc.*\\.js'
+    ]    
 }
 
-
+/* remove for grials 5
 publishing {
     repositories {
         maven {
@@ -136,12 +146,13 @@ publishing {
         }
     }
 }
+*/
 
 if (inplace) {
     grails {
         exploded = true
         plugins {
-            compile (project(':ala-map-plugin'))
+            implementation (project(':ala-map-plugin'))
         }
     }
 }

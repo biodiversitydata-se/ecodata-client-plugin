@@ -577,7 +577,8 @@ class ModelJSTagLib {
             extenderJS += ".extend({writableComputed:{expression:'${expression}', context:${ctx.propertyPath}, decimalPlaces:${decimalPlaces}}})"
         }
         if (requiresMetadataExtender(ctx.dataModel)) {
-            extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:self.\$context, config:config}}")
+            // extenders.push("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:self.\$context, config:config}}") // change for grails 5
+            extenders.add("{metadata:{metadata:self.dataModel['${ctx.fieldName()}'], context:self.\$context, config:config}}") // for grails5
         }
 
         extenders.each {
