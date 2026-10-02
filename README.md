@@ -1,5 +1,10 @@
 
-## Ecodata Client Plugin
+# Ecodata Client Plugin
+
+## LU-Systematic Monitoring version
+
+2026-01-10. Own upgrade to java11 and grails 5. Can't merge anymore with ALA's version.
+Rest of readme is the original ALA's version
 
 ### [![Build Status](https://travis-ci.org/AtlasOfLivingAustralia/.svg?branch=master)](https://travis-ci.org/AtlasOfLivingAustralia/ecodata-client-plugin)
 

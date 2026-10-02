@@ -1,7 +1,63 @@
 # lusm_upgrade_grails5.md
 
+sdk install grails 5.2.5
+sdk install java 11.0.30-tem
 
 
+sudo mkdir -p /opt/java-11.0.30-tem
+sudo cp -a /home/ubuntu/.sdkman/candidates/java/11.0.30-tem/. /opt/java-11.0.30-tem/
+sudo chown -R root:root /opt/java-11.0.30-tem
+
+sudo -u tomcat /opt/java-11.0.30-tem/bin/java -version
+
+sudo nano /etc/systemd/system/tomcat9.service.d/zzz-java11.conf
+and paste in the file :
+[Service]
+Environment="JAVA_HOME=/opt/java-11.0.30-tem"
+
+sudo systemctl daemon-reload
+sudo systemctl restart tomcat9
+
+
+ON PROD BEFORE git pull:
+ubuntu@live-biocollect-1:~/ecodata-client-plugin$ git diff
+diff --git a/build.gradle b/build.gradle
+index 263e447..80fb66e 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -8,7 +8,7 @@ buildscript {
+     dependencies {
+         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.15.1"
+-        classpath 'com.bmuschko:gradle-clover-plugin:2.2.4'
++        classpath 'com.bmuschko:gradle-clover-plugin:2.2.0'
+     }
+ }
+ 
+diff --git a/gradle/clover.gradle b/gradle/clover.gradle
+index 058bc67..551415d 100644
+--- a/gradle/clover.gradle
++++ b/gradle/clover.gradle
+@@ -3,7 +3,7 @@ buildscript {
+         jcenter()
+     }
+     dependencies {
+-        classpath 'com.bmuschko:gradle-clover-plugin:2.2.4'
++        classpath 'com.bmuschko:gradle-clover-plugin:2.2.0'
+     }
+ }
+ 
+@@ -34,4 +34,4 @@ clover {
+ 
+         targetPercentage = 60
+     }
+-}
+\ No newline at end of file
++}
+
+
+
+commands to upgrade
 
 2123  git checkout -b upgrade-grails-5-java11
  2124  git branch --show-current
@@ -57,3 +113,9 @@
  2174  ./gradlew clean assemble --stacktrace
  2175  unzip -p build/libs/*-plain.jar META-INF/grails-plugin.xml
  2176  history
+
+
+
+ON PROD :
+./gradlew clean assemble --stacktrace
+./gradlew test --stacktrace
