@@ -882,7 +882,26 @@ function orEmptyArray(v) {
             self.push(newItem);
             $("td > input").click(function(){$("[data-bind='" + this.getAttribute("data-bind") + "']").css("background" , "#ffa")});
             $("td > input").blur(function(){$("[data-bind='" + this.getAttribute("data-bind") + "']").css("background" , "white")});
-            self.sortBySpeciesRank();          
+            self.sortBySpeciesRank();   
+
+            // Focus the species field when the user clicks "Lägg till art".
+            if (event && event.type === "click") {    
+                setTimeout(function () {
+                    var table = document.querySelector("table." + self.listName);
+
+                    if (!table) {
+                        return;
+                    }
+
+                    var speciesInputs = table.querySelectorAll(
+                        "input.ui-autocomplete-input"
+                    );
+
+                    if (speciesInputs.length > 0) {
+                        speciesInputs[speciesInputs.length - 1].focus();
+                    }
+                }, 100);
+            }   
         };
         self.newItem = function (data, index) {
             var itemDataModel = _.indexBy(dataModel[listName].columns, 'name');
