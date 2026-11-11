@@ -34,8 +34,8 @@ ecodata.forms["${raw(outputNameAsIdentifer + 'ViewModel')}"] = function (output,
     <md:jsModelObjects model="${model}" site="${site}" edit="${edit}" printable="${printable?:''}" output="${outputName}"/>
     ecodata.forms.OutputModel.apply(self, [output, dataModel, context, config]);
 
-    // add declarations for dynamic data
-    <md:jsViewModel model="${model}"  output="${outputName}"  edit="${edit}" printable="${printable?:''}" readonly="${readonly}" surveyName="${surveyName}"/>
+    // add declarations for dynamic data with recordedBy (20261111)
+    <md:jsViewModel model="${model}"  output="${outputName}"  edit="${edit}" printable="${printable?:''}" readonly="${readonly}" surveyName="${surveyName}" recordedBy="${recordedBy}"/>
 
     // this will be called when generating a savable model to remove transient properties
     self.removeBeforeSave = function (jsData) {

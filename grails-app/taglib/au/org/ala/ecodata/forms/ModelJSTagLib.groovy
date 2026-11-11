@@ -229,7 +229,9 @@ class ModelJSTagLib {
         if (model.defaultValue instanceof Map && model.defaultValue.expression) {
             return 'undefined'
         }
-        def defaultValue = modelService.evaluateDefaultDataForDataModel(model)
+        
+        // modification : send the  ctx.attrs to get the recordedBy data  (20261111)
+        def defaultValue = modelService.evaluateDefaultDataForDataModel(model, ctx.attrs)
         if (defaultValue != null) {
             // An empty string will be rendered as nothing in JS which will cause script errors.
             return defaultValue  == "" ? 'undefined' : defaultValue

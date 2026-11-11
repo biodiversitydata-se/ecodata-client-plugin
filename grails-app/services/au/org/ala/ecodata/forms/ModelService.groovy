@@ -42,7 +42,7 @@ class ModelService {
         return value?.isNumber()
     }
 
-    def evaluateDefaultDataForDataModel(Map dataModel) {
+    def evaluateDefaultDataForDataModel(Map dataModel, Map attrs = [:]) {
         def value = dataModel.defaultValue
         switch (dataModel.dataType) {
             case 'text':
@@ -52,8 +52,16 @@ class ModelService {
                         value = JavaScriptCodec.ENCODER.encode(dataModel.constraints[index])
                         value = "'${value}'"
                     }
-                } else if(dataModel.name == 'recordedBy' && !value) {
-                    value = "'${userInfoService.getCurrentUser()?.displayName?:''}'"
+                } else if (dataModel.name == 'recordedBy' && !value) {
+
+                    // when the person name is obtained from the recordedBy field  (20261111)
+                    if (attrs?.recordedBy) {
+                        value = JavaScriptCodec.ENCODER.encode(attrs.recordedBy)
+                    } else {
+                        value = JavaScriptCodec.ENCODER.encode(userInfoService.getCurrentUser()?.displayName ?: '')
+                    }
+
+                    value = "'${value}'"
                 }
                 else if (value) {
                     value = JavaScriptCodec.ENCODER.encode(value)
